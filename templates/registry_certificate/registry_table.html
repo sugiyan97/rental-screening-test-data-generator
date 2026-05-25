@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
+
+@page {
+  size: A4;
+  margin: 15mm 20mm;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif;
+}
+
+body {
+  font-size: 9.5pt;
+  line-height: 1.6;
+  color: #111;
+  margin: 0;
+}
+
+h1 {
+  font-size: 14pt;
+  text-align: center;
+  margin: 0 0 4px;
+  letter-spacing: 0.15em;
+}
+
+.cert-subtitle {
+  text-align: center;
+  font-size: 9pt;
+  color: #444;
+  margin-bottom: 10px;
+}
+
+.sample-notice {
+  background: #fff3cd;
+  border: 2px solid #e6a817;
+  padding: 4px 12px;
+  margin-bottom: 12px;
+  font-size: 8.5pt;
+  font-weight: bold;
+  text-align: center;
+  color: #856404;
+}
+
+.section-header {
+  background-color: #d0d0d0;
+  font-weight: bold;
+  font-size: 9.5pt;
+  padding: 3px 8px;
+  border: 1px solid #555;
+  border-bottom: none;
+}
+
+table.registry {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 9pt;
+  margin-bottom: 12px;
+}
+
+table.registry th,
+table.registry td {
+  border: 1px solid #555;
+  padding: 3px 8px;
+  vertical-align: top;
+}
+
+table.registry th {
+  background-color: #efefef;
+  font-weight: 700;
+  width: 28%;
+  white-space: nowrap;
+}
+
+table.registry td.cause {
+  width: 20%;
+  color: #333;
+  font-size: 8.5pt;
+}
+
+table.registry td.date {
+  width: 20%;
+  font-size: 8.5pt;
+}
+
+table.registry td.content {
+  width: 32%;
+}
+
+.history-label {
+  font-size: 8pt;
+  color: #555;
+  font-style: italic;
+}
+
+.issue-info {
+  font-size: 8.5pt;
+  text-align: right;
+  margin-top: 10px;
+  color: #444;
+  border-top: 1px solid #ccc;
+  padding-top: 6px;
+}
+
+.footer-note {
+  font-size: 8pt;
+  color: #666;
+  border-top: 1px solid #ccc;
+  padding-top: 5px;
+  margin-top: 8px;
+}
+</style>
+</head>
+<body>
+<div class="sample-notice">【テスト用サンプル書類 ― 実在の法人情報ではありません / 登記事項証明書ではありません】</div>
+<h1>登 記 事 項 証 明 書（商業登記）</h1>
+<p class="cert-subtitle">テスト用サンプル ＊ 本書類はOCR・AI抽出システムの検証用です ＊</p>
+
+<!-- 会社法人等番号・商号・本店 -->
+<div class="section-header">■ 会社法人等番号・商号・本店に関する事項</div>
+<table class="registry">
+  <tr>
+    <th>会社法人等番号</th>
+    <td colspan="3">{{ case.company.corporate_number or '' }}</td>
+  </tr>
+  <tr>
+    <th>商号</th>
+    <td class="content">{{ case.company.company_name or '' }}</td>
+    <td class="cause">原因</td>
+    <td class="date">{{ case.company.established_date or '' }}登記</td>
+  </tr>
+  <tr>
+    <th>本店</th>
+    <td class="content">{{ case.company.head_office_address or '' }}</td>
+    <td class="cause">原因</td>
+    <td class="date">{{ case.company.established_date or '' }}移転</td>
+  </tr>
+  <tr>
+    <th>公告をする方法</th>
+    <td colspan="3">官報に掲載する方法による。</td>
+  </tr>
+  <tr>
+    <th>会社成立年月日</th>
+    <td colspan="3">{{ case.company.established_date or '' }}</td>
+  </tr>
+</table>
+
+<!-- 目的・資本金等 -->
+<div class="section-header">■ 目的・資本金等に関する事項</div>
+<table class="registry">
+  <tr>
+    <th>目的</th>
+    <td colspan="3">{{ case.company.business_description or '' }}</td>
+  </tr>
+  <tr>
+    <th>資本金の額</th>
+    <td class="content">{{ case.company.capital or '' }}</td>
+    <td class="cause">原因</td>
+    <td class="date">{{ case.company.established_date or '' }}設立</td>
+  </tr>
+  <tr>
+    <th>発行可能株式総数</th>
+    <td colspan="3">10,000株</td>
+  </tr>
+  <tr>
+    <th>発行済株式の総数<br>並びに種類及び数</th>
+    <td colspan="3">発行済株式の総数　1,000株<br>普通株式　1,000株</td>
+  </tr>
+  <tr>
+    <th>株券を発行する旨の定め</th>
+    <td colspan="3">当会社の株式については株券を発行しない。</td>
+  </tr>
+</table>
+
+<!-- 役員に関する事項 -->
+<div class="section-header">■ 役員に関する事項</div>
+<table class="registry">
+  <tr>
+    <th>資格</th>
+    <td class="content">代表取締役</td>
+    <td class="cause">原因</td>
+    <td class="date">{{ case.company.established_date or '' }}就任</td>
+  </tr>
+  <tr>
+    <th>氏名</th>
+    <td colspan="3">{{ case.company.representative_name or '' }}</td>
+  </tr>
+  <tr>
+    <th>住所</th>
+    <td colspan="3">{{ case.company.representative_address or '' }}</td>
+  </tr>
+  <tr>
+    <th>任期満了年月日</th>
+    <td colspan="3">就任後2年以内に終了する事業年度のうち最終のものに関する定時株主総会終結時</td>
+  </tr>
+</table>
+
+<!-- 解散等に関する事項 -->
+<div class="section-header">■ 登記記録に関する事項</div>
+<table class="registry">
+  <tr>
+    <th>設立</th>
+    <td colspan="3">{{ case.company.established_date or '' }}　　{{ case.company.company_name or '' }}設立</td>
+  </tr>
+</table>
+
+<p class="issue-info">
+  証明書発行日：&emsp;&emsp;&emsp;&emsp;年&emsp;&emsp;月&emsp;&emsp;日<br>
+  法務局：サンプル地方法務局（テスト用）&emsp;&emsp;整理番号：SMPL-99999
+</p>
+<p class="footer-note">
+  ※ 本書類はOCR・LLM・Document AIシステムの検証を目的として作成されたサンプルです。
+  実在する法人の登記情報ではありません。公的書類として使用することはできません。
+</p>
+</body>
+</html>

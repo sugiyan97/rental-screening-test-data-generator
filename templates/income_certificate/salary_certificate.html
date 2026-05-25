@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
+
+@page {
+  size: A4;
+  margin: 15mm 20mm;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif;
+}
+
+body {
+  font-size: 10pt;
+  line-height: 1.6;
+  color: #222;
+  margin: 0;
+}
+
+h1 {
+  font-size: 15pt;
+  text-align: center;
+  margin: 0 0 6px;
+  letter-spacing: 0.1em;
+}
+
+.cert-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 8.5pt;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+.sample-notice {
+  background: #fff3cd;
+  border: 2px solid #ffc107;
+  padding: 4px 12px;
+  margin-bottom: 12px;
+  font-size: 8.5pt;
+  font-weight: bold;
+  text-align: center;
+  color: #856404;
+}
+
+h2 {
+  font-size: 10.5pt;
+  margin: 12px 0 5px;
+  background: #eee;
+  padding: 3px 8px;
+  border-left: 4px solid #555;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 9.5pt;
+  margin-bottom: 10px;
+}
+
+th, td {
+  border: 1px solid #666;
+  padding: 4px 9px;
+  vertical-align: middle;
+}
+
+th {
+  background-color: #f5f5f5;
+  font-weight: 700;
+  width: 36%;
+}
+
+.income-highlight {
+  font-size: 12pt;
+  font-weight: bold;
+  color: #1a3c6e;
+}
+
+.breakdown-table th {
+  width: 50%;
+}
+
+.breakdown-table td {
+  text-align: right;
+}
+
+.subtotal-row th, .subtotal-row td {
+  background: #f0f4fa;
+  font-weight: bold;
+}
+
+.issuer-section {
+  margin-top: 18px;
+  border: 1px solid #999;
+  padding: 10px 14px;
+  background: #fafafa;
+}
+
+.issuer-section h3 {
+  font-size: 10pt;
+  margin: 0 0 6px;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 4px;
+}
+
+.issuer-inner {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.issuer-table-wrap {
+  flex: 1;
+}
+
+.issuer-table {
+  font-size: 9pt;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.issuer-table td {
+  border: none;
+  padding: 2px 6px;
+  vertical-align: middle;
+}
+
+.issuer-table td:first-child {
+  font-weight: bold;
+  width: 32%;
+}
+
+.stamp-area {
+  border: 1px solid #888;
+  width: 58px;
+  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8pt;
+  color: #888;
+  flex-shrink: 0;
+}
+
+.validity-note {
+  font-size: 8.5pt;
+  color: #555;
+  border: 1px dashed #aaa;
+  padding: 4px 10px;
+  margin-bottom: 10px;
+  background: #f9f9ff;
+}
+
+.footer-note {
+  font-size: 8pt;
+  color: #666;
+  border-top: 1px solid #ccc;
+  padding-top: 6px;
+  margin-top: 12px;
+}
+</style>
+</head>
+<body>
+<div class="sample-notice">【テスト用サンプル書類 ― 実在の個人情報ではありません / 公的収入証明書ではありません】</div>
+<h1>在職証明書 兼 年収証明書（サンプル）</h1>
+
+<div class="cert-meta">
+  <span>証明書ID：{{ case.case_id }}-INC</span>
+  <span>発行日：{{ case.income.issue_date or '' }}</span>
+  <span>{% if case.income.certificate_expiry %}有効期限：{{ case.income.certificate_expiry }}{% else %}有効期限：発行日より3ヶ月{% endif %}</span>
+</div>
+
+<div class="validity-note">
+  ※ 本証明書の有効期間は発行日より3ヶ月です。有効期間を過ぎた場合は再発行を申請してください。
+</div>
+
+<h2>■ 証明対象者</h2>
+<table>
+  <tr>
+    <th>氏名</th>
+    <td>{{ case.applicant.name or '' }}</td>
+  </tr>
+  <tr>
+    <th>住所</th>
+    <td>{{ case.applicant.current_address or '' }}</td>
+  </tr>
+  <tr>
+    <th>雇用形態</th>
+    <td>{{ case.income.income_type or '' }}</td>
+  </tr>
+  <tr>
+    <th>在籍部署・役職</th>
+    <td>{{ case.employment.department or '' }}　{{ case.employment.job_title or '' }}</td>
+  </tr>
+  <tr>
+    <th>勤続年数</th>
+    <td>{{ case.employment.years_employed or '' }}</td>
+  </tr>
+  <tr>
+    <th>対象年度</th>
+    <td>{{ case.income.income_year or '' }}</td>
+  </tr>
+</table>
+
+<h2>■ 収入内容（年間合計）</h2>
+<table>
+  <tr>
+    <th>年収合計（税込）</th>
+    <td><span class="income-highlight">{{ case.income.annual_income or '' }}</span></td>
+  </tr>
+  <tr>
+    <th>月収換算（税込）</th>
+    <td>{{ case.income.monthly_income or '' }}</td>
+  </tr>
+</table>
+
+<h2>■ 給与内訳（月額標準）</h2>
+<table class="breakdown-table">
+  <tr>
+    <th>基本給</th>
+    <td>{{ case.income.base_salary or '' }}</td>
+  </tr>
+  <tr>
+    <th>時間外手当（残業手当）</th>
+    <td>{{ case.income.overtime_allowance or '' }}</td>
+  </tr>
+  <tr>
+    <th>通勤手当</th>
+    <td>{{ case.income.commuting_allowance or '' }}</td>
+  </tr>
+  <tr>
+    <th>賞与（年間）</th>
+    <td>{{ case.income.bonus or '' }}</td>
+  </tr>
+  <tr class="subtotal-row">
+    <th>月収合計（基本給＋諸手当）</th>
+    <td>{{ case.income.monthly_income or '' }}</td>
+  </tr>
+</table>
+
+<div class="issuer-section">
+  <h3>発行者情報</h3>
+  <div class="issuer-inner">
+    <div class="issuer-table-wrap">
+      <table class="issuer-table">
+        <tr>
+          <td>発行者名</td>
+          <td>{{ case.income.issuer_name or '' }}</td>
+        </tr>
+        <tr>
+          <td>担当部署</td>
+          <td>人事部 給与管理課</td>
+        </tr>
+        <tr>
+          <td>電話番号</td>
+          <td>{{ case.employment.employer_phone or '' }}</td>
+        </tr>
+        <tr>
+          <td>所在地</td>
+          <td>{{ case.employment.employer_address or '' }}</td>
+        </tr>
+        <tr>
+          <td>担当者署名</td>
+          <td>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;</td>
+        </tr>
+      </table>
+    </div>
+    <div class="stamp-area">発行印</div>
+  </div>
+</div>
+
+<p class="footer-note">
+  ※ 本書類はOCR・LLM・Document AIシステムの検証を目的として作成されたテスト用サンプルです。
+  実在する個人の収入情報ではありません。公的証明書として使用することはできません。
+</p>
+</body>
+</html>

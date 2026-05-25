@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# uv / venv
+.venv/
+*.egg-info/
+dist/
+build/
+
+# pytest / ruff キャッシュ
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# 生成物（.gitkeep だけ残す）
+output/CASE-*/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# memory（ローカル専用）
+memory/

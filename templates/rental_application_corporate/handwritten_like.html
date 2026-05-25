@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Klee+One&display=swap');
+
+@page {
+  size: A4;
+  margin: 12mm 18mm;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif;
+}
+
+body {
+  font-size: 9.5pt;
+  line-height: 1.5;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+h1 {
+  font-size: 14pt;
+  text-align: center;
+  margin: 0 0 8px;
+  border-bottom: 2px solid #333;
+  padding-bottom: 5px;
+  letter-spacing: 0.12em;
+}
+
+h2 {
+  font-size: 9.5pt;
+  margin: 10px 0 4px;
+  background: #e8e8e8;
+  padding: 2px 8px;
+  border-left: 4px solid #444;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 8px;
+  font-size: 9pt;
+}
+
+th, td {
+  border: 1px solid #666;
+  padding: 3px 7px;
+  vertical-align: middle;
+}
+
+th {
+  background-color: #f2f2f2;
+  font-weight: 700;
+  white-space: nowrap;
+  width: 26%;
+}
+
+/* 手書き風：フィールド値のフォントを Klee One に */
+.hw {
+  font-family: 'Klee One', 'Hiragino Maru Gothic Pro', 'Yu Mincho', cursive;
+  font-size: 10pt;
+  color: #1a237e;
+}
+
+.sample-notice {
+  background: #fff3cd;
+  border: 2px solid #ffc107;
+  padding: 3px 10px;
+  margin-bottom: 8px;
+  font-size: 8pt;
+  font-weight: bold;
+  text-align: center;
+  color: #856404;
+}
+
+.meta-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 8.5pt;
+  margin-bottom: 6px;
+}
+
+.check-items {
+  font-size: 9pt;
+  margin: 0 0 8px;
+  line-height: 1.8;
+}
+
+.check-items p {
+  margin: 2px 0;
+}
+
+.sign-area {
+  display: flex;
+  gap: 16px;
+  margin-top: 10px;
+}
+
+.sign-box {
+  border: 1px solid #666;
+  height: 52px;
+  flex: 1;
+  padding: 3px 7px;
+  font-size: 8.5pt;
+}
+
+.sign-box .label {
+  font-weight: bold;
+  display: block;
+  margin-bottom: 2px;
+  font-size: 8pt;
+}
+
+.stamp-box {
+  border: 1px solid #666;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8pt;
+  color: #888;
+  flex-shrink: 0;
+}
+
+.antisocial-box {
+  border: 1px solid #c00;
+  padding: 5px 10px;
+  margin-bottom: 8px;
+  font-size: 8.5pt;
+  background: #fff8f8;
+}
+
+.antisocial-box p {
+  margin: 2px 0;
+}
+
+.hw-sign {
+  font-family: 'Klee One', cursive;
+  font-size: 11pt;
+  color: #1a237e;
+}
+</style>
+</head>
+<body>
+<div class="sample-notice">【テスト用サンプル書類 ― 実在の法人情報ではありません / 手書き風バリアント】</div>
+<h1>法 人 入 居 申 込 書</h1>
+
+<div class="meta-row">
+  <span>申込ID：{{ case.case_id }}</span>
+  <span>申込日：&emsp;&emsp;&emsp;年&emsp;&emsp;月&emsp;&emsp;日</span>
+  <span>受付番号：</span>
+</div>
+
+<h2>■ 申込物件情報</h2>
+<table>
+  <tr>
+    <th>物件名</th>
+    <td><span class="hw">{{ case.property.property_name or '' }}</span></td>
+    <th>号室</th>
+    <td><span class="hw">{{ case.property.room_number or '' }}</span></td>
+  </tr>
+  <tr>
+    <th>物件所在地</th>
+    <td colspan="3"><span class="hw">{{ case.property.property_address or '' }}</span></td>
+  </tr>
+  <tr>
+    <th>賃料（月額）</th>
+    <td><span class="hw">{{ case.property.rent or '' }}</span></td>
+    <th>管理費・共益費</th>
+    <td><span class="hw">{{ case.property.management_fee or '' }}</span></td>
+  </tr>
+  <tr>
+    <th>入居希望日</th>
+    <td><span class="hw">{{ case.property.desired_move_in_date or '' }}</span></td>
+    <th>利用目的</th>
+    <td><span class="hw">{{ case.property.usage_purpose or '' }}</span></td>
+  </tr>
+</table>
+
+<h2>■ 申込法人情報</h2>
+<table>
+  <tr>
+    <th>会社名</th>
+    <td colspan="3"><span class="hw">{{ case.company.company_name or '' }}</span></td>
+  </tr>
+  <tr>
+    <th>会社名フリガナ</th>
+    <td colspan="3"><span class="hw">{{ case.company.company_kana or '' }}</span></td>
+  </tr>
+  <tr>
+    <th>法人番号</th>
+    <td><span class="hw">{{ case.company.corporate_number or '' }}</span></td>
+    <th>設立年月日</th>
+    <td><span class="hw">{{ case.company.established_date or '' }}</span></td>
+  </tr>
+  <tr>
+    <th>本店所在地</th>
+    <td colspan="3"><span class="hw">{{ case.company.head_office_address or '' }}</span></td>
+  </tr>
+  <tr>
+    <th>代表電話番号</th>
+    <td><span class="hw">{{ case.company.phone or '' }}</span></td>
+    <th>メールアドレス</th>
+    <td><span class="hw">{{ case.company.email or '' }}</span></td>
+  </tr>
+  <tr>
+    <th>資本金</th>
+    <td><span class="hw">{{ case.company.capital or '' }}</span></td>
+    <th>従業員数</th>
+    <td><span class="hw">{{ case.company.employee_count or '' }}</span></td>
+  </tr>
+  <tr>
+    <th>事業内容</th>
+    <td colspan="3"><span class="hw">{{ case.company.business_description or '' }}</span></td>
+  </tr>
+</table>
+
+<h2>■ 代表者情報</h2>
+<table>
+  <tr>
+    <th>代表者氏名</th>
+    <td><span class="hw">{{ case.company.representative_name or '' }}</span></td>
+    <th>代表者生年月日</th>
+    <td><span class="hw">{{ case.company.representative_birth_date or '' }}</span></td>
+  </tr>
+  <tr>
+    <th>代表者住所</th>
+    <td colspan="3"><span class="hw">{{ case.company.representative_address or '' }}</span></td>
+  </tr>
+</table>
+
+<h2>■ 担当者情報（申込窓口）</h2>
+<table>
+  <tr>
+    <th>担当者氏名</th>
+    <td><span class="hw"></span></td>
+    <th>部署・役職</th>
+    <td><span class="hw"></span></td>
+  </tr>
+  <tr>
+    <th>直通電話番号</th>
+    <td><span class="hw"></span></td>
+    <th>担当者メール</th>
+    <td><span class="hw"></span></td>
+  </tr>
+</table>
+
+<h2>■ 反社会的勢力排除に関する確認</h2>
+<div class="antisocial-box">
+  <p>□ 暴力団・暴力団員・準構成員・暴力団関係企業等に該当しないことを確認します。</p>
+  <p>□ 上記内容に虚偽が判明した場合、契約の即時解除に応じます。</p>
+</div>
+
+<h2>■ 確認・同意事項</h2>
+<div class="check-items">
+  <p>□ 賃貸借契約の内容を十分に理解し、契約条件に同意します。</p>
+  <p>□ 保証会社の審査・利用に同意します。</p>
+  <p>□ 個人情報の取扱いに関する同意書の内容に同意します。</p>
+</div>
+
+<h2>■ 代表者署名・捺印</h2>
+<div class="sign-area">
+  <div class="sign-box" style="flex:2">
+    <span class="label">代表者署名（自署）</span>
+    <span class="hw-sign">{{ case.company.representative_name or '' }}</span>
+  </div>
+  <div class="stamp-box">代表印</div>
+</div>
+</body>
+</html>
