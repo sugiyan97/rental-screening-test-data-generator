@@ -25,12 +25,13 @@ body {
 h1 {
   font-size: 15pt;
   text-align: center;
-  margin: 0 0 10px;
-  letter-spacing: 0.05em;
+  margin: 0 0 6px;
+  letter-spacing: 0.1em;
 }
 
-.cert-id-row {
-  text-align: right;
+.cert-meta {
+  display: flex;
+  justify-content: space-between;
   font-size: 8.5pt;
   color: #555;
   margin-bottom: 10px;
@@ -49,7 +50,7 @@ h1 {
 
 h2 {
   font-size: 10.5pt;
-  margin: 14px 0 6px;
+  margin: 12px 0 5px;
   background: #eee;
   padding: 3px 8px;
   border-left: 4px solid #555;
@@ -59,19 +60,19 @@ table {
   width: 100%;
   border-collapse: collapse;
   font-size: 9.5pt;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 th, td {
   border: 1px solid #666;
-  padding: 5px 10px;
+  padding: 4px 9px;
   vertical-align: middle;
 }
 
 th {
   background-color: #f5f5f5;
   font-weight: 700;
-  width: 35%;
+  width: 36%;
 }
 
 .income-highlight {
@@ -80,8 +81,21 @@ th {
   color: #1a3c6e;
 }
 
+.breakdown-table th {
+  width: 50%;
+}
+
+.breakdown-table td {
+  text-align: right;
+}
+
+.subtotal-row th, .subtotal-row td {
+  background: #f0f4fa;
+  font-weight: bold;
+}
+
 .issuer-section {
-  margin-top: 20px;
+  margin-top: 18px;
   border: 1px solid #999;
   padding: 10px 14px;
   background: #fafafa;
@@ -89,9 +103,19 @@ th {
 
 .issuer-section h3 {
   font-size: 10pt;
-  margin: 0 0 8px;
+  margin: 0 0 6px;
   border-bottom: 1px solid #ccc;
   padding-bottom: 4px;
+}
+
+.issuer-inner {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.issuer-table-wrap {
+  flex: 1;
 }
 
 .issuer-table {
@@ -108,20 +132,28 @@ th {
 
 .issuer-table td:first-child {
   font-weight: bold;
-  width: 30%;
+  width: 32%;
 }
 
 .stamp-area {
-  float: right;
   border: 1px solid #888;
-  width: 55px;
-  height: 55px;
+  width: 58px;
+  height: 58px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 8pt;
   color: #888;
-  margin-top: -60px;
+  flex-shrink: 0;
+}
+
+.validity-note {
+  font-size: 8.5pt;
+  color: #555;
+  border: 1px dashed #aaa;
+  padding: 4px 10px;
+  margin-bottom: 10px;
+  background: #f9f9ff;
 }
 
 .footer-note {
@@ -129,14 +161,23 @@ th {
   color: #666;
   border-top: 1px solid #ccc;
   padding-top: 6px;
-  margin-top: 14px;
+  margin-top: 12px;
 }
 </style>
 </head>
 <body>
-<div class="sample-notice">【テスト用サンプル書類 ― 実在の個人情報ではありません / 収入証明書ではありません】</div>
-<h1>年収証明書（サンプル）</h1>
-<p class="cert-id-row">証明書ID：{{ case.case_id }}-INC　　発行日：{{ case.income.issue_date or '' }}</p>
+<div class="sample-notice">【テスト用サンプル書類 ― 実在の個人情報ではありません / 公的収入証明書ではありません】</div>
+<h1>在職証明書 兼 年収証明書（サンプル）</h1>
+
+<div class="cert-meta">
+  <span>証明書ID：{{ case.case_id }}-INC</span>
+  <span>発行日：{{ case.income.issue_date or '' }}</span>
+  <span>{% if case.income.certificate_expiry %}有効期限：{{ case.income.certificate_expiry }}{% else %}有効期限：発行日より3ヶ月{% endif %}</span>
+</div>
+
+<div class="validity-note">
+  ※ 本証明書の有効期間は発行日より3ヶ月です。有効期間を過ぎた場合は再発行を申請してください。
+</div>
 
 <h2>■ 証明対象者</h2>
 <table>
@@ -149,56 +190,88 @@ th {
     <td>{{ case.applicant.current_address or '' }}</td>
   </tr>
   <tr>
-    <th>対象年度</th>
-    <td>{{ case.income.income_year or '' }}</td>
-  </tr>
-  <tr>
     <th>雇用形態</th>
     <td>{{ case.income.income_type or '' }}</td>
   </tr>
-</table>
-
-<h2>■ 収入内容</h2>
-<table>
   <tr>
-    <th>年収</th>
-    <td><span class="income-highlight">{{ case.income.annual_income or '' }}</span></td>
-  </tr>
-  <tr>
-    <th>月収（税込）</th>
-    <td>{{ case.income.monthly_income or '' }}</td>
+    <th>在籍部署・役職</th>
+    <td>{{ case.employment.department or '' }}　{{ case.employment.job_title or '' }}</td>
   </tr>
   <tr>
     <th>勤続年数</th>
     <td>{{ case.employment.years_employed or '' }}</td>
   </tr>
   <tr>
-    <th>勤務先</th>
-    <td>{{ case.employment.employer_name or '' }}</td>
+    <th>対象年度</th>
+    <td>{{ case.income.income_year or '' }}</td>
+  </tr>
+</table>
+
+<h2>■ 収入内容（年間合計）</h2>
+<table>
+  <tr>
+    <th>年収合計（税込）</th>
+    <td><span class="income-highlight">{{ case.income.annual_income or '' }}</span></td>
+  </tr>
+  <tr>
+    <th>月収換算（税込）</th>
+    <td>{{ case.income.monthly_income or '' }}</td>
+  </tr>
+</table>
+
+<h2>■ 給与内訳（月額標準）</h2>
+<table class="breakdown-table">
+  <tr>
+    <th>基本給</th>
+    <td>{{ case.income.base_salary or '' }}</td>
+  </tr>
+  <tr>
+    <th>時間外手当（残業手当）</th>
+    <td>{{ case.income.overtime_allowance or '' }}</td>
+  </tr>
+  <tr>
+    <th>通勤手当</th>
+    <td>{{ case.income.commuting_allowance or '' }}</td>
+  </tr>
+  <tr>
+    <th>賞与（年間）</th>
+    <td>{{ case.income.bonus or '' }}</td>
+  </tr>
+  <tr class="subtotal-row">
+    <th>月収合計（基本給＋諸手当）</th>
+    <td>{{ case.income.monthly_income or '' }}</td>
   </tr>
 </table>
 
 <div class="issuer-section">
   <h3>発行者情報</h3>
-  <div class="stamp-area">発行印</div>
-  <table class="issuer-table">
-    <tr>
-      <td>発行者名</td>
-      <td>{{ case.income.issuer_name or '' }}</td>
-    </tr>
-    <tr>
-      <td>担当部署</td>
-      <td>人事部・給与担当</td>
-    </tr>
-    <tr>
-      <td>電話番号</td>
-      <td>{{ case.employment.employer_phone or '' }}</td>
-    </tr>
-    <tr>
-      <td>所在地</td>
-      <td>{{ case.employment.employer_address or '' }}</td>
-    </tr>
-  </table>
+  <div class="issuer-inner">
+    <div class="issuer-table-wrap">
+      <table class="issuer-table">
+        <tr>
+          <td>発行者名</td>
+          <td>{{ case.income.issuer_name or '' }}</td>
+        </tr>
+        <tr>
+          <td>担当部署</td>
+          <td>人事部 給与管理課</td>
+        </tr>
+        <tr>
+          <td>電話番号</td>
+          <td>{{ case.employment.employer_phone or '' }}</td>
+        </tr>
+        <tr>
+          <td>所在地</td>
+          <td>{{ case.employment.employer_address or '' }}</td>
+        </tr>
+        <tr>
+          <td>担当者署名</td>
+          <td>&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;</td>
+        </tr>
+      </table>
+    </div>
+    <div class="stamp-area">発行印</div>
+  </div>
 </div>
 
 <p class="footer-note">

@@ -90,6 +90,33 @@ class Income(BaseModel):
     income_type: str | None = None
     issuer_name: str | None = None
     issue_date: str | None = None
+    base_salary: str | None = None
+    overtime_allowance: str | None = None
+    commuting_allowance: str | None = None
+    bonus: str | None = None
+    certificate_expiry: str | None = None
+
+
+class Guarantor(BaseModel):
+    name: str | None = None
+    kana: str | None = None
+    birth_date: str | None = None
+    relationship: str | None = None
+    current_address: str | None = None
+    phone: str | None = None
+    employer_name: str | None = None
+    annual_income: str | None = None
+
+
+class IdentityDocument(BaseModel):
+    license_number: str | None = None
+    my_number: str | None = None
+    passport_number: str | None = None
+    name_en: str | None = None
+    nationality: str | None = None
+    expiry: str | None = None
+    issue_date: str | None = None
+    issue_place: str | None = None
 
 
 class Case(BaseModel):
@@ -104,3 +131,5 @@ class Case(BaseModel):
     emergency_contact: EmergencyContact | None = None
     income: Income | None = None
     property: Property | None = None
+    guarantor: Guarantor | None = None
+    identity_document: IdentityDocument | None = None

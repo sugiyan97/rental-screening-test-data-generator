@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
+
+@page {
+  size: A4;
+  margin: 15mm 20mm;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif;
+}
+
+body {
+  font-size: 10pt;
+  line-height: 1.5;
+  color: #111;
+  margin: 0;
+}
+
+.sample-notice {
+  background: #fff3cd;
+  border: 2px solid #ffc107;
+  padding: 4px 12px;
+  margin-bottom: 12px;
+  font-size: 8.5pt;
+  font-weight: bold;
+  text-align: center;
+  color: #856404;
+}
+
+.page-title {
+  font-size: 11pt;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #333;
+  text-align: center;
+}
+
+/* パスポートデータページ外枠 */
+.passport-page {
+  border: 2px solid #7f8c8d;
+  background: #fdfdf8;
+  padding: 0;
+  max-width: 125mm;
+  margin: 0 auto;
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.2);
+}
+
+/* ヘッダーバー */
+.pp-header {
+  background: linear-gradient(135deg, #2c3e50 60%, #34495e 100%);
+  color: #ecf0f1;
+  text-align: center;
+  padding: 6px 10px;
+}
+
+.pp-header .pp-title-ja {
+  font-size: 12pt;
+  font-weight: bold;
+  letter-spacing: 0.15em;
+}
+
+.pp-header .pp-title-en {
+  font-size: 9pt;
+  opacity: 0.85;
+  letter-spacing: 0.1em;
+}
+
+.pp-header .pp-country {
+  font-size: 8pt;
+  opacity: 0.7;
+  margin-top: 2px;
+}
+
+/* 中段：写真 + フィールド */
+.pp-body {
+  display: flex;
+  padding: 8px 10px;
+  gap: 10px;
+}
+
+/* 顔写真プレースホルダー */
+.photo-placeholder {
+  width: 35mm;
+  min-height: 45mm;
+  background: #d5d8dc;
+  border: 1px dashed #999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 2px;
+}
+
+.photo-placeholder svg {
+  width: 20mm;
+  height: 20mm;
+  fill: #888;
+}
+
+.photo-placeholder .photo-label {
+  font-size: 7pt;
+  color: #666;
+  margin-top: 3px;
+  text-align: center;
+}
+
+/* フィールドエリア */
+.pp-fields {
+  flex: 1;
+}
+
+.pp-field {
+  padding: 3px 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.pp-field:last-child {
+  border-bottom: none;
+}
+
+.pp-field-label {
+  font-size: 7pt;
+  color: #555;
+  font-weight: bold;
+  display: block;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.pp-field-value-ja {
+  font-size: 9.5pt;
+  color: #111;
+  font-weight: bold;
+}
+
+.pp-field-value-en {
+  font-size: 8pt;
+  color: #333;
+}
+
+/* MRZ 帯 */
+.pp-mrz {
+  background: #f0f0e8;
+  border-top: 1px solid #aaa;
+  padding: 6px 8px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 8.5pt;
+  letter-spacing: 0.08em;
+  color: #333;
+  line-height: 1.6;
+}
+
+.pp-mrz-label {
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 7pt;
+  color: #888;
+  display: block;
+  margin-bottom: 2px;
+}
+
+/* 旅券番号行 */
+.pp-passport-num {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 8px;
+  background: #eaeae2;
+  border-top: 1px solid #bbb;
+  font-size: 8.5pt;
+}
+
+.pp-passport-num .num-label {
+  font-size: 7pt;
+  color: #555;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.pp-passport-num .num-value {
+  font-weight: bold;
+  font-size: 10pt;
+  letter-spacing: 0.1em;
+  color: #1a2c42;
+}
+
+.footer-note {
+  font-size: 8pt;
+  color: #666;
+  border-top: 1px solid #ccc;
+  padding-top: 6px;
+  margin-top: 14px;
+  text-align: center;
+}
+</style>
+</head>
+<body>
+<div class="sample-notice">【テスト用サンプル書類 ― 実在の個人情報ではありません / 旅券ではありません】</div>
+<div class="page-title">本人確認書類（旅券・顔写真ページ風サンプル）</div>
+
+<div class="passport-page">
+  <!-- ヘッダー -->
+  <div class="pp-header">
+    <div class="pp-title-ja">旅　　　券</div>
+    <div class="pp-title-en">PASSPORT (SAMPLE)</div>
+    <div class="pp-country">JAPAN / 日本国</div>
+  </div>
+
+  <!-- 旅券番号 -->
+  <div class="pp-passport-num">
+    <div>
+      <span class="num-label">旅券番号 / Passport No.</span><br>
+      <span class="num-value">{{ case.identity_document.passport_number if case.identity_document else '' }}</span>
+    </div>
+    <div style="text-align:right;">
+      <span class="num-label">種別 / Type</span><br>
+      <span style="font-weight:bold;">PA</span>
+    </div>
+    <div style="text-align:right;">
+      <span class="num-label">国籍 / Nationality</span><br>
+      <span style="font-weight:bold;">{{ case.identity_document.nationality if case.identity_document else 'JPN' }}</span>
+    </div>
+  </div>
+
+  <!-- 写真 + フィールド -->
+  <div class="pp-body">
+    <div class="photo-placeholder">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+      </svg>
+      <div class="photo-label">顔写真<br>（ダミー）</div>
+    </div>
+
+    <div class="pp-fields">
+      <div class="pp-field">
+        <span class="pp-field-label">氏名（日本語） / Surname, Given name</span>
+        <div class="pp-field-value-ja">{{ case.applicant.name or '' }}</div>
+        <div class="pp-field-value-en">{{ case.identity_document.name_en if case.identity_document else '' }}</div>
+      </div>
+      <div class="pp-field">
+        <span class="pp-field-label">生年月日 / Date of birth</span>
+        <div class="pp-field-value-ja">{{ case.applicant.birth_date or '' }}</div>
+      </div>
+      <div class="pp-field">
+        <span class="pp-field-label">性別 / Sex</span>
+        <div class="pp-field-value-ja">{{ case.applicant.gender or '' }}</div>
+      </div>
+      <div class="pp-field">
+        <span class="pp-field-label">発行日 / Date of issue</span>
+        <div class="pp-field-value-ja">{{ case.identity_document.issue_date if case.identity_document else '' }}</div>
+      </div>
+      <div class="pp-field">
+        <span class="pp-field-label">有効期限 / Date of expiry</span>
+        <div class="pp-field-value-ja" style="color:#c0392b; font-weight:bold;">{{ case.identity_document.expiry if case.identity_document else '' }}</div>
+      </div>
+      <div class="pp-field">
+        <span class="pp-field-label">発行地 / Place of issue</span>
+        <div class="pp-field-value-ja">{{ case.identity_document.issue_place if case.identity_document else '東京都' }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MRZ -->
+  <div class="pp-mrz">
+    <span class="pp-mrz-label">機械読取領域（MRZ） ― テスト用ダミー文字列</span>
+    P&lt;JPN{{ (case.identity_document.name_en or 'SAMPLE<<TARO') | upper | replace(' ', '<<') }}&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;<br>
+    {{ (case.identity_document.passport_number or 'TT0000001') }}0JPN0000000M0000000&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;0
+  </div>
+</div>
+
+<p class="footer-note">
+  ※ 本書類はOCR・LLM・Document AIシステムの検証を目的として作成されたテスト用サンプルです。
+  実在する個人の旅券情報ではありません。公的書類として使用することはできません。
+</p>
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Klee+One&display=swap');
 
 @page {
   size: A4;
@@ -59,8 +59,11 @@ th {
   width: 26%;
 }
 
-td.wide {
-  width: 74%;
+/* 手書き風：フィールド値のフォントを Klee One に */
+.hw {
+  font-family: 'Klee One', 'Hiragino Maru Gothic Pro', 'Yu Mincho', cursive;
+  font-size: 10pt;
+  color: #1a237e;
 }
 
 .sample-notice {
@@ -135,10 +138,17 @@ td.wide {
 .consent-box p {
   margin: 2px 0;
 }
+
+/* 手書き風の署名欄 */
+.hw-sign {
+  font-family: 'Klee One', cursive;
+  font-size: 11pt;
+  color: #1a237e;
+}
 </style>
 </head>
 <body>
-<div class="sample-notice">【テスト用サンプル書類 ― 実在の個人情報ではありません】</div>
+<div class="sample-notice">【テスト用サンプル書類 ― 実在の個人情報ではありません / 手書き風バリアント】</div>
 <h1>入 居 申 込 書（個人用）</h1>
 
 <div class="meta-row">
@@ -151,25 +161,25 @@ td.wide {
 <table>
   <tr>
     <th>物件名</th>
-    <td>{{ case.property.property_name or '' }}</td>
+    <td><span class="hw">{{ case.property.property_name or '' }}</span></td>
     <th>号室</th>
-    <td>{{ case.property.room_number or '' }}</td>
+    <td><span class="hw">{{ case.property.room_number or '' }}</span></td>
   </tr>
   <tr>
     <th>物件所在地</th>
-    <td colspan="3">{{ case.property.property_address or '' }}</td>
+    <td colspan="3"><span class="hw">{{ case.property.property_address or '' }}</span></td>
   </tr>
   <tr>
     <th>賃料（月額）</th>
-    <td>{{ case.property.rent or '' }}</td>
+    <td><span class="hw">{{ case.property.rent or '' }}</span></td>
     <th>管理費・共益費</th>
-    <td>{{ case.property.management_fee or '' }}</td>
+    <td><span class="hw">{{ case.property.management_fee or '' }}</span></td>
   </tr>
   <tr>
     <th>入居希望日</th>
-    <td>{{ case.property.desired_move_in_date or '' }}</td>
+    <td><span class="hw">{{ case.property.desired_move_in_date or '' }}</span></td>
     <th>利用目的</th>
-    <td>{{ case.property.usage_purpose or '' }}</td>
+    <td><span class="hw">{{ case.property.usage_purpose or '' }}</span></td>
   </tr>
 </table>
 
@@ -177,37 +187,37 @@ td.wide {
 <table>
   <tr>
     <th>氏名</th>
-    <td>{{ case.applicant.name or '' }}</td>
+    <td><span class="hw">{{ case.applicant.name or '' }}</span></td>
     <th>フリガナ</th>
-    <td>{{ case.applicant.kana or '' }}</td>
+    <td><span class="hw">{{ case.applicant.kana or '' }}</span></td>
   </tr>
   <tr>
     <th>生年月日</th>
-    <td>{{ case.applicant.birth_date or '' }}</td>
+    <td><span class="hw">{{ case.applicant.birth_date or '' }}</span></td>
     <th>年齢 / 性別</th>
-    <td>{{ case.applicant.age or '' }}歳　{{ case.applicant.gender or '' }}</td>
+    <td><span class="hw">{{ case.applicant.age or '' }}歳　{{ case.applicant.gender or '' }}</span></td>
   </tr>
   <tr>
     <th>現住所</th>
-    <td colspan="3">{{ case.applicant.current_address or '' }}</td>
+    <td colspan="3"><span class="hw">{{ case.applicant.current_address or '' }}</span></td>
   </tr>
   <tr>
     <th>現在の家賃</th>
-    <td></td>
+    <td><span class="hw"></span></td>
     <th>転居理由</th>
-    <td></td>
+    <td><span class="hw"></span></td>
   </tr>
   <tr>
     <th>携帯電話番号</th>
-    <td>{{ case.applicant.phone or '' }}</td>
+    <td><span class="hw">{{ case.applicant.phone or '' }}</span></td>
     <th>メールアドレス</th>
-    <td>{{ case.applicant.email or '' }}</td>
+    <td><span class="hw">{{ case.applicant.email or '' }}</span></td>
   </tr>
   <tr>
     <th>本人確認書類</th>
-    <td>{{ case.applicant.id_document_type or '' }}</td>
+    <td><span class="hw">{{ case.applicant.id_document_type or '' }}</span></td>
     <th>国籍</th>
-    <td>日本</td>
+    <td><span class="hw">日本</span></td>
   </tr>
 </table>
 
@@ -215,15 +225,13 @@ td.wide {
 <table>
   <tr>
     <th>入居人数</th>
-    <td>&emsp;&emsp;名</td>
+    <td><span class="hw">&emsp;&emsp;名</span></td>
     <th>ペット</th>
     <td>□ なし　□ あり（種類：&emsp;&emsp;&emsp;&emsp;）</td>
   </tr>
   <tr>
     <th>同居者①</th>
-    <td>氏名：&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;　続柄：&emsp;&emsp;&emsp;　年齢：&emsp;&emsp;歳</td>
-    <th>同居者②</th>
-    <td>氏名：&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;　続柄：&emsp;&emsp;&emsp;　年齢：&emsp;&emsp;歳</td>
+    <td colspan="3">氏名：<span class="hw">&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;</span>　続柄：<span class="hw">&emsp;&emsp;&emsp;</span>　年齢：<span class="hw">&emsp;&emsp;</span>歳</td>
   </tr>
 </table>
 
@@ -231,29 +239,29 @@ td.wide {
 <table>
   <tr>
     <th>勤務先名</th>
-    <td colspan="3">{{ case.employment.employer_name or '' }}</td>
+    <td colspan="3"><span class="hw">{{ case.employment.employer_name or '' }}</span></td>
   </tr>
   <tr>
     <th>部署名</th>
-    <td>{{ case.employment.department or '' }}</td>
+    <td><span class="hw">{{ case.employment.department or '' }}</span></td>
     <th>役職</th>
-    <td>{{ case.employment.job_title or '' }}</td>
+    <td><span class="hw">{{ case.employment.job_title or '' }}</span></td>
   </tr>
   <tr>
     <th>勤続年数</th>
-    <td>{{ case.employment.years_employed or '' }}</td>
+    <td><span class="hw">{{ case.employment.years_employed or '' }}</span></td>
     <th>年収（税込）</th>
-    <td>{{ case.employment.annual_income or '' }}</td>
+    <td><span class="hw">{{ case.employment.annual_income or '' }}</span></td>
   </tr>
   <tr>
     <th>勤務先電話番号</th>
-    <td>{{ case.employment.employer_phone or '' }}</td>
+    <td><span class="hw">{{ case.employment.employer_phone or '' }}</span></td>
     <th>雇用形態</th>
     <td>□ 正社員　□ 契約社員　□ 派遣　□ その他</td>
   </tr>
   <tr>
     <th>勤務先所在地</th>
-    <td colspan="3">{{ case.employment.employer_address or '' }}</td>
+    <td colspan="3"><span class="hw">{{ case.employment.employer_address or '' }}</span></td>
   </tr>
 </table>
 
@@ -261,15 +269,15 @@ td.wide {
 <table>
   <tr>
     <th>氏名</th>
-    <td>{{ case.emergency_contact.name or '' }}</td>
+    <td><span class="hw">{{ case.emergency_contact.name or '' }}</span></td>
     <th>続柄</th>
-    <td>{{ case.emergency_contact.relation or '' }}</td>
+    <td><span class="hw">{{ case.emergency_contact.relation or '' }}</span></td>
   </tr>
   <tr>
     <th>電話番号</th>
-    <td>{{ case.emergency_contact.phone or '' }}</td>
+    <td><span class="hw">{{ case.emergency_contact.phone or '' }}</span></td>
     <th>住所</th>
-    <td>{{ case.emergency_contact.address or '' }}</td>
+    <td><span class="hw">{{ case.emergency_contact.address or '' }}</span></td>
   </tr>
 </table>
 
@@ -278,29 +286,29 @@ td.wide {
   {% if case.guarantor %}
   <tr>
     <th>氏名</th>
-    <td>{{ case.guarantor.name or '' }}</td>
+    <td><span class="hw">{{ case.guarantor.name or '' }}</span></td>
     <th>フリガナ</th>
-    <td>{{ case.guarantor.kana or '' }}</td>
+    <td><span class="hw">{{ case.guarantor.kana or '' }}</span></td>
   </tr>
   <tr>
     <th>生年月日</th>
-    <td>{{ case.guarantor.birth_date or '' }}</td>
+    <td><span class="hw">{{ case.guarantor.birth_date or '' }}</span></td>
     <th>続柄</th>
-    <td>{{ case.guarantor.relationship or '' }}</td>
+    <td><span class="hw">{{ case.guarantor.relationship or '' }}</span></td>
   </tr>
   <tr>
     <th>現住所</th>
-    <td colspan="3">{{ case.guarantor.current_address or '' }}</td>
+    <td colspan="3"><span class="hw">{{ case.guarantor.current_address or '' }}</span></td>
   </tr>
   <tr>
     <th>電話番号</th>
-    <td>{{ case.guarantor.phone or '' }}</td>
+    <td><span class="hw">{{ case.guarantor.phone or '' }}</span></td>
     <th>勤務先</th>
-    <td>{{ case.guarantor.employer_name or '' }}</td>
+    <td><span class="hw">{{ case.guarantor.employer_name or '' }}</span></td>
   </tr>
   <tr>
     <th>年収（税込）</th>
-    <td colspan="3">{{ case.guarantor.annual_income or '' }}</td>
+    <td colspan="3"><span class="hw">{{ case.guarantor.annual_income or '' }}</span></td>
   </tr>
   {% else %}
   <tr>
@@ -319,25 +327,14 @@ td.wide {
     <th>現住所</th>
     <td colspan="3"></td>
   </tr>
-  <tr>
-    <th>電話番号</th>
-    <td></td>
-    <th>勤務先</th>
-    <td></td>
-  </tr>
-  <tr>
-    <th>年収（税込）</th>
-    <td colspan="3"></td>
-  </tr>
   {% endif %}
 </table>
 
 <h2>■ 確認・同意事項</h2>
 <div class="consent-box">
-  <p>以下の各事項を確認・同意のうえ、申込みを行います。</p>
   <p>□ 賃貸借契約の内容を十分に理解し、契約条件に同意します。</p>
-  <p>□ 保証会社の審査・利用に同意します（保証会社：　　　　　　　　　　　　　）。</p>
-  <p>□ 個人情報の取扱い（収集・利用・第三者提供）に関する同意書の内容に同意します。</p>
+  <p>□ 保証会社の審査・利用に同意します。</p>
+  <p>□ 個人情報の取扱いに関する同意書の内容に同意します。</p>
   <p>□ 申込書に記載した内容はすべて事実であることを誓約します。</p>
 </div>
 
@@ -345,6 +342,7 @@ td.wide {
 <div class="sign-area">
   <div class="sign-box" style="flex:2">
     <span class="label">申込者署名</span>
+    <span class="hw-sign">{{ case.applicant.name or '' }}</span>
   </div>
   <div class="stamp-box">捺印</div>
 </div>

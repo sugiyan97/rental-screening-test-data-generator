@@ -45,6 +45,16 @@ def test_build_answer_individual(individual_case):
     assert answer["fields"]["name"] == "テスト 花子"
     assert answer["fields"]["employer_name"] == "テスト株式会社"
     assert "emergency_contact_name" in answer["fields"]
+    assert answer["fields"]["guarantor_name"] == "テスト 一郎"
+    assert answer["fields"]["guarantor_relationship"] == "父"
+    assert answer["fields"]["guarantor_employer_name"] == "テスト製造株式会社"
+
+
+def test_build_answer_individual_no_guarantor(individual_case):
+    individual_case.guarantor = None
+    answer = build_answer(individual_case, "rental_application_individual", "standard")
+    assert answer["fields"]["guarantor_name"] is None
+    assert answer["fields"]["guarantor_annual_income"] is None
 
 
 def test_build_answer_income(individual_case):
@@ -52,6 +62,20 @@ def test_build_answer_income(individual_case):
     assert answer["fields"]["name"] == "テスト 花子"
     assert answer["fields"]["annual_income"] == "4,000,000円"
     assert answer["fields"]["issue_date"] == "2026年05月01日"
+    assert answer["fields"]["base_salary"] == "270,000円"
+    assert answer["fields"]["bonus"] == "600,000円"
+    assert answer["fields"]["certificate_expiry"] == "2026年08月01日"
+
+
+def test_build_answer_identity_document(individual_case):
+    answer = build_answer(individual_case, "identity_document", "drivers_license")
+    assert answer["case_id"] == individual_case.case_id
+    assert answer["document_type"] == "identity_document"
+    assert answer["variant"] == "drivers_license"
+    assert answer["fields"]["name"] == "テスト 花子"
+    assert answer["fields"]["license_number"] == "999999999999"
+    assert answer["fields"]["expiry"] == "2028年06月15日"
+    assert answer["fields"]["birth_date"] == "1995年06月15日"
 
 
 def test_build_answer_none_fields_when_no_data(corporate_case):

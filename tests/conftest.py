@@ -100,10 +100,32 @@ INDIVIDUAL_CASE_DATA: dict = {
         "income_type": "給与所得",
         "issuer_name": "テスト株式会社",
         "issue_date": "2026年05月01日",
+        "base_salary": "270,000円",
+        "overtime_allowance": "30,000円",
+        "commuting_allowance": "10,000円",
+        "bonus": "600,000円",
+        "certificate_expiry": "2026年08月01日",
+    },
+    "guarantor": {
+        "name": "テスト 一郎",
+        "kana": "テスト イチロウ",
+        "birth_date": "1965年01月01日",
+        "relationship": "父",
+        "current_address": "埼玉県さいたま市テスト4-4-4",
+        "phone": "090-9999-0004",
+        "employer_name": "テスト製造株式会社",
+        "annual_income": "6,000,000円",
+    },
+    "identity_document": {
+        "license_number": "999999999999",
+        "expiry": "2028年06月15日",
+        "issue_date": "2018年06月15日",
+        "issue_place": "東京都",
     },
     "documents": [
         {"document_type": "rental_application_individual", "variant": "standard"},
         {"document_type": "income_certificate", "variant": "salary_certificate"},
+        {"document_type": "identity_document", "variant": "drivers_license"},
     ],
 }
 

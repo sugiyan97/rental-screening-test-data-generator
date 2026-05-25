@@ -7,7 +7,7 @@
 
 @page {
   size: A4;
-  margin: 15mm 20mm;
+  margin: 14mm 18mm;
 }
 
 * {
@@ -16,8 +16,8 @@
 }
 
 body {
-  font-size: 10pt;
-  line-height: 1.8;
+  font-size: 9.5pt;
+  line-height: 1.7;
   color: #222;
   margin: 0;
 }
@@ -25,17 +25,17 @@ body {
 h1 {
   font-size: 15pt;
   text-align: center;
-  margin: 0 0 12px;
+  margin: 0 0 8px;
   border-bottom: 2px solid #333;
-  padding-bottom: 6px;
+  padding-bottom: 5px;
 }
 
 .sample-notice {
   background: #fff3cd;
   border: 2px solid #ffc107;
-  padding: 4px 12px;
-  margin-bottom: 12px;
-  font-size: 8.5pt;
+  padding: 3px 10px;
+  margin-bottom: 10px;
+  font-size: 8pt;
   font-weight: bold;
   text-align: center;
   color: #856404;
@@ -44,51 +44,116 @@ h1 {
 .meta-table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 16px;
-  font-size: 9.5pt;
+  margin-bottom: 12px;
+  font-size: 9pt;
 }
 
 .meta-table th, .meta-table td {
   border: 1px solid #777;
-  padding: 4px 10px;
+  padding: 3px 9px;
 }
 
 .meta-table th {
   background-color: #f5f5f5;
   font-weight: 700;
-  width: 25%;
+  width: 22%;
   white-space: nowrap;
 }
 
 h2 {
-  font-size: 11pt;
-  margin: 14px 0 6px;
+  font-size: 10.5pt;
+  margin: 10px 0 4px;
   background: #eee;
-  padding: 3px 8px;
+  padding: 2px 8px;
   border-left: 4px solid #555;
 }
 
 .section-body {
   border: 1px solid #ccc;
-  padding: 8px 12px;
-  margin-bottom: 12px;
+  padding: 6px 10px;
+  margin-bottom: 10px;
   background: #fafafa;
-  font-size: 9.5pt;
-  min-height: 40px;
+  font-size: 9pt;
+  min-height: 36px;
+}
+
+.plan-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 9pt;
+  margin-bottom: 10px;
+}
+
+.plan-table th, .plan-table td {
+  border: 1px solid #777;
+  padding: 3px 8px;
+  text-align: right;
+  vertical-align: middle;
+}
+
+.plan-table th {
+  background-color: #f0f0f0;
+  font-weight: 700;
+  text-align: center;
+}
+
+.plan-table td.row-label {
+  text-align: left;
+  background-color: #f8f8f8;
+  font-weight: 700;
+  width: 30%;
+}
+
+.swot-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 9pt;
+  margin-bottom: 10px;
+}
+
+.swot-table th, .swot-table td {
+  border: 1px solid #888;
+  padding: 4px 8px;
+  vertical-align: top;
+}
+
+.swot-table th {
+  background-color: #e0e0e0;
+  font-weight: 700;
+  text-align: center;
+  width: 12%;
+}
+
+.funding-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 9pt;
+  margin-bottom: 10px;
+}
+
+.funding-table th, .funding-table td {
+  border: 1px solid #777;
+  padding: 3px 8px;
+}
+
+.funding-table th {
+  background-color: #f0f0f0;
+  font-weight: 700;
+  width: 30%;
 }
 
 .footer-note {
   font-size: 8pt;
   color: #666;
   border-top: 1px solid #ccc;
-  padding-top: 6px;
-  margin-top: 16px;
+  padding-top: 5px;
+  margin-top: 10px;
 }
 </style>
 </head>
 <body>
 <div class="sample-notice">【テスト用サンプル書類 ― 実在の事業情報ではありません】</div>
-<h1>事業計画書</h1>
+<h1>事 業 計 画 書</h1>
 
 <table class="meta-table">
   <tr>
@@ -99,23 +164,94 @@ h2 {
   </tr>
   <tr>
     <th>作成日</th>
-    <td>　　　　年　　月　　日</td>
+    <td>&emsp;&emsp;&emsp;年&emsp;&emsp;月&emsp;&emsp;日</td>
     <th>計画期間</th>
     <td>{{ case.business_plan.plan_period or '' }}</td>
+  </tr>
+  <tr>
+    <th>本店所在地</th>
+    <td colspan="3">{{ case.company.head_office_address or '' }}</td>
   </tr>
 </table>
 
 <h2>１．事業概要</h2>
 <div class="section-body">{{ case.business_plan.business_overview or '' }}</div>
 
-<h2>２．売上・収益計画</h2>
+<h2>２．売上・収益計画（3ヵ年）</h2>
+<table class="plan-table">
+  <tr>
+    <th>項目</th>
+    <th>1年目（計画）</th>
+    <th>2年目（計画）</th>
+    <th>3年目（計画）</th>
+  </tr>
+  <tr>
+    <td class="row-label">売上高</td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td class="row-label">売上原価</td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td class="row-label">粗利益</td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td class="row-label">販管費</td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td class="row-label">営業利益</td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+</table>
 <div class="section-body">{{ case.business_plan.revenue_plan or '' }}</div>
 
-<h2>３．採用計画</h2>
+<h2>３．資金調達計画</h2>
+<table class="funding-table">
+  <tr>
+    <th>調達方法</th>
+    <td>□ 自己資金　□ 金融機関融資　□ 補助金・助成金　□ 増資　□ その他</td>
+  </tr>
+  <tr>
+    <th>調達予定額</th>
+    <td></td>
+  </tr>
+  <tr>
+    <th>資金用途</th>
+    <td></td>
+  </tr>
+</table>
+
+<h2>４．採用計画</h2>
 <div class="section-body">{{ case.business_plan.hiring_plan or '' }}</div>
 
-<h2>４．リスクと対応策</h2>
-<div class="section-body">{{ case.business_plan.risk_factors or '' }}</div>
+<h2>５．リスク分析（SWOT）と対応策</h2>
+<table class="swot-table">
+  <tr>
+    <th>強み<br>S</th>
+    <td></td>
+    <th>弱み<br>W</th>
+    <td></td>
+  </tr>
+  <tr>
+    <th>機会<br>O</th>
+    <td></td>
+    <th>脅威<br>T</th>
+    <td>{{ case.business_plan.risk_factors or '' }}</td>
+  </tr>
+</table>
 
 <p class="footer-note">
   ※ 本書類はOCR・LLM・Document AIシステムの検証を目的として作成されたテスト用サンプルです。

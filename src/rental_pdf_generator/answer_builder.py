@@ -88,6 +88,7 @@ def _build_rental_application_individual(case: Case) -> dict[str, Any]:
     e = case.employment
     p = case.property
     ec = case.emergency_contact
+    g = case.guarantor
     return {
         "name": _get(a, "name"),
         "kana": _get(a, "kana"),
@@ -114,6 +115,14 @@ def _build_rental_application_individual(case: Case) -> dict[str, Any]:
         "emergency_contact_relation": _get(ec, "relation"),
         "emergency_contact_phone": _get(ec, "phone"),
         "emergency_contact_address": _get(ec, "address"),
+        "guarantor_name": _get(g, "name"),
+        "guarantor_kana": _get(g, "kana"),
+        "guarantor_birth_date": _get(g, "birth_date"),
+        "guarantor_relationship": _get(g, "relationship"),
+        "guarantor_current_address": _get(g, "current_address"),
+        "guarantor_phone": _get(g, "phone"),
+        "guarantor_employer_name": _get(g, "employer_name"),
+        "guarantor_annual_income": _get(g, "annual_income"),
     }
 
 
@@ -127,8 +136,31 @@ def _build_income_certificate(case: Case) -> dict[str, Any]:
         "annual_income": _get(i, "annual_income"),
         "monthly_income": _get(i, "monthly_income"),
         "income_type": _get(i, "income_type"),
+        "base_salary": _get(i, "base_salary"),
+        "overtime_allowance": _get(i, "overtime_allowance"),
+        "commuting_allowance": _get(i, "commuting_allowance"),
+        "bonus": _get(i, "bonus"),
         "issuer_name": _get(i, "issuer_name"),
         "issue_date": _get(i, "issue_date"),
+        "certificate_expiry": _get(i, "certificate_expiry"),
+    }
+
+
+def _build_identity_document(case: Case) -> dict[str, Any]:
+    a = case.applicant
+    idoc = case.identity_document
+    return {
+        "name": _get(a, "name"),
+        "birth_date": _get(a, "birth_date"),
+        "address": _get(a, "current_address"),
+        "license_number": _get(idoc, "license_number"),
+        "my_number": _get(idoc, "my_number"),
+        "passport_number": _get(idoc, "passport_number"),
+        "name_en": _get(idoc, "name_en"),
+        "nationality": _get(idoc, "nationality"),
+        "expiry": _get(idoc, "expiry"),
+        "issue_date": _get(idoc, "issue_date"),
+        "issue_place": _get(idoc, "issue_place"),
     }
 
 
@@ -139,6 +171,7 @@ _BUILDERS: dict[str, Callable[[Case], dict[str, Any]]] = {
     "business_plan": _build_business_plan,
     "rental_application_individual": _build_rental_application_individual,
     "income_certificate": _build_income_certificate,
+    "identity_document": _build_identity_document,
 }
 
 

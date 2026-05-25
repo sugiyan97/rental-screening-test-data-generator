@@ -73,7 +73,8 @@ class CasePdfGenerator:
         )
         html = template.render(case=case)
 
-        pdf_path = pdf_dir / f"{doc_spec.document_type}.pdf"
+        stem = f"{doc_spec.document_type}_{doc_spec.variant}"
+        pdf_path = pdf_dir / f"{stem}.pdf"
         page.set_content(html, wait_until="networkidle", timeout=30000)
         page.pdf(
             path=str(pdf_path),
@@ -82,7 +83,7 @@ class CasePdfGenerator:
         )
 
         answer = build_answer(case, doc_spec.document_type, doc_spec.variant)
-        answer_path = answers_dir / f"{doc_spec.document_type}.json"
+        answer_path = answers_dir / f"{stem}.json"
         write_json(answer_path, answer)
 
         return pdf_path, answer_path

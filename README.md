@@ -8,14 +8,25 @@ OCR・LLM・Document AI などの抽出システムを検証するため、**架
 
 ## 生成できる書類
 
-| document_type | 説明 | 初期 variant |
+| document_type | 説明 | 利用可能な variant |
 |---|---|---|
-| `rental_application_individual` | 個人用入居申込書 | `standard` |
-| `rental_application_corporate` | 法人用入居申込書 | `standard` |
-| `income_certificate` | 収入証明書風 | `salary_certificate` |
+| `rental_application_individual` | 個人用入居申込書 | `standard`, `handwritten_like` |
+| `rental_application_corporate` | 法人用入居申込書 | `standard`, `handwritten_like` |
+| `income_certificate` | 収入証明書風（在職証明兼） | `salary_certificate` |
 | `registry_certificate` | 登記簿謄本風 | `registry_table` |
 | `financial_statement` | 決算書風（財務サマリー） | `financial_summary` |
 | `business_plan` | 事業計画書 | `narrative` |
+| `identity_document` | 本人確認書類 | `drivers_license`, `my_number_card`, `passport` |
+
+### 各書類の特徴
+
+- **入居申込書**（個人・法人）— 保証人欄・同居者欄・担当者欄・反社確認文言等を含む業務品質フォーマット
+- **手書き風バリアント** — Klee One フォント（Google Fonts / OFL）で記入欄をレンダリング
+- **収入証明書** — 給与内訳（基本給・残業手当・通勤手当・賞与）・証明有効期限付き
+- **登記簿謄本風** — 法務局形式に近い原因・日付・登記事項の列構成
+- **財務サマリー** — 2期比較列・経営指標欄付き
+- **事業計画書** — 3ヵ年計画表・資金調達計画・SWOT 分析欄付き
+- **本人確認書類** — 運転免許証・マイナンバーカード・パスポート（いずれも顔写真ダミー入り）
 
 ---
 
@@ -73,22 +84,32 @@ uv run python scripts/generate_case_pdfs.py --input input/cases.jsonl --output o
 
 ## 出力構成
 
-1 ケースあたり以下が生成される。
+1 ケースあたり以下が生成される。ファイル名は `{document_type}_{variant}` 形式なので、同一書類タイプの複数 variant を同一ケースに含めても衝突しない。
 
 ```
 output/
   CASE-000001/
     case_meta.json              # ケースのメタ情報
     pdf/
-      rental_application_corporate.pdf
-      registry_certificate.pdf
-      financial_statement.pdf
-      business_plan.pdf
+      rental_application_corporate_standard.pdf
+      rental_application_corporate_handwritten_like.pdf
+      registry_certificate_registry_table.pdf
+      financial_statement_financial_summary.pdf
+      business_plan_narrative.pdf
     answers/
-      rental_application_corporate.json   # 正解 JSON
-      registry_certificate.json
-      financial_statement.json
-      business_plan.json
+      rental_application_corporate_standard.json   # 正解 JSON
+      rental_application_corporate_handwritten_like.json
+      ...
+  CASE-000002/
+    pdf/
+      rental_application_individual_standard.pdf
+      rental_application_individual_handwritten_like.pdf
+      income_certificate_salary_certificate.pdf
+      identity_document_drivers_license.pdf
+      identity_document_my_number_card.pdf
+      identity_document_passport.pdf
+    answers/
+      ...
 ```
 
 #### case_meta.json の構造
@@ -101,8 +122,8 @@ output/
     {
       "document_type": "rental_application_corporate",
       "variant": "standard",
-      "pdf": "pdf/rental_application_corporate.pdf",
-      "answer": "answers/rental_application_corporate.json"
+      "pdf": "pdf/rental_application_corporate_standard.pdf",
+      "answer": "answers/rental_application_corporate_standard.json"
     }
   ]
 }
@@ -187,7 +208,25 @@ src/
     file_writer.py      ファイル書き込みユーティリティ
     generator.py        PDF 生成オーケストレーション（Playwright）
     cli.py              CLI（argparse）
-templates/      HTML テンプレート（Jinja2）
+templates/
+  rental_application_individual/
+    standard.html          個人申込書（標準）
+    handwritten_like.html  個人申込書（手書き風）
+  rental_application_corporate/
+    standard.html          法人申込書（標準）
+    handwritten_like.html  法人申込書（手書き風）
+  income_certificate/
+    salary_certificate.html
+  registry_certificate/
+    registry_table.html
+  financial_statement/
+    financial_summary.html
+  business_plan/
+    narrative.html
+  identity_document/
+    drivers_license.html   運転免許証風
+    my_number_card.html    マイナンバーカード風
+    passport.html          パスポート風
 tests/          テストコード
 docs/           要件定義書
 ```

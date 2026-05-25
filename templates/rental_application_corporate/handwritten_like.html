@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Klee+One&display=swap');
 
 @page {
   size: A4;
@@ -57,6 +57,13 @@ th {
   font-weight: 700;
   white-space: nowrap;
   width: 26%;
+}
+
+/* 手書き風：フィールド値のフォントを Klee One に */
+.hw {
+  font-family: 'Klee One', 'Hiragino Maru Gothic Pro', 'Yu Mincho', cursive;
+  font-size: 10pt;
+  color: #1a237e;
 }
 
 .sample-notice {
@@ -131,10 +138,16 @@ th {
 .antisocial-box p {
   margin: 2px 0;
 }
+
+.hw-sign {
+  font-family: 'Klee One', cursive;
+  font-size: 11pt;
+  color: #1a237e;
+}
 </style>
 </head>
 <body>
-<div class="sample-notice">【テスト用サンプル書類 ― 実在の法人情報ではありません】</div>
+<div class="sample-notice">【テスト用サンプル書類 ― 実在の法人情報ではありません / 手書き風バリアント】</div>
 <h1>法 人 入 居 申 込 書</h1>
 
 <div class="meta-row">
@@ -147,25 +160,25 @@ th {
 <table>
   <tr>
     <th>物件名</th>
-    <td>{{ case.property.property_name or '' }}</td>
+    <td><span class="hw">{{ case.property.property_name or '' }}</span></td>
     <th>号室</th>
-    <td>{{ case.property.room_number or '' }}</td>
+    <td><span class="hw">{{ case.property.room_number or '' }}</span></td>
   </tr>
   <tr>
     <th>物件所在地</th>
-    <td colspan="3">{{ case.property.property_address or '' }}</td>
+    <td colspan="3"><span class="hw">{{ case.property.property_address or '' }}</span></td>
   </tr>
   <tr>
     <th>賃料（月額）</th>
-    <td>{{ case.property.rent or '' }}</td>
+    <td><span class="hw">{{ case.property.rent or '' }}</span></td>
     <th>管理費・共益費</th>
-    <td>{{ case.property.management_fee or '' }}</td>
+    <td><span class="hw">{{ case.property.management_fee or '' }}</span></td>
   </tr>
   <tr>
     <th>入居希望日</th>
-    <td>{{ case.property.desired_move_in_date or '' }}</td>
+    <td><span class="hw">{{ case.property.desired_move_in_date or '' }}</span></td>
     <th>利用目的</th>
-    <td>{{ case.property.usage_purpose or '' }}</td>
+    <td><span class="hw">{{ case.property.usage_purpose or '' }}</span></td>
   </tr>
 </table>
 
@@ -173,43 +186,37 @@ th {
 <table>
   <tr>
     <th>会社名</th>
-    <td colspan="3">{{ case.company.company_name or '' }}</td>
+    <td colspan="3"><span class="hw">{{ case.company.company_name or '' }}</span></td>
   </tr>
   <tr>
     <th>会社名フリガナ</th>
-    <td colspan="3">{{ case.company.company_kana or '' }}</td>
+    <td colspan="3"><span class="hw">{{ case.company.company_kana or '' }}</span></td>
   </tr>
   <tr>
     <th>法人番号</th>
-    <td>{{ case.company.corporate_number or '' }}</td>
+    <td><span class="hw">{{ case.company.corporate_number or '' }}</span></td>
     <th>設立年月日</th>
-    <td>{{ case.company.established_date or '' }}</td>
+    <td><span class="hw">{{ case.company.established_date or '' }}</span></td>
   </tr>
   <tr>
     <th>本店所在地</th>
-    <td colspan="3">{{ case.company.head_office_address or '' }}</td>
+    <td colspan="3"><span class="hw">{{ case.company.head_office_address or '' }}</span></td>
   </tr>
   <tr>
     <th>代表電話番号</th>
-    <td>{{ case.company.phone or '' }}</td>
+    <td><span class="hw">{{ case.company.phone or '' }}</span></td>
     <th>メールアドレス</th>
-    <td>{{ case.company.email or '' }}</td>
+    <td><span class="hw">{{ case.company.email or '' }}</span></td>
   </tr>
   <tr>
     <th>資本金</th>
-    <td>{{ case.company.capital or '' }}</td>
+    <td><span class="hw">{{ case.company.capital or '' }}</span></td>
     <th>従業員数</th>
-    <td>{{ case.company.employee_count or '' }}</td>
-  </tr>
-  <tr>
-    <th>決算月</th>
-    <td>{{ case.company.fiscal_year_end or '' }}</td>
-    <th>業種</th>
-    <td></td>
+    <td><span class="hw">{{ case.company.employee_count or '' }}</span></td>
   </tr>
   <tr>
     <th>事業内容</th>
-    <td colspan="3">{{ case.company.business_description or '' }}</td>
+    <td colspan="3"><span class="hw">{{ case.company.business_description or '' }}</span></td>
   </tr>
 </table>
 
@@ -217,13 +224,13 @@ th {
 <table>
   <tr>
     <th>代表者氏名</th>
-    <td>{{ case.company.representative_name or '' }}</td>
+    <td><span class="hw">{{ case.company.representative_name or '' }}</span></td>
     <th>代表者生年月日</th>
-    <td>{{ case.company.representative_birth_date or '' }}</td>
+    <td><span class="hw">{{ case.company.representative_birth_date or '' }}</span></td>
   </tr>
   <tr>
     <th>代表者住所</th>
-    <td colspan="3">{{ case.company.representative_address or '' }}</td>
+    <td colspan="3"><span class="hw">{{ case.company.representative_address or '' }}</span></td>
   </tr>
 </table>
 
@@ -231,42 +238,22 @@ th {
 <table>
   <tr>
     <th>担当者氏名</th>
-    <td></td>
+    <td><span class="hw"></span></td>
     <th>部署・役職</th>
-    <td></td>
+    <td><span class="hw"></span></td>
   </tr>
   <tr>
     <th>直通電話番号</th>
-    <td></td>
+    <td><span class="hw"></span></td>
     <th>担当者メール</th>
-    <td></td>
-  </tr>
-</table>
-
-<h2>■ 請求先情報</h2>
-<table>
-  <tr>
-    <th>請求先（法人名）</th>
-    <td colspan="3">□ 申込法人と同一　□ 別途指定（下記）</td>
-  </tr>
-  <tr>
-    <th>請求先住所</th>
-    <td colspan="3"></td>
-  </tr>
-  <tr>
-    <th>請求担当者</th>
-    <td></td>
-    <th>請求担当電話番号</th>
-    <td></td>
+    <td><span class="hw"></span></td>
   </tr>
 </table>
 
 <h2>■ 反社会的勢力排除に関する確認</h2>
 <div class="antisocial-box">
-  <p>申込法人および代表者は、下記のいずれにも該当しないことを確認し、誓約します。</p>
-  <p>□ 暴力団・暴力団員・準構成員・暴力団関係企業・総会屋等その他これらに準ずる者に該当しない。</p>
-  <p>□ 自己・自社もしくは第三者の不正の利益を図る目的または第三者に損害を加える目的で本契約を利用しない。</p>
-  <p>□ 上記内容に虚偽が判明した場合、契約の即時解除に応じる。</p>
+  <p>□ 暴力団・暴力団員・準構成員・暴力団関係企業等に該当しないことを確認します。</p>
+  <p>□ 上記内容に虚偽が判明した場合、契約の即時解除に応じます。</p>
 </div>
 
 <h2>■ 確認・同意事項</h2>
@@ -280,6 +267,7 @@ th {
 <div class="sign-area">
   <div class="sign-box" style="flex:2">
     <span class="label">代表者署名（自署）</span>
+    <span class="hw-sign">{{ case.company.representative_name or '' }}</span>
   </div>
   <div class="stamp-box">代表印</div>
 </div>
