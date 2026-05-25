@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
+
+@page {
+  size: A4;
+  margin: 15mm 20mm;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif;
+}
+
+body {
+  font-size: 10pt;
+  line-height: 1.6;
+  color: #222;
+  margin: 0;
+}
+
+h1 {
+  font-size: 15pt;
+  text-align: center;
+  margin: 0 0 12px;
+  border-bottom: 2px solid #333;
+  padding-bottom: 6px;
+}
+
+h2 {
+  font-size: 10.5pt;
+  margin: 14px 0 6px;
+  background: #eee;
+  padding: 3px 8px;
+  border-left: 4px solid #555;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 12px;
+  font-size: 9.5pt;
+}
+
+th, td {
+  border: 1px solid #666;
+  padding: 4px 8px;
+  vertical-align: middle;
+}
+
+th {
+  background-color: #f5f5f5;
+  font-weight: 700;
+  white-space: nowrap;
+  width: 28%;
+}
+
+.sample-notice {
+  background: #fff3cd;
+  border: 2px solid #ffc107;
+  padding: 5px 12px;
+  margin-bottom: 12px;
+  font-size: 8.5pt;
+  font-weight: bold;
+  text-align: center;
+  color: #856404;
+}
+
+.meta-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9pt;
+  margin-bottom: 10px;
+}
+
+.check-items {
+  font-size: 9.5pt;
+  margin: 0 0 12px;
+}
+
+.check-items p {
+  margin: 3px 0;
+}
+
+.sign-area {
+  display: flex;
+  gap: 20px;
+  margin-top: 14px;
+}
+
+.sign-box {
+  border: 1px solid #666;
+  height: 50px;
+  flex: 1;
+  padding: 4px 8px;
+  font-size: 9pt;
+}
+
+.sign-box .label {
+  font-weight: bold;
+  display: block;
+  margin-bottom: 4px;
+}
+</style>
+</head>
+<body>
+<div class="sample-notice">【テスト用サンプル書類 ― 実在の個人情報ではありません】</div>
+<h1>入居申込書</h1>
+
+<div class="meta-row">
+  <span>申込ID：{{ case.case_id }}</span>
+  <span>申込日：　　　　年　　月　　日</span>
+</div>
+
+<h2>■ 申込物件情報</h2>
+<table>
+  <tr>
+    <th>物件名</th>
+    <td>{{ case.property.property_name or '' }}</td>
+    <th>号室</th>
+    <td>{{ case.property.room_number or '' }}</td>
+  </tr>
+  <tr>
+    <th>物件所在地</th>
+    <td colspan="3">{{ case.property.property_address or '' }}</td>
+  </tr>
+  <tr>
+    <th>賃料</th>
+    <td>{{ case.property.rent or '' }}</td>
+    <th>管理費</th>
+    <td>{{ case.property.management_fee or '' }}</td>
+  </tr>
+  <tr>
+    <th>入居希望日</th>
+    <td>{{ case.property.desired_move_in_date or '' }}</td>
+    <th>利用目的</th>
+    <td>{{ case.property.usage_purpose or '' }}</td>
+  </tr>
+</table>
+
+<h2>■ 申込者情報</h2>
+<table>
+  <tr>
+    <th>氏名</th>
+    <td>{{ case.applicant.name or '' }}</td>
+    <th>フリガナ</th>
+    <td>{{ case.applicant.kana or '' }}</td>
+  </tr>
+  <tr>
+    <th>生年月日</th>
+    <td>{{ case.applicant.birth_date or '' }}</td>
+    <th>年齢 / 性別</th>
+    <td>{{ case.applicant.age or '' }}歳　{{ case.applicant.gender or '' }}</td>
+  </tr>
+  <tr>
+    <th>現住所</th>
+    <td colspan="3">{{ case.applicant.current_address or '' }}</td>
+  </tr>
+  <tr>
+    <th>電話番号</th>
+    <td>{{ case.applicant.phone or '' }}</td>
+    <th>メールアドレス</th>
+    <td>{{ case.applicant.email or '' }}</td>
+  </tr>
+  <tr>
+    <th>本人確認書類</th>
+    <td colspan="3">{{ case.applicant.id_document_type or '' }}</td>
+  </tr>
+</table>
+
+<h2>■ 勤務先情報</h2>
+<table>
+  <tr>
+    <th>勤務先名</th>
+    <td colspan="3">{{ case.employment.employer_name or '' }}</td>
+  </tr>
+  <tr>
+    <th>部署</th>
+    <td>{{ case.employment.department or '' }}</td>
+    <th>役職</th>
+    <td>{{ case.employment.job_title or '' }}</td>
+  </tr>
+  <tr>
+    <th>勤続年数</th>
+    <td>{{ case.employment.years_employed or '' }}</td>
+    <th>年収</th>
+    <td>{{ case.employment.annual_income or '' }}</td>
+  </tr>
+  <tr>
+    <th>勤務先電話番号</th>
+    <td>{{ case.employment.employer_phone or '' }}</td>
+    <th>勤務先所在地</th>
+    <td>{{ case.employment.employer_address or '' }}</td>
+  </tr>
+</table>
+
+<h2>■ 緊急連絡先</h2>
+<table>
+  <tr>
+    <th>氏名</th>
+    <td>{{ case.emergency_contact.name or '' }}</td>
+    <th>続柄</th>
+    <td>{{ case.emergency_contact.relation or '' }}</td>
+  </tr>
+  <tr>
+    <th>電話番号</th>
+    <td>{{ case.emergency_contact.phone or '' }}</td>
+    <th>住所</th>
+    <td>{{ case.emergency_contact.address or '' }}</td>
+  </tr>
+</table>
+
+<h2>■ 確認事項</h2>
+<div class="check-items">
+  <p>□ 保証会社の利用に同意する</p>
+  <p>□ 個人情報の取扱いに関する同意書の内容に同意する</p>
+</div>
+
+<h2>■ 署名</h2>
+<div class="sign-area">
+  <div class="sign-box">
+    <span class="label">申込者署名</span>
+  </div>
+</div>
+</body>
+</html>

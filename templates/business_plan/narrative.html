@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
+
+@page {
+  size: A4;
+  margin: 15mm 20mm;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif;
+}
+
+body {
+  font-size: 10pt;
+  line-height: 1.8;
+  color: #222;
+  margin: 0;
+}
+
+h1 {
+  font-size: 15pt;
+  text-align: center;
+  margin: 0 0 12px;
+  border-bottom: 2px solid #333;
+  padding-bottom: 6px;
+}
+
+.sample-notice {
+  background: #fff3cd;
+  border: 2px solid #ffc107;
+  padding: 4px 12px;
+  margin-bottom: 12px;
+  font-size: 8.5pt;
+  font-weight: bold;
+  text-align: center;
+  color: #856404;
+}
+
+.meta-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 16px;
+  font-size: 9.5pt;
+}
+
+.meta-table th, .meta-table td {
+  border: 1px solid #777;
+  padding: 4px 10px;
+}
+
+.meta-table th {
+  background-color: #f5f5f5;
+  font-weight: 700;
+  width: 25%;
+  white-space: nowrap;
+}
+
+h2 {
+  font-size: 11pt;
+  margin: 14px 0 6px;
+  background: #eee;
+  padding: 3px 8px;
+  border-left: 4px solid #555;
+}
+
+.section-body {
+  border: 1px solid #ccc;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+  background: #fafafa;
+  font-size: 9.5pt;
+  min-height: 40px;
+}
+
+.footer-note {
+  font-size: 8pt;
+  color: #666;
+  border-top: 1px solid #ccc;
+  padding-top: 6px;
+  margin-top: 16px;
+}
+</style>
+</head>
+<body>
+<div class="sample-notice">【テスト用サンプル書類 ― 実在の事業情報ではありません】</div>
+<h1>事業計画書</h1>
+
+<table class="meta-table">
+  <tr>
+    <th>会社名</th>
+    <td>{{ case.company.company_name or '' }}</td>
+    <th>代表者名</th>
+    <td>{{ case.company.representative_name or '' }}</td>
+  </tr>
+  <tr>
+    <th>作成日</th>
+    <td>　　　　年　　月　　日</td>
+    <th>計画期間</th>
+    <td>{{ case.business_plan.plan_period or '' }}</td>
+  </tr>
+</table>
+
+<h2>１．事業概要</h2>
+<div class="section-body">{{ case.business_plan.business_overview or '' }}</div>
+
+<h2>２．売上・収益計画</h2>
+<div class="section-body">{{ case.business_plan.revenue_plan or '' }}</div>
+
+<h2>３．採用計画</h2>
+<div class="section-body">{{ case.business_plan.hiring_plan or '' }}</div>
+
+<h2>４．リスクと対応策</h2>
+<div class="section-body">{{ case.business_plan.risk_factors or '' }}</div>
+
+<p class="footer-note">
+  ※ 本書類はOCR・LLM・Document AIシステムの検証を目的として作成されたテスト用サンプルです。
+  実在する企業の事業情報ではありません。
+</p>
+</body>
+</html>

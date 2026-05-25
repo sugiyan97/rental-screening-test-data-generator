@@ -1,0 +1,18 @@
+services:
+  generator:
+    build: .
+    volumes:
+      - ./input:/app/input:ro
+      - ./output:/app/output
+
+  test:
+    build: .
+    volumes:
+      - ./output:/tmp/test-output
+    entrypoint: ["uv", "run", "pytest", "-v"]
+    command: []
+
+  lint:
+    build: .
+    entrypoint: ["uv", "run", "ruff", "check", "."]
+    command: []

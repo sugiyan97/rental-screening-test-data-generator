@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
+
+@page {
+  size: A4;
+  margin: 15mm 20mm;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif;
+}
+
+body {
+  font-size: 10pt;
+  line-height: 1.6;
+  color: #222;
+  margin: 0;
+}
+
+h1 {
+  font-size: 14pt;
+  text-align: center;
+  margin: 0 0 10px;
+  letter-spacing: 0.1em;
+}
+
+.subtitle {
+  text-align: center;
+  font-size: 9pt;
+  color: #555;
+  margin-bottom: 12px;
+}
+
+.sample-notice {
+  background: #fff3cd;
+  border: 2px solid #e6a817;
+  padding: 5px 12px;
+  margin-bottom: 14px;
+  font-size: 8.5pt;
+  font-weight: bold;
+  text-align: center;
+  color: #856404;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 9.5pt;
+  margin-bottom: 14px;
+}
+
+th, td {
+  border: 1px solid #555;
+  padding: 5px 10px;
+  vertical-align: top;
+}
+
+th {
+  background-color: #f0f0f0;
+  font-weight: 700;
+  width: 32%;
+  white-space: nowrap;
+}
+
+.section-header {
+  background-color: #d8d8d8;
+  font-weight: bold;
+  text-align: center;
+  padding: 4px;
+  font-size: 9.5pt;
+  border: 1px solid #555;
+  margin-bottom: -1px;
+}
+
+.issue-info {
+  font-size: 8.5pt;
+  text-align: right;
+  margin-top: 10px;
+  color: #444;
+}
+
+.footer-note {
+  font-size: 8pt;
+  color: #666;
+  border-top: 1px solid #ccc;
+  padding-top: 6px;
+  margin-top: 12px;
+}
+</style>
+</head>
+<body>
+<div class="sample-notice">【テスト用サンプル書類 ― 実在の法人情報ではありません / 登記事項証明書ではありません】</div>
+<h1>登記事項証明書（商業登記）風サンプル</h1>
+<p class="subtitle">＊ 本書類はOCR・AI抽出システムの検証用に作成されたテストデータです ＊</p>
+
+<div class="section-header">会社法人等番号・商号・本店に関する事項</div>
+<table>
+  <tr>
+    <th>会社法人等番号</th>
+    <td>{{ case.company.corporate_number or '' }}</td>
+  </tr>
+  <tr>
+    <th>商号</th>
+    <td>{{ case.company.company_name or '' }}</td>
+  </tr>
+  <tr>
+    <th>本店</th>
+    <td>{{ case.company.head_office_address or '' }}</td>
+  </tr>
+  <tr>
+    <th>公告をする方法</th>
+    <td>官報に掲載する方法</td>
+  </tr>
+  <tr>
+    <th>会社成立年月日</th>
+    <td>{{ case.company.established_date or '' }}</td>
+  </tr>
+</table>
+
+<div class="section-header">目的・資本金等に関する事項</div>
+<table>
+  <tr>
+    <th>目的</th>
+    <td>{{ case.company.business_description or '' }}</td>
+  </tr>
+  <tr>
+    <th>資本金の額</th>
+    <td>{{ case.company.capital or '' }}</td>
+  </tr>
+  <tr>
+    <th>発行可能株式総数</th>
+    <td>10,000株</td>
+  </tr>
+  <tr>
+    <th>発行済株式の総数</th>
+    <td>1,000株</td>
+  </tr>
+</table>
+
+<div class="section-header">役員に関する事項</div>
+<table>
+  <tr>
+    <th>代表取締役</th>
+    <td>{{ case.company.representative_name or '' }}</td>
+  </tr>
+  <tr>
+    <th>就任年月日</th>
+    <td>{{ case.company.established_date or '' }}</td>
+  </tr>
+</table>
+
+<div class="section-header">登記記録に関する事項</div>
+<table>
+  <tr>
+    <th>設立</th>
+    <td>{{ case.company.established_date or '' }}設立</td>
+  </tr>
+</table>
+
+<p class="issue-info">
+  証明書発行日：　　　　年　　月　　日<br>
+  法務局：サンプル法務局（テスト用）
+</p>
+<p class="footer-note">
+  ※ 本書類はOCR・LLM・Document AIシステムの検証を目的として作成されたサンプルです。
+  実在する法人の登記情報ではありません。公的書類として使用することはできません。
+</p>
+</body>
+</html>
