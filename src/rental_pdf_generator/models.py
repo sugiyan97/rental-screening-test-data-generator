@@ -95,6 +95,10 @@ class Income(BaseModel):
     commuting_allowance: str | None = None
     bonus: str | None = None
     certificate_expiry: str | None = None
+    # 確定申告書型（自営業・フリーランス）
+    business_income: str | None = None
+    deductible_expenses: str | None = None
+    taxable_income: str | None = None
 
 
 class Guarantor(BaseModel):
@@ -108,6 +112,19 @@ class Guarantor(BaseModel):
     annual_income: str | None = None
 
 
+class GuarantorIncome(BaseModel):
+    income_year: str | None = None
+    annual_income: str | None = None
+    monthly_income: str | None = None
+    income_type: str | None = None
+    employer_name: str | None = None
+    employer_phone: str | None = None
+    employer_address: str | None = None
+    issue_date: str | None = None
+    base_salary: str | None = None
+    bonus: str | None = None
+
+
 class IdentityDocument(BaseModel):
     license_number: str | None = None
     my_number: str | None = None
@@ -117,10 +134,15 @@ class IdentityDocument(BaseModel):
     expiry: str | None = None
     issue_date: str | None = None
     issue_place: str | None = None
+    # 在留カード用
+    residence_card_number: str | None = None
+    visa_type: str | None = None
+    period_of_stay: str | None = None
 
 
 class Case(BaseModel):
     case_id: str
+    description: str | None = None
     applicant_type: Literal["corporate", "individual", "sole_proprietor"]
     documents: list[DocumentSpec]
     company: Company | None = None
@@ -132,4 +154,6 @@ class Case(BaseModel):
     income: Income | None = None
     property: Property | None = None
     guarantor: Guarantor | None = None
+    guarantor_income: GuarantorIncome | None = None
     identity_document: IdentityDocument | None = None
+    guarantor_identity_document: IdentityDocument | None = None

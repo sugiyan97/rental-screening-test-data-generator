@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
+
+@page {
+  size: A4;
+  margin: 15mm 20mm;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif;
+}
+
+body {
+  font-size: 10pt;
+  line-height: 1.6;
+  color: #222;
+  margin: 0;
+}
+
+h1 {
+  font-size: 14pt;
+  text-align: center;
+  margin: 0 0 4px;
+  letter-spacing: 0.1em;
+}
+
+.h1-sub {
+  text-align: center;
+  font-size: 9pt;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+.cert-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 8.5pt;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+.sample-notice {
+  background: #fff3cd;
+  border: 2px solid #ffc107;
+  padding: 4px 12px;
+  margin-bottom: 10px;
+  font-size: 8.5pt;
+  font-weight: bold;
+  text-align: center;
+  color: #856404;
+}
+
+h2 {
+  font-size: 10.5pt;
+  margin: 12px 0 5px;
+  background: #eee;
+  padding: 3px 8px;
+  border-left: 4px solid #555;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 9.5pt;
+  margin-bottom: 10px;
+}
+
+th, td {
+  border: 1px solid #666;
+  padding: 4px 9px;
+  vertical-align: middle;
+}
+
+th {
+  background-color: #f5f5f5;
+  font-weight: 700;
+  width: 38%;
+}
+
+.income-highlight {
+  font-size: 12pt;
+  font-weight: bold;
+  color: #1a3c6e;
+}
+
+.calc-table th {
+  width: 50%;
+}
+
+.calc-table td {
+  text-align: right;
+  font-size: 10pt;
+}
+
+.calc-row-deduct td {
+  color: #c0392b;
+}
+
+.calc-row-total th, .calc-row-total td {
+  background: #e8f4e8;
+  font-weight: bold;
+  font-size: 10.5pt;
+}
+
+.tax-section {
+  margin-top: 16px;
+  border: 1px solid #aaa;
+  padding: 8px 12px;
+  background: #fafafa;
+}
+
+.tax-section h3 {
+  font-size: 10pt;
+  margin: 0 0 6px;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 3px;
+}
+
+.tax-table {
+  font-size: 9pt;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tax-table td {
+  padding: 2px 6px;
+  border-bottom: 1px dotted #ddd;
+}
+
+.tax-table td:first-child {
+  font-weight: bold;
+  width: 40%;
+}
+
+.official-mark {
+  float: right;
+  border: 1px solid #888;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8pt;
+  color: #888;
+  margin-top: -64px;
+  text-align: center;
+}
+
+.footer-note {
+  font-size: 8pt;
+  color: #666;
+  border-top: 1px solid #ccc;
+  padding-top: 6px;
+  margin-top: 12px;
+  clear: both;
+}
+</style>
+</head>
+<body>
+<div class="sample-notice">【テスト用サンプル書類 ― 実在の個人情報ではありません / 確定申告書ではありません】</div>
+<h1>確定申告書（第一表）風サンプル</h1>
+<p class="h1-sub">所得税及び復興特別所得税の申告書</p>
+
+<div class="cert-meta">
+  <span>申告書ID：{{ case.case_id }}-TAX</span>
+  <span>申告年度：{{ case.income.income_year if case.income else '' }}</span>
+  <span>提出日：{{ case.income.issue_date if case.income else '' }}</span>
+</div>
+
+<h2>■ 申告者情報</h2>
+<table>
+  <tr>
+    <th>氏名</th>
+    <td>{{ case.applicant.name if case.applicant else '' }}</td>
+  </tr>
+  <tr>
+    <th>住所</th>
+    <td>{{ case.applicant.current_address if case.applicant else '' }}</td>
+  </tr>
+  <tr>
+    <th>生年月日</th>
+    <td>{{ case.applicant.birth_date if case.applicant else '' }}</td>
+  </tr>
+  <tr>
+    <th>職業</th>
+    <td>{{ case.income.income_type if case.income else '' }}</td>
+  </tr>
+  <tr>
+    <th>屋号・雅号</th>
+    <td>{{ case.employment.employer_name if case.employment else '' }}</td>
+  </tr>
+</table>
+
+<h2>■ 収入・所得の計算</h2>
+<table class="calc-table">
+  <tr>
+    <th>事業収入（売上高）</th>
+    <td>{{ case.income.business_income if case.income else '' }}</td>
+  </tr>
+  <tr class="calc-row-deduct">
+    <th>　必要経費</th>
+    <td>△ {{ case.income.deductible_expenses if case.income else '' }}</td>
+  </tr>
+  <tr class="calc-row-total">
+    <th>事業所得</th>
+    <td><span class="income-highlight">{{ case.income.annual_income if case.income else '' }}</span></td>
+  </tr>
+  <tr>
+    <th>課税所得金額</th>
+    <td>{{ case.income.taxable_income if case.income else '' }}</td>
+  </tr>
+</table>
+
+<div class="tax-section">
+  <div class="official-mark">収受印<br>（ダミー）</div>
+  <h3>税務署受付情報</h3>
+  <table class="tax-table">
+    <tr>
+      <td>提出先税務署</td>
+      <td>{{ case.income.issuer_name if case.income else '' }}</td>
+    </tr>
+    <tr>
+      <td>申告区分</td>
+      <td>□ 青色申告　☑ 白色申告</td>
+    </tr>
+    <tr>
+      <td>提出方法</td>
+      <td>□ e-Tax　□ 書面提出</td>
+    </tr>
+    <tr>
+      <td>申告書提出日</td>
+      <td>{{ case.income.issue_date if case.income else '' }}</td>
+    </tr>
+  </table>
+</div>
+
+<p class="footer-note">
+  ※ 本書類はOCR・LLM・Document AIシステムの検証を目的として作成されたテスト用サンプルです。
+  実在する個人の納税情報ではありません。公的書類として使用することはできません。
+</p>
+</body>
+</html>
