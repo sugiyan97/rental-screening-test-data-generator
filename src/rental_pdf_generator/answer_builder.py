@@ -333,6 +333,42 @@ def _build_offer_letter(case: Case) -> dict[str, Any]:
     }
 
 
+def _build_business_license_application(case: Case) -> dict[str, Any]:
+    c = case.company
+    p = case.property
+    bla = case.business_license_application
+    return {
+        "company_name": _get(c, "company_name"),
+        "applicant_name": _get(bla, "applicant_name"),
+        "business_type": _get(bla, "business_type"),
+        "license_address": _get(bla, "license_address"),
+        "application_date": _get(bla, "application_date"),
+        "receipt_number": _get(bla, "receipt_number"),
+        "issuing_authority": _get(bla, "issuing_authority"),
+        "expected_issue_date": _get(bla, "expected_issue_date"),
+        "status_note": _get(bla, "status_note"),
+        "property_name": _get(p, "property_name"),
+    }
+
+
+def _build_business_use_pledge(case: Case) -> dict[str, Any]:
+    c = case.company
+    p = case.property
+    bup = case.business_use_pledge
+    return {
+        "company_name": _get(c, "company_name"),
+        "pledger_name": _get(bup, "pledger_name"),
+        "representative_name": _get(bup, "representative_name"),
+        "pledge_date": _get(bup, "pledge_date"),
+        "original_business_type": _get(bup, "original_business_type"),
+        "changed_business_type": _get(bup, "changed_business_type"),
+        "change_reason": _get(bup, "change_reason"),
+        "license_required": _get(bup, "license_required"),
+        "property_name": _get(p, "property_name"),
+        "property_address": _get(p, "property_address"),
+    }
+
+
 def _build_student_id(case: Case) -> dict[str, Any]:
     s = case.student
     return {
@@ -427,6 +463,8 @@ _BUILDERS: dict[str, Callable[[Case], dict[str, Any]]] = {
     "guarantee_company_application": _build_guarantee_company_application,
     "offer_letter": _build_offer_letter,
     "student_id": _build_student_id,
+    "business_license_application": _build_business_license_application,
+    "business_use_pledge": _build_business_use_pledge,
 }
 
 

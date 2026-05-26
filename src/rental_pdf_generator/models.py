@@ -235,6 +235,27 @@ class PreviousEmployment(BaseModel):
     end_date: str | None = None
 
 
+class BusinessLicenseApplication(BaseModel):
+    applicant_name: str | None = None
+    business_type: str | None = None
+    license_address: str | None = None
+    application_date: str | None = None
+    receipt_number: str | None = None
+    issuing_authority: str | None = None
+    expected_issue_date: str | None = None
+    status_note: str | None = None
+
+
+class BusinessUsePledge(BaseModel):
+    pledger_name: str | None = None
+    representative_name: str | None = None
+    pledge_date: str | None = None
+    original_business_type: str | None = None
+    changed_business_type: str | None = None
+    change_reason: str | None = None
+    license_required: str | None = None
+
+
 class Student(BaseModel):
     name: str | None = None
     kana: str | None = None
@@ -279,3 +300,6 @@ class Case(BaseModel):
     offer_letter: OfferLetter | None = None
     previous_employment: PreviousEmployment | None = None
     student: Student | None = None
+    # 営業許可書の有無パターン
+    business_license_application: BusinessLicenseApplication | None = None
+    business_use_pledge: BusinessUsePledge | None = None

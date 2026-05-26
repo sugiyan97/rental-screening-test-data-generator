@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
+
+@page {
+  size: A4;
+  margin: 20mm 22mm;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif;
+}
+
+body {
+  font-size: 10pt;
+  line-height: 1.7;
+  color: #222;
+  margin: 0;
+}
+
+.sample-notice {
+  background: #fff3cd;
+  border: 2px solid #ffc107;
+  padding: 4px 12px;
+  margin-bottom: 8px;
+  font-size: 8.5pt;
+  font-weight: bold;
+  text-align: center;
+  color: #856404;
+}
+
+.status-banner {
+  background: #fdecea;
+  border: 2px solid #c0392b;
+  padding: 6px 14px;
+  margin-bottom: 12px;
+  font-size: 10pt;
+  font-weight: bold;
+  text-align: center;
+  color: #922b21;
+}
+
+h1 {
+  font-size: 16pt;
+  text-align: center;
+  margin: 6px 0 4px;
+  letter-spacing: 0.1em;
+}
+
+.h1-sub {
+  text-align: center;
+  font-size: 9pt;
+  color: #555;
+  margin-bottom: 14px;
+}
+
+.doc-meta {
+  text-align: right;
+  font-size: 9pt;
+  color: #444;
+  margin-bottom: 16px;
+}
+
+.receipt-stamp {
+  float: right;
+  width: 90px;
+  height: 90px;
+  border: 2px solid #c0392b;
+  border-radius: 50%;
+  text-align: center;
+  font-size: 9pt;
+  color: #c0392b;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-left: 12px;
+  margin-bottom: 6px;
+}
+
+.receipt-stamp .label {
+  font-size: 8pt;
+  margin-bottom: 2px;
+}
+
+.receipt-stamp .date {
+  font-size: 8pt;
+  font-weight: bold;
+}
+
+table.app-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 10pt;
+  margin: 10px 0;
+}
+
+table.app-table th,
+table.app-table td {
+  border: 1px solid #555;
+  padding: 6px 10px;
+  vertical-align: middle;
+}
+
+table.app-table th {
+  background: #efefef;
+  font-weight: bold;
+  width: 32%;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.notice-box {
+  border: 1.5px solid #c0392b;
+  background: #fdf2f0;
+  padding: 8px 12px;
+  margin: 14px 0;
+  font-size: 9.5pt;
+}
+
+.notice-box h3 {
+  font-size: 10pt;
+  margin: 0 0 4px;
+  color: #c0392b;
+}
+
+.issuer-section {
+  margin-top: 24px;
+  padding: 8px 12px;
+  border: 1px solid #aaa;
+  background: #fafafa;
+}
+
+.footer-note {
+  font-size: 8pt;
+  color: #666;
+  border-top: 1px solid #ccc;
+  padding-top: 6px;
+  margin-top: 14px;
+}
+</style>
+</head>
+<body>
+<div class="sample-notice">【テスト用サンプル書類 ― 実在の許可情報ではありません / 営業許可申請書ではありません】</div>
+<div class="status-banner">⚠ 営業許可申請中 — 許可書未交付（{{ case.business_license_application.status_note if case.business_license_application else '' }}）</div>
+
+<div class="receipt-stamp">
+  <div class="label">受付印</div>
+  <div class="date">{{ case.business_license_application.application_date if case.business_license_application else '' }}</div>
+  <div style="font-size:7pt;">{{ case.business_license_application.issuing_authority if case.business_license_application else '' }}</div>
+</div>
+
+<h1>飲 食 店 営 業 許 可 申 請 書</h1>
+<p class="h1-sub">食品衛生法第55条第1項に基づく</p>
+
+<p class="doc-meta">
+  受付番号：第 {{ case.business_license_application.receipt_number if case.business_license_application else '' }} 号
+</p>
+
+<table class="app-table">
+  <tr><th>申請者氏名（法人名）</th><td>{{ case.business_license_application.applicant_name if case.business_license_application else '' }}</td></tr>
+  <tr><th>代表者氏名</th><td>{{ case.company.representative_name if case.company else '' }}</td></tr>
+  <tr><th>代表者住所</th><td>{{ case.company.representative_address if case.company else '' }}</td></tr>
+  <tr><th>申請業種</th><td>{{ case.business_license_application.business_type if case.business_license_application else '' }}</td></tr>
+  <tr><th>営業所所在地</th><td>{{ case.business_license_application.license_address if case.business_license_application else '' }}</td></tr>
+  <tr><th>申請受付日</th><td>{{ case.business_license_application.application_date if case.business_license_application else '' }}</td></tr>
+  <tr><th>予定許可交付日</th><td>{{ case.business_license_application.expected_issue_date if case.business_license_application else '' }}</td></tr>
+  <tr><th>許可書交付状況</th><td style="color:#c0392b; font-weight:bold;">{{ case.business_license_application.status_note if case.business_license_application else '' }}</td></tr>
+</table>
+
+<div class="notice-box">
+  <h3>■ 賃貸人への連絡事項</h3>
+  <p>
+    本申請は現在 {{ case.business_license_application.issuing_authority if case.business_license_application else '' }} にて審査中であり、正式な営業許可書はまだ交付されていません。
+    予定交付日（{{ case.business_license_application.expected_issue_date if case.business_license_application else '' }}）に許可書の交付を受け次第、速やかに賃貸人へ写しを提出いたします。
+    なお、許可書交付前の営業は一切行いません。
+  </p>
+</div>
+
+<div class="issuer-section">
+  <div><strong>受付・確認</strong></div>
+  <div>受付庁：{{ case.business_license_application.issuing_authority if case.business_license_application else '' }}</div>
+  <div>受付番号：{{ case.business_license_application.receipt_number if case.business_license_application else '' }}</div>
+  <div>担当者：　　　　　　　　　　　　　　印</div>
+</div>
+
+<p class="footer-note">
+  ※ 本書類はOCR・LLM・Document AIシステムの検証を目的として作成されたテスト用サンプルです。
+  実在する許可申請ではありません。公的書類として使用することはできません。
+</p>
+</body>
+</html>
