@@ -8,7 +8,7 @@ OCR・LLM・Document AI などの抽出システムを検証するため、**架
 
 ## 収録ケース一覧
 
-`input/cases.jsonl` に以下の 6 ケースが収録されている。
+`input/cases.jsonl` に以下の 15 ケースが収録されている。
 
 | ケースID | 申込者区分 | シナリオ | 生成書類 |
 |---|---|---|---|
@@ -18,6 +18,15 @@ OCR・LLM・Document AI などの抽出システムを検証するため、**架
 | CASE-000004 | 個人（自営業者） | **個人・自営業者/フリーランス** — 個人事業主が確定申告書で収入証明するパターン | 個人申込書・確定申告書風・マイナンバーカード |
 | CASE-000005 | 法人（新設） | **法人・新設会社（決算書なし）** — 第1期未終了のため決算書なし。事業計画書と代表者個人IDで審査を受けるスタートアップ向けパターン | 法人申込書・登記簿謄本・事業計画書・代表者運転免許証 |
 | CASE-000006 | 個人（外国籍） | **個人・外国籍（就労ビザ保有者）** — 在留カード＋パスポートで本人確認。外国籍申込者向け標準書類セット | 個人申込書・収入証明書・パスポート・在留カード |
+| CASE-000007 | 法人 | **法人・代表者連帯保証付き** — 中小企業オーナー（代表者）個人が連帯保証する最も一般的な法人パターン | 法人申込書・登記簿・決算書・代表者ID・代表者収入証明・連帯保証契約書 |
+| CASE-000008 | 法人（子会社） | **法人・親会社グループ保証** — 子会社が賃借人、親会社が連帯保証するグループ企業契約 | 法人申込書・子会社登記簿・親会社登記簿・親会社決算書・親会社保証書 |
+| CASE-000009 | 法人 | **法人・店舗用物件契約** — 飲食店経営法人による事業用物件賃貸、営業許可証付き | 法人申込書・登記簿・決算書・事業計画書・営業許可証 |
+| CASE-000010 | 法人 | **法人・上場企業/大手企業** — 業歴20年以上・売上規模100億円超の大企業による社宅契約。決算書のみで審査完結 | 法人申込書・登記簿・決算書 |
+| CASE-000011 | 個人（給与所得者） | **個人・連帯保証人2名（両親保証）** — 高額物件で両親（父・母）が共に連帯保証するパターン | 個人申込書・本人収入・本人ID・保証人1収入・保証人1ID・保証人2収入・保証人2ID |
+| CASE-000012 | 個人（給与所得者） | **個人・保証会社＋連帯保証人併用** — 厳格審査で保証会社と連帯保証人の両方を要求するパターン | 個人申込書・本人収入・本人ID・保証人収入・保証人ID・保証会社申込書 |
+| CASE-000013 | 個人（給与所得者） | **個人・転職直後** — 内定通知書と前職源泉徴収票で年収を証明する入社前住居確保パターン | 個人申込書・内定通知書・源泉徴収票・本人ID |
+| CASE-000014 | 個人（給与所得者） | **個人・学生（親が契約者）** — 親が契約者、学生は同居人。親の収入証明＋学生証を提出する大学生向け賃貸 | 個人申込書・親収入証明・親ID・学生証 |
+| CASE-000015 | 法人 | **法人・個人連帯保証人付き（シンプル版）** — 法人＋既存 guarantor_* テンプレートで個人連帯保証人書類を提出する標準的な中小企業パターン | 法人申込書・登記簿・決算書・保証人収入証明・保証人ID |
 
 ---
 
@@ -27,25 +36,42 @@ OCR・LLM・Document AI などの抽出システムを検証するため、**架
 |---|---|---|
 | `rental_application_individual` | 個人用入居申込書 | `standard`, `handwritten_like` |
 | `rental_application_corporate` | 法人用入居申込書 | `standard`, `handwritten_like` |
-| `income_certificate` | 収入証明書風（在職証明兼） | `salary_certificate`, `tax_return` |
+| `income_certificate` | 収入証明書風 | `salary_certificate`, `tax_return`, `withholding_slip` |
 | `registry_certificate` | 登記簿謄本風 | `registry_table` |
 | `financial_statement` | 決算書風（財務サマリー） | `financial_summary` |
 | `business_plan` | 事業計画書 | `narrative` |
 | `identity_document` | 本人確認書類（申込者） | `drivers_license`, `my_number_card`, `passport`, `residence_card` |
 | `guarantor_income_certificate` | 連帯保証人用収入証明書 | `salary_certificate` |
 | `guarantor_identity_document` | 連帯保証人用本人確認書類 | `drivers_license` |
+| `guarantor_2_income_certificate` | 第2連帯保証人用収入証明書 | `salary_certificate` |
+| `guarantor_2_identity_document` | 第2連帯保証人用本人確認書類 | `drivers_license` |
+| `corporate_guarantee_contract` | 代表者連帯保証契約書（法人賃貸借契約附属） | `standard` |
+| `parent_company_guarantee_letter` | 親会社保証書（グループ保証） | `standard` |
+| `parent_company_registry_certificate` | 親会社登記簿謄本風 | `registry_table` |
+| `parent_company_financial_statement` | 親会社財務サマリー | `financial_summary` |
+| `business_license` | 営業許可証風 | `restaurant` |
+| `guarantee_company_application` | 家賃保証会社申込書 | `standard` |
+| `offer_letter` | 内定通知書 | `standard` |
+| `student_id` | 学生証カード型 | `standard` |
 
 ### 各書類の特徴
 
-- **入居申込書**（個人・法人）— 保証人欄・同居者欄・担当者欄・反社確認文言等を含む業務品質フォーマット
+- **入居申込書**（個人・法人）— 保証人欄・同居者欄・担当者欄・反社確認文言等を含む業務品質フォーマット。`case.guarantor_2` `case.student` が設定された場合は第2保証人・同居人セクションが自動表示される
 - **手書き風バリアント** — Klee One フォント（Google Fonts / OFL）で記入欄をレンダリング
 - **収入証明書（給与所得）** — 給与内訳（基本給・残業手当・通勤手当・賞与）・証明有効期限付き
 - **収入証明書（確定申告）** — 事業収入・必要経費・事業所得の計算式を含む確定申告書第一表風フォーマット
+- **収入証明書（源泉徴収票）** — 前職源泉徴収票風。支払金額・源泉徴収税額・社会保険料・退職日を表示
 - **登記簿謄本風** — 法務局形式に近い原因・日付・登記事項の列構成
 - **財務サマリー** — 2期比較列・経営指標欄付き
 - **事業計画書** — 3ヵ年計画表・資金調達計画・SWOT 分析欄付き
 - **本人確認書類** — 運転免許証・マイナンバーカード・パスポート・在留カード（いずれも顔写真ダミー入り）
-- **連帯保証人書類** — 保証人用の収入証明書・本人確認書類（書類上部に「連帯保証人用」バッジを表示）
+- **連帯保証人書類** — 保証人用の収入証明書・本人確認書類（書類上部に「連帯保証人用」バッジを表示）。第2保証人用には別途 `guarantor_2_*` 系を使用
+- **代表者連帯保証契約書** — 法人代表者個人が連帯保証する契約書フォーマット（被保証会社／連帯保証人／対象物件／保証条件／署名捺印欄）
+- **親会社系書類** — グループ保証用の親会社登記簿・親会社決算書・親会社保証書セット（書類上部に「親会社用」バッジを表示）
+- **営業許可証** — 飲食店営業許可証風（食品衛生法基準、保健所発行スタイル）
+- **保証会社申込書** — 家賃保証委託申込書（プラン詳細・保証料・反社確認）
+- **内定通知書** — 採用会社・職位・入社予定日・予定年収を記載した転職者向け書類
+- **学生証** — カード型（学籍番号・学校名・学部・有効期限）。同居人として学生がいる場合に使用
 
 ---
 
@@ -240,6 +266,7 @@ templates/
   income_certificate/
     salary_certificate.html  給与所得者向け在職証明兼年収証明書
     tax_return.html          自営業者向け確定申告書第一表風
+    withholding_slip.html    前職源泉徴収票風（転職者用）
   registry_certificate/
     registry_table.html
   financial_statement/
@@ -255,6 +282,26 @@ templates/
     salary_certificate.html  連帯保証人用在職証明兼年収証明書
   guarantor_identity_document/
     drivers_license.html     連帯保証人用運転免許証風
+  guarantor_2_income_certificate/
+    salary_certificate.html  第2連帯保証人用収入証明書
+  guarantor_2_identity_document/
+    drivers_license.html     第2連帯保証人用運転免許証風
+  corporate_guarantee_contract/
+    standard.html            代表者連帯保証契約書（法人賃貸用）
+  parent_company_guarantee_letter/
+    standard.html            親会社保証書（グループ保証用）
+  parent_company_registry_certificate/
+    registry_table.html      親会社登記簿謄本
+  parent_company_financial_statement/
+    financial_summary.html   親会社決算書
+  business_license/
+    restaurant.html          飲食店営業許可証
+  guarantee_company_application/
+    standard.html            家賃保証会社申込書
+  offer_letter/
+    standard.html            内定通知書
+  student_id/
+    standard.html            学生証
 tests/          テストコード
 docs/           要件定義書
 ```

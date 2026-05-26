@@ -330,6 +330,60 @@ th {
   {% endif %}
 </table>
 
+{% if case.guarantor_2 %}
+<h2>■ 連帯保証人②</h2>
+<table>
+  <tr>
+    <th>氏名</th>
+    <td class="hw">{{ case.guarantor_2.name or '' }}</td>
+    <th>フリガナ</th>
+    <td class="hw">{{ case.guarantor_2.kana or '' }}</td>
+  </tr>
+  <tr>
+    <th>生年月日</th>
+    <td class="hw">{{ case.guarantor_2.birth_date or '' }}</td>
+    <th>続柄</th>
+    <td class="hw">{{ case.guarantor_2.relationship or '' }}</td>
+  </tr>
+  <tr>
+    <th>現住所</th>
+    <td colspan="3" class="hw">{{ case.guarantor_2.current_address or '' }}</td>
+  </tr>
+  <tr>
+    <th>電話番号</th>
+    <td class="hw">{{ case.guarantor_2.phone or '' }}</td>
+    <th>勤務先</th>
+    <td class="hw">{{ case.guarantor_2.employer_name or '' }}</td>
+  </tr>
+  <tr>
+    <th>年収（税込）</th>
+    <td colspan="3" class="hw">{{ case.guarantor_2.annual_income or '' }}</td>
+  </tr>
+</table>
+{% endif %}
+
+{% if case.student %}
+<h2>■ 同居人（学生）</h2>
+<table>
+  <tr>
+    <th>氏名</th>
+    <td class="hw">{{ case.student.name or '' }}</td>
+    <th>続柄</th>
+    <td class="hw">{{ case.student.relationship_to_applicant or '' }}</td>
+  </tr>
+  <tr>
+    <th>生年月日</th>
+    <td class="hw">{{ case.student.birth_date or '' }}</td>
+    <th>学年</th>
+    <td class="hw">{{ case.student.grade or '' }}</td>
+  </tr>
+  <tr>
+    <th>学校名</th>
+    <td colspan="3" class="hw">{{ case.student.school_name or '' }}</td>
+  </tr>
+</table>
+{% endif %}
+
 <h2>■ 確認・同意事項</h2>
 <div class="consent-box">
   <p>□ 賃貸借契約の内容を十分に理解し、契約条件に同意します。</p>

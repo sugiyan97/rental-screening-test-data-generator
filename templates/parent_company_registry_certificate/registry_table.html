@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
+
+@page {
+  size: A4;
+  margin: 15mm 20mm;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif;
+}
+
+body {
+  font-size: 9.5pt;
+  line-height: 1.6;
+  color: #111;
+  margin: 0;
+}
+
+h1 {
+  font-size: 14pt;
+  text-align: center;
+  margin: 0 0 4px;
+  letter-spacing: 0.15em;
+}
+
+.cert-subtitle {
+  text-align: center;
+  font-size: 9pt;
+  color: #444;
+  margin-bottom: 10px;
+}
+
+.sample-notice {
+  background: #fff3cd;
+  border: 2px solid #e6a817;
+  padding: 4px 12px;
+  margin-bottom: 8px;
+  font-size: 8.5pt;
+  font-weight: bold;
+  text-align: center;
+  color: #856404;
+}
+
+.parent-badge {
+  background: #fdebd0;
+  border: 1px solid #d68910;
+  padding: 3px 12px;
+  margin-bottom: 10px;
+  font-size: 9pt;
+  font-weight: bold;
+  text-align: center;
+  color: #7e5109;
+}
+
+.section-header {
+  background-color: #d0d0d0;
+  font-weight: bold;
+  font-size: 9.5pt;
+  padding: 3px 8px;
+  border: 1px solid #555;
+  border-bottom: none;
+}
+
+table.registry {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 9pt;
+  margin-bottom: 12px;
+}
+
+table.registry th,
+table.registry td {
+  border: 1px solid #555;
+  padding: 3px 8px;
+  vertical-align: top;
+}
+
+table.registry th {
+  background-color: #efefef;
+  font-weight: 700;
+  width: 28%;
+  white-space: nowrap;
+}
+
+table.registry td.cause {
+  width: 20%;
+  color: #333;
+  font-size: 8.5pt;
+}
+
+table.registry td.date {
+  width: 20%;
+  font-size: 8.5pt;
+}
+
+table.registry td.content {
+  width: 32%;
+}
+
+.issue-info {
+  font-size: 8.5pt;
+  text-align: right;
+  margin-top: 10px;
+  color: #444;
+  border-top: 1px solid #ccc;
+  padding-top: 6px;
+}
+
+.footer-note {
+  font-size: 8pt;
+  color: #666;
+  border-top: 1px solid #ccc;
+  padding-top: 5px;
+  margin-top: 8px;
+}
+</style>
+</head>
+<body>
+<div class="sample-notice">【テスト用サンプル書類 ― 実在の法人情報ではありません / 登記事項証明書ではありません】</div>
+<div class="parent-badge">■ 親会社用 — 登記事項証明書（グループ保証審査添付資料）</div>
+<h1>登 記 事 項 証 明 書（親会社）</h1>
+<p class="cert-subtitle">テスト用サンプル ＊ 本書類はOCR・AI抽出システムの検証用です ＊</p>
+
+<div class="section-header">■ 会社法人等番号・商号・本店に関する事項</div>
+<table class="registry">
+  <tr>
+    <th>会社法人等番号</th>
+    <td colspan="3">{{ case.parent_company.corporate_number if case.parent_company else '' }}</td>
+  </tr>
+  <tr>
+    <th>商号</th>
+    <td class="content">{{ case.parent_company.company_name if case.parent_company else '' }}</td>
+    <td class="cause">原因</td>
+    <td class="date">{{ case.parent_company.established_date if case.parent_company else '' }}登記</td>
+  </tr>
+  <tr>
+    <th>本店</th>
+    <td class="content">{{ case.parent_company.head_office_address if case.parent_company else '' }}</td>
+    <td class="cause">原因</td>
+    <td class="date">{{ case.parent_company.established_date if case.parent_company else '' }}移転</td>
+  </tr>
+  <tr>
+    <th>公告をする方法</th>
+    <td colspan="3">官報に掲載する方法による。</td>
+  </tr>
+  <tr>
+    <th>会社成立年月日</th>
+    <td colspan="3">{{ case.parent_company.established_date if case.parent_company else '' }}</td>
+  </tr>
+</table>
+
+<div class="section-header">■ 目的・資本金等に関する事項</div>
+<table class="registry">
+  <tr>
+    <th>目的</th>
+    <td colspan="3">{{ case.parent_company.business_description if case.parent_company else '' }}</td>
+  </tr>
+  <tr>
+    <th>資本金の額</th>
+    <td class="content">{{ case.parent_company.capital if case.parent_company else '' }}</td>
+    <td class="cause">原因</td>
+    <td class="date">{{ case.parent_company.established_date if case.parent_company else '' }}設立</td>
+  </tr>
+  <tr>
+    <th>事業年度</th>
+    <td colspan="3">{{ case.parent_company.fiscal_year_end if case.parent_company else '' }}</td>
+  </tr>
+</table>
+
+<div class="section-header">■ 役員に関する事項</div>
+<table class="registry">
+  <tr>
+    <th>資格</th>
+    <td class="content">代表取締役</td>
+    <td class="cause">原因</td>
+    <td class="date">{{ case.parent_company.established_date if case.parent_company else '' }}就任</td>
+  </tr>
+  <tr>
+    <th>氏名</th>
+    <td colspan="3">{{ case.parent_company.representative_name if case.parent_company else '' }}</td>
+  </tr>
+</table>
+
+<p class="issue-info">
+  証明書発行日：&emsp;&emsp;&emsp;&emsp;年&emsp;&emsp;月&emsp;&emsp;日<br>
+  法務局：サンプル地方法務局（テスト用）&emsp;&emsp;整理番号：SMPL-PAR-99999
+</p>
+<p class="footer-note">
+  ※ 本書類はOCR・LLM・Document AIシステムの検証を目的として作成されたサンプルです。
+  実在する法人の登記情報ではありません。公的書類として使用することはできません。
+</p>
+</body>
+</html>

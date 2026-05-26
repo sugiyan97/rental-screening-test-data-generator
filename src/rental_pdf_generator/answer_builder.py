@@ -89,6 +89,8 @@ def _build_rental_application_individual(case: Case) -> dict[str, Any]:
     p = case.property
     ec = case.emergency_contact
     g = case.guarantor
+    g2 = case.guarantor_2
+    s = case.student
     return {
         "name": _get(a, "name"),
         "kana": _get(a, "kana"),
@@ -123,12 +125,24 @@ def _build_rental_application_individual(case: Case) -> dict[str, Any]:
         "guarantor_phone": _get(g, "phone"),
         "guarantor_employer_name": _get(g, "employer_name"),
         "guarantor_annual_income": _get(g, "annual_income"),
+        "guarantor_2_name": _get(g2, "name"),
+        "guarantor_2_kana": _get(g2, "kana"),
+        "guarantor_2_birth_date": _get(g2, "birth_date"),
+        "guarantor_2_relationship": _get(g2, "relationship"),
+        "guarantor_2_current_address": _get(g2, "current_address"),
+        "guarantor_2_phone": _get(g2, "phone"),
+        "guarantor_2_employer_name": _get(g2, "employer_name"),
+        "guarantor_2_annual_income": _get(g2, "annual_income"),
+        "cohabitant_student_name": _get(s, "name"),
+        "cohabitant_student_relationship": _get(s, "relationship_to_applicant"),
+        "cohabitant_student_school_name": _get(s, "school_name"),
     }
 
 
 def _build_income_certificate(case: Case) -> dict[str, Any]:
     a = case.applicant
     i = case.income
+    pe = case.previous_employment
     return {
         "name": _get(a, "name"),
         "current_address": _get(a, "current_address"),
@@ -143,6 +157,195 @@ def _build_income_certificate(case: Case) -> dict[str, Any]:
         "issuer_name": _get(i, "issuer_name"),
         "issue_date": _get(i, "issue_date"),
         "certificate_expiry": _get(i, "certificate_expiry"),
+        "previous_employer_name": _get(pe, "employer_name"),
+        "previous_employment_period": _get(pe, "employment_period"),
+        "previous_gross_income": _get(pe, "gross_income"),
+        "previous_withholding_tax": _get(pe, "withholding_tax"),
+        "previous_social_insurance": _get(pe, "social_insurance"),
+        "previous_end_date": _get(pe, "end_date"),
+    }
+
+
+def _build_corporate_guarantee_contract(case: Case) -> dict[str, Any]:
+    c = case.company
+    p = case.property
+    cg = case.corporate_guarantee
+    return {
+        "company_name": _get(c, "company_name"),
+        "company_address": _get(c, "head_office_address"),
+        "property_name": _get(p, "property_name"),
+        "property_address": _get(p, "property_address"),
+        "rent": _get(p, "rent"),
+        "guarantor_name": _get(cg, "guarantor_name"),
+        "guarantor_kana": _get(cg, "guarantor_kana"),
+        "guarantor_address": _get(cg, "guarantor_address"),
+        "guarantor_birth_date": _get(cg, "guarantor_birth_date"),
+        "relationship_to_company": _get(cg, "relationship_to_company"),
+        "guarantee_amount": _get(cg, "guarantee_amount"),
+        "guarantee_period": _get(cg, "guarantee_period"),
+        "contract_date": _get(cg, "contract_date"),
+    }
+
+
+def _build_parent_company_guarantee_letter(case: Case) -> dict[str, Any]:
+    c = case.company
+    pc = case.parent_company
+    p = case.property
+    return {
+        "subsidiary_name": _get(c, "company_name"),
+        "subsidiary_address": _get(c, "head_office_address"),
+        "subsidiary_representative_name": _get(c, "representative_name"),
+        "parent_company_name": _get(pc, "company_name"),
+        "parent_company_address": _get(pc, "head_office_address"),
+        "parent_company_representative_name": _get(pc, "representative_name"),
+        "parent_company_capital": _get(pc, "capital"),
+        "parent_company_corporate_number": _get(pc, "corporate_number"),
+        "relationship": _get(pc, "relationship"),
+        "property_name": _get(p, "property_name"),
+        "property_address": _get(p, "property_address"),
+        "rent": _get(p, "rent"),
+    }
+
+
+def _build_parent_company_registry_certificate(case: Case) -> dict[str, Any]:
+    pc = case.parent_company
+    return {
+        "company_name": _get(pc, "company_name"),
+        "corporate_number": _get(pc, "corporate_number"),
+        "head_office_address": _get(pc, "head_office_address"),
+        "representative_name": _get(pc, "representative_name"),
+        "established_date": _get(pc, "established_date"),
+        "capital": _get(pc, "capital"),
+        "business_description": _get(pc, "business_description"),
+        "fiscal_year_end": _get(pc, "fiscal_year_end"),
+    }
+
+
+def _build_parent_company_financial_statement(case: Case) -> dict[str, Any]:
+    pc = case.parent_company
+    f = case.parent_company_financials
+    return {
+        "company_name": _get(pc, "company_name"),
+        "fiscal_year": _get(f, "fiscal_year"),
+        "sales": _get(f, "sales"),
+        "operating_income": _get(f, "operating_income"),
+        "ordinary_income": _get(f, "ordinary_income"),
+        "net_income": _get(f, "net_income"),
+        "total_assets": _get(f, "total_assets"),
+        "total_liabilities": _get(f, "total_liabilities"),
+        "net_assets": _get(f, "net_assets"),
+    }
+
+
+def _build_business_license(case: Case) -> dict[str, Any]:
+    c = case.company
+    bl = case.business_license
+    return {
+        "company_name": _get(c, "company_name"),
+        "license_name": _get(bl, "license_name"),
+        "license_number": _get(bl, "license_number"),
+        "licensee_name": _get(bl, "licensee_name"),
+        "business_type": _get(bl, "business_type"),
+        "license_address": _get(bl, "license_address"),
+        "issue_date": _get(bl, "issue_date"),
+        "expiry": _get(bl, "expiry"),
+        "issuing_authority": _get(bl, "issuing_authority"),
+    }
+
+
+def _build_guarantor_2_income_certificate(case: Case) -> dict[str, Any]:
+    g = case.guarantor_2
+    gi = case.guarantor_2_income
+    return {
+        "name": _get(g, "name"),
+        "current_address": _get(g, "current_address"),
+        "relationship": _get(g, "relationship"),
+        "income_year": _get(gi, "income_year"),
+        "annual_income": _get(gi, "annual_income"),
+        "monthly_income": _get(gi, "monthly_income"),
+        "income_type": _get(gi, "income_type"),
+        "base_salary": _get(gi, "base_salary"),
+        "bonus": _get(gi, "bonus"),
+        "employer_name": _get(gi, "employer_name"),
+        "employer_phone": _get(gi, "employer_phone"),
+        "employer_address": _get(gi, "employer_address"),
+        "issue_date": _get(gi, "issue_date"),
+    }
+
+
+def _build_guarantor_2_identity_document(case: Case) -> dict[str, Any]:
+    g = case.guarantor_2
+    gid = case.guarantor_2_identity_document
+    return {
+        "name": _get(g, "name"),
+        "birth_date": _get(g, "birth_date"),
+        "address": _get(g, "current_address"),
+        "relationship": _get(g, "relationship"),
+        "license_number": _get(gid, "license_number"),
+        "my_number": _get(gid, "my_number"),
+        "passport_number": _get(gid, "passport_number"),
+        "expiry": _get(gid, "expiry"),
+        "issue_date": _get(gid, "issue_date"),
+        "issue_place": _get(gid, "issue_place"),
+    }
+
+
+def _build_guarantee_company_application(case: Case) -> dict[str, Any]:
+    a = case.applicant
+    p = case.property
+    gc = case.guarantee_company
+    return {
+        "applicant_name": _get(a, "name"),
+        "applicant_birth_date": _get(a, "birth_date"),
+        "applicant_current_address": _get(a, "current_address"),
+        "applicant_phone": _get(a, "phone"),
+        "property_name": _get(p, "property_name"),
+        "property_address": _get(p, "property_address"),
+        "rent": _get(p, "rent"),
+        "guarantee_company_name": _get(gc, "company_name"),
+        "guarantee_company_address": _get(gc, "company_address"),
+        "guarantee_company_phone": _get(gc, "company_phone"),
+        "application_date": _get(gc, "application_date"),
+        "plan_name": _get(gc, "plan_name"),
+        "initial_fee": _get(gc, "initial_fee"),
+        "monthly_fee": _get(gc, "monthly_fee"),
+        "coverage_amount": _get(gc, "coverage_amount"),
+        "contract_period": _get(gc, "contract_period"),
+    }
+
+
+def _build_offer_letter(case: Case) -> dict[str, Any]:
+    a = case.applicant
+    ol = case.offer_letter
+    return {
+        "applicant_name": _get(a, "name"),
+        "applicant_current_address": _get(a, "current_address"),
+        "employer_name": _get(ol, "employer_name"),
+        "employer_address": _get(ol, "employer_address"),
+        "employer_phone": _get(ol, "employer_phone"),
+        "department": _get(ol, "department"),
+        "job_title": _get(ol, "job_title"),
+        "start_date": _get(ol, "start_date"),
+        "expected_annual_income": _get(ol, "expected_annual_income"),
+        "expected_monthly_income": _get(ol, "expected_monthly_income"),
+        "issue_date": _get(ol, "issue_date"),
+        "hr_contact_name": _get(ol, "hr_contact_name"),
+    }
+
+
+def _build_student_id(case: Case) -> dict[str, Any]:
+    s = case.student
+    return {
+        "name": _get(s, "name"),
+        "kana": _get(s, "kana"),
+        "birth_date": _get(s, "birth_date"),
+        "school_name": _get(s, "school_name"),
+        "department": _get(s, "department"),
+        "grade": _get(s, "grade"),
+        "student_number": _get(s, "student_number"),
+        "enrollment_date": _get(s, "enrollment_date"),
+        "expected_graduation_date": _get(s, "expected_graduation_date"),
+        "relationship_to_applicant": _get(s, "relationship_to_applicant"),
     }
 
 
@@ -214,6 +417,16 @@ _BUILDERS: dict[str, Callable[[Case], dict[str, Any]]] = {
     "identity_document": _build_identity_document,
     "guarantor_income_certificate": _build_guarantor_income_certificate,
     "guarantor_identity_document": _build_guarantor_identity_document,
+    "corporate_guarantee_contract": _build_corporate_guarantee_contract,
+    "parent_company_guarantee_letter": _build_parent_company_guarantee_letter,
+    "parent_company_registry_certificate": _build_parent_company_registry_certificate,
+    "parent_company_financial_statement": _build_parent_company_financial_statement,
+    "business_license": _build_business_license,
+    "guarantor_2_income_certificate": _build_guarantor_2_income_certificate,
+    "guarantor_2_identity_document": _build_guarantor_2_identity_document,
+    "guarantee_company_application": _build_guarantee_company_application,
+    "offer_letter": _build_offer_letter,
+    "student_id": _build_student_id,
 }
 
 

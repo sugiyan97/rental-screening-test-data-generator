@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
+
+@page {
+  size: A4;
+  margin: 25mm 30mm;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif;
+}
+
+body {
+  font-size: 11pt;
+  line-height: 1.7;
+  color: #222;
+  margin: 0;
+}
+
+.sample-notice {
+  background: #fff3cd;
+  border: 2px solid #ffc107;
+  padding: 4px 12px;
+  margin-bottom: 12px;
+  font-size: 8.5pt;
+  font-weight: bold;
+  text-align: center;
+  color: #856404;
+}
+
+.cert-frame {
+  border: 5px double #1a5276;
+  padding: 30px 36px;
+  background: #fbfdff;
+}
+
+h1 {
+  font-size: 22pt;
+  text-align: center;
+  letter-spacing: 0.3em;
+  color: #1a5276;
+  margin: 14px 0 6px;
+}
+
+.subtitle {
+  text-align: center;
+  font-size: 10pt;
+  color: #555;
+  margin-bottom: 26px;
+}
+
+.cert-no {
+  font-size: 11pt;
+  text-align: right;
+  color: #444;
+  margin-bottom: 14px;
+}
+
+.cert-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11pt;
+  margin: 14px 0;
+}
+
+.cert-table th,
+.cert-table td {
+  border-bottom: 1px solid #aaa;
+  padding: 8px 12px;
+  vertical-align: top;
+}
+
+.cert-table th {
+  background: transparent;
+  width: 32%;
+  font-weight: bold;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.preamble {
+  margin: 20px 0;
+  text-align: center;
+  font-size: 11.5pt;
+}
+
+.expiry-highlight {
+  color: #c0392b;
+  font-weight: bold;
+}
+
+.issuer-block {
+  margin-top: 30px;
+  text-align: right;
+  font-size: 11pt;
+}
+
+.issuer-block .stamp-square {
+  display: inline-block;
+  width: 60px;
+  height: 60px;
+  border: 2px solid #c0392b;
+  text-align: center;
+  line-height: 56px;
+  font-size: 7pt;
+  color: #c0392b;
+  margin-left: 12px;
+  vertical-align: middle;
+}
+
+.footer-note {
+  font-size: 8pt;
+  color: #666;
+  margin-top: 20px;
+  text-align: center;
+}
+</style>
+</head>
+<body>
+<div class="sample-notice">【テスト用サンプル書類 ― 実在の許可情報ではありません / 営業許可証ではありません】</div>
+
+<div class="cert-frame">
+  <p class="cert-no">許可番号：第 {{ case.business_license.license_number if case.business_license else '' }} 号</p>
+
+  <h1>営 業 許 可 証</h1>
+  <p class="subtitle">食品衛生法第55条第1項に基づく許可</p>
+
+  <p class="preamble">下記の者に対し、{{ case.business_license.license_name if case.business_license else '' }} の営業を許可する。</p>
+
+  <table class="cert-table">
+    <tr><th>営業者氏名（法人名）</th><td>{{ case.business_license.licensee_name if case.business_license else '' }}</td></tr>
+    <tr><th>営業の種類</th><td>{{ case.business_license.business_type if case.business_license else '' }}</td></tr>
+    <tr><th>営業所所在地</th><td>{{ case.business_license.license_address if case.business_license else '' }}</td></tr>
+    <tr><th>許可年月日</th><td>{{ case.business_license.issue_date if case.business_license else '' }}</td></tr>
+    <tr><th>有効期限</th><td><span class="expiry-highlight">{{ case.business_license.expiry if case.business_license else '' }}</span></td></tr>
+  </table>
+
+  <div class="issuer-block">
+    <div>{{ case.business_license.issuing_authority if case.business_license else '' }}</div>
+    <div>所長　印<span class="stamp-square">許可印<br>（ダミー）</span></div>
+  </div>
+</div>
+
+<p class="footer-note">
+  ※ 本書類はOCR・LLM・Document AIシステムの検証を目的として作成されたテスト用サンプルです。
+  実在する許可情報ではありません。公的書類として使用することはできません。
+</p>
+</body>
+</html>

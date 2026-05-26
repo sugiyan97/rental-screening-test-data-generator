@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
+
+@page {
+  size: A4;
+  margin: 25mm 25mm;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif;
+}
+
+body {
+  font-size: 10pt;
+  line-height: 1.5;
+  color: #111;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.sample-notice {
+  background: #fff3cd;
+  border: 2px solid #ffc107;
+  padding: 4px 14px;
+  margin-bottom: 14px;
+  font-size: 8.5pt;
+  font-weight: bold;
+  text-align: center;
+  color: #856404;
+  width: 100%;
+}
+
+.page-title {
+  font-size: 12pt;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #333;
+  text-align: center;
+}
+
+.card {
+  width: 85.6mm;
+  min-height: 54mm;
+  border: 2px solid #6c3483;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow: 2px 2px 6px rgba(0,0,0,0.18);
+  margin-bottom: 10mm;
+}
+
+.card-header {
+  background: linear-gradient(135deg, #6c3483 55%, #8e44ad 100%);
+  color: #fff;
+  text-align: center;
+  padding: 5px 6px 3px;
+}
+
+.card-header .school-name {
+  font-size: 10.5pt;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+}
+
+.card-header .sub-title {
+  font-size: 7pt;
+  opacity: 0.9;
+  margin-top: 2px;
+}
+
+.card-body {
+  display: flex;
+  padding: 5px;
+  gap: 6px;
+}
+
+.photo-placeholder {
+  width: 22mm;
+  min-height: 28mm;
+  background: #d5d8dc;
+  border: 1px dashed #999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 2px;
+}
+
+.photo-placeholder svg {
+  width: 14mm;
+  height: 14mm;
+  fill: #888;
+}
+
+.photo-placeholder .photo-label {
+  font-size: 6pt;
+  color: #666;
+  margin-top: 2px;
+  text-align: center;
+}
+
+.card-fields {
+  flex: 1;
+  font-size: 7.5pt;
+}
+
+.field-row {
+  border-bottom: 1px solid #ddd;
+  padding: 2px 2px;
+  display: flex;
+  flex-direction: column;
+}
+
+.field-row:last-child {
+  border-bottom: none;
+}
+
+.field-label {
+  color: #6c3483;
+  font-size: 6pt;
+  font-weight: bold;
+}
+
+.field-value {
+  color: #111;
+  font-size: 8pt;
+}
+
+.student-number {
+  font-size: 9pt;
+  font-weight: bold;
+  color: #6c3483;
+}
+
+.card-footer {
+  background: #6c3483;
+  color: #fff;
+  font-size: 6.5pt;
+  padding: 3px 6px;
+  display: flex;
+  justify-content: space-between;
+}
+</style>
+</head>
+<body>
+<div class="sample-notice">【テスト用サンプル書類 ― 実在の個人情報ではありません / 学生証ではありません】</div>
+
+<div class="page-title">学 生 証（同居人提出用サンプル）</div>
+
+<div class="card">
+  <div class="card-header">
+    <div class="school-name">{{ case.student.school_name if case.student else '' }}</div>
+    <div class="sub-title">STUDENT ID CARD (SAMPLE)</div>
+  </div>
+  <div class="card-body">
+    <div class="photo-placeholder">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+      </svg>
+      <div class="photo-label">顔写真<br>（ダミー）</div>
+    </div>
+    <div class="card-fields">
+      <div class="field-row">
+        <span class="field-label">学籍番号</span>
+        <span class="student-number">{{ case.student.student_number if case.student else '' }}</span>
+      </div>
+      <div class="field-row">
+        <span class="field-label">氏名</span>
+        <span class="field-value">{{ case.student.name if case.student else '' }}</span>
+        <span class="field-value" style="font-size:6.5pt; color:#444;">{{ case.student.kana if case.student else '' }}</span>
+      </div>
+      <div class="field-row">
+        <span class="field-label">生年月日</span>
+        <span class="field-value">{{ case.student.birth_date if case.student else '' }}</span>
+      </div>
+      <div class="field-row">
+        <span class="field-label">学部・学科</span>
+        <span class="field-value">{{ case.student.department if case.student else '' }}</span>
+      </div>
+      <div class="field-row">
+        <span class="field-label">学年</span>
+        <span class="field-value">{{ case.student.grade if case.student else '' }}</span>
+      </div>
+      <div class="field-row">
+        <span class="field-label">入学年月日</span>
+        <span class="field-value">{{ case.student.enrollment_date if case.student else '' }}</span>
+      </div>
+      <div class="field-row">
+        <span class="field-label">有効期限</span>
+        <span class="field-value" style="color:#c0392b; font-weight:bold;">{{ case.student.expected_graduation_date if case.student else '' }}</span>
+      </div>
+    </div>
+  </div>
+  <div class="card-footer">
+    <span>本学発行</span>
+    <span>{{ case.student.school_name if case.student else '' }}</span>
+  </div>
+</div>
+
+<p style="font-size:8pt; color:#666; border-top:1px solid #ccc; padding-top:5px; margin-top:12px; width:100%;">
+  ※ 本書類はOCR・LLM・Document AIシステムの検証を目的として作成されたテスト用サンプルです。
+  実在する個人の学籍情報ではありません。
+</p>
+</body>
+</html>

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
+
+@page {
+  size: A4;
+  margin: 20mm 22mm;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif;
+}
+
+body {
+  font-size: 10pt;
+  line-height: 1.8;
+  color: #222;
+  margin: 0;
+}
+
+.sample-notice {
+  background: #fff3cd;
+  border: 2px solid #ffc107;
+  padding: 4px 12px;
+  margin-bottom: 8px;
+  font-size: 8.5pt;
+  font-weight: bold;
+  text-align: center;
+  color: #856404;
+}
+
+.doc-badge {
+  background: #fdebd0;
+  border: 1px solid #d68910;
+  padding: 3px 12px;
+  margin-bottom: 12px;
+  font-size: 9pt;
+  font-weight: bold;
+  text-align: center;
+  color: #7e5109;
+}
+
+h1 {
+  font-size: 16pt;
+  text-align: center;
+  margin: 8px 0 4px;
+  letter-spacing: 0.15em;
+}
+
+.doc-meta {
+  text-align: right;
+  font-size: 9pt;
+  margin-bottom: 18px;
+  color: #444;
+}
+
+.parties-table {
+  width: 100%;
+  border: 1px solid #999;
+  border-collapse: collapse;
+  margin: 14px 0;
+  font-size: 9.5pt;
+}
+
+.parties-table th,
+.parties-table td {
+  border: 1px solid #999;
+  padding: 5px 8px;
+  vertical-align: top;
+}
+
+.parties-table th {
+  background: #efefef;
+  font-weight: bold;
+  width: 24%;
+  white-space: nowrap;
+}
+
+.parties-table th.section {
+  background: #d6eaf8;
+  font-size: 10pt;
+  text-align: left;
+  width: auto;
+}
+
+.preamble {
+  margin-bottom: 14px;
+}
+
+.clause-list {
+  margin: 14px 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+.clause-list li {
+  margin-bottom: 8px;
+  padding-left: 36px;
+  text-indent: -36px;
+}
+
+.clause-list .clause-no {
+  font-weight: bold;
+  margin-right: 8px;
+}
+
+.signature-area {
+  margin-top: 30px;
+  padding: 12px;
+  border-top: 1px solid #999;
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.signature-block {
+  flex: 1;
+  border: 1px solid #aaa;
+  padding: 8px 12px;
+  background: #fafafa;
+}
+
+.signature-block h4 {
+  margin: 0 0 6px;
+  font-size: 10pt;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 2px;
+}
+
+.signature-block .field-line {
+  font-size: 9.5pt;
+  padding: 3px 0;
+  border-bottom: 1px dotted #bbb;
+}
+
+.signature-block .stamp-circle {
+  display: inline-block;
+  width: 42px;
+  height: 42px;
+  border: 1.5px solid #c0392b;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 42px;
+  font-size: 7pt;
+  color: #c0392b;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+.footer-note {
+  font-size: 8pt;
+  color: #666;
+  margin-top: 20px;
+  border-top: 1px solid #ccc;
+  padding-top: 6px;
+}
+</style>
+</head>
+<body>
+<div class="sample-notice">【テスト用サンプル書類 ― 実在の個人・法人情報ではありません / 保証契約書ではありません】</div>
+<div class="doc-badge">■ 代表者連帯保証契約書（法人賃貸借契約附属書類）</div>
+
+<h1>連 帯 保 証 契 約 書</h1>
+
+<p class="doc-meta">
+  契約日：{{ case.corporate_guarantee.contract_date if case.corporate_guarantee else '' }}
+</p>
+
+<p class="preamble">
+  賃借人と賃貸人との間で締結される下記物件の賃貸借契約に基づき、賃借人が負担する一切の金銭債務について、連帯保証人は賃借人と連帯して履行することを約し、本契約を締結する。
+</p>
+
+<table class="parties-table">
+  <tr>
+    <th class="section" colspan="2">■ 賃借人（法人）</th>
+  </tr>
+  <tr><th>商号</th><td>{{ case.company.company_name if case.company else '' }}</td></tr>
+  <tr><th>本店所在地</th><td>{{ case.company.head_office_address if case.company else '' }}</td></tr>
+  <tr><th>代表者</th><td>{{ case.company.representative_name if case.company else '' }}</td></tr>
+
+  <tr>
+    <th class="section" colspan="2">■ 連帯保証人（個人）</th>
+  </tr>
+  <tr><th>氏名</th><td>{{ case.corporate_guarantee.guarantor_name if case.corporate_guarantee else '' }}（{{ case.corporate_guarantee.guarantor_kana if case.corporate_guarantee else '' }}）</td></tr>
+  <tr><th>生年月日</th><td>{{ case.corporate_guarantee.guarantor_birth_date if case.corporate_guarantee else '' }}</td></tr>
+  <tr><th>住所</th><td>{{ case.corporate_guarantee.guarantor_address if case.corporate_guarantee else '' }}</td></tr>
+  <tr><th>賃借人との関係</th><td>{{ case.corporate_guarantee.relationship_to_company if case.corporate_guarantee else '' }}</td></tr>
+
+  <tr>
+    <th class="section" colspan="2">■ 対象物件</th>
+  </tr>
+  <tr><th>物件名称</th><td>{{ case.property.property_name if case.property else '' }}</td></tr>
+  <tr><th>所在地</th><td>{{ case.property.property_address if case.property else '' }}</td></tr>
+  <tr><th>賃料（月額）</th><td>{{ case.property.rent if case.property else '' }}</td></tr>
+
+  <tr>
+    <th class="section" colspan="2">■ 保証条件</th>
+  </tr>
+  <tr><th>極度額（保証金額）</th><td>{{ case.corporate_guarantee.guarantee_amount if case.corporate_guarantee else '' }}</td></tr>
+  <tr><th>保証期間</th><td>{{ case.corporate_guarantee.guarantee_period if case.corporate_guarantee else '' }}</td></tr>
+</table>
+
+<ul class="clause-list">
+  <li><span class="clause-no">第1条</span>連帯保証人は、賃借人が本賃貸借契約に基づき賃貸人に対して負担する一切の債務について、賃借人と連帯してその履行の責を負う。</li>
+  <li><span class="clause-no">第2条</span>本保証の保証期間は、賃貸借契約の有効期間と同一とし、契約更新の場合は当然に更新されるものとする。</li>
+  <li><span class="clause-no">第3条</span>本保証における連帯保証人の負担額は、上記極度額を上限とする（民法第465条の2に基づく）。</li>
+  <li><span class="clause-no">第4条</span>連帯保証人は、住所・氏名・連絡先に変更があった場合は速やかに賃貸人に通知する。</li>
+</ul>
+
+<div class="signature-area">
+  <div class="signature-block">
+    <h4>賃借人（法人）</h4>
+    <div class="field-line">商号：{{ case.company.company_name if case.company else '' }}</div>
+    <div class="field-line">代表者：{{ case.company.representative_name if case.company else '' }}　印<span class="stamp-circle">法人印<br>（ダミー）</span></div>
+  </div>
+  <div class="signature-block">
+    <h4>連帯保証人</h4>
+    <div class="field-line">氏名：{{ case.corporate_guarantee.guarantor_name if case.corporate_guarantee else '' }}　印<span class="stamp-circle">実印<br>（ダミー）</span></div>
+    <div class="field-line">住所：{{ case.corporate_guarantee.guarantor_address if case.corporate_guarantee else '' }}</div>
+  </div>
+</div>
+
+<p class="footer-note">
+  ※ 本書類はOCR・LLM・Document AIシステムの検証を目的として作成されたテスト用サンプルです。
+  実在する保証契約ではありません。
+</p>
+</body>
+</html>

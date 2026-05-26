@@ -140,6 +140,114 @@ class IdentityDocument(BaseModel):
     period_of_stay: str | None = None
 
 
+class ParentCompany(BaseModel):
+    company_name: str | None = None
+    company_kana: str | None = None
+    corporate_number: str | None = None
+    head_office_address: str | None = None
+    representative_name: str | None = None
+    capital: str | None = None
+    established_date: str | None = None
+    business_description: str | None = None
+    fiscal_year_end: str | None = None
+    relationship: str | None = None
+
+
+class BusinessLicense(BaseModel):
+    license_name: str | None = None
+    license_number: str | None = None
+    licensee_name: str | None = None
+    business_type: str | None = None
+    license_address: str | None = None
+    issue_date: str | None = None
+    expiry: str | None = None
+    issuing_authority: str | None = None
+
+
+class CorporateGuarantee(BaseModel):
+    guarantor_name: str | None = None
+    guarantor_kana: str | None = None
+    guarantor_address: str | None = None
+    guarantor_birth_date: str | None = None
+    relationship_to_company: str | None = None
+    guarantee_amount: str | None = None
+    guarantee_period: str | None = None
+    contract_date: str | None = None
+
+
+class Guarantor2(BaseModel):
+    name: str | None = None
+    kana: str | None = None
+    birth_date: str | None = None
+    relationship: str | None = None
+    current_address: str | None = None
+    phone: str | None = None
+    employer_name: str | None = None
+    annual_income: str | None = None
+
+
+class Guarantor2Income(BaseModel):
+    income_year: str | None = None
+    annual_income: str | None = None
+    monthly_income: str | None = None
+    income_type: str | None = None
+    employer_name: str | None = None
+    employer_phone: str | None = None
+    employer_address: str | None = None
+    issue_date: str | None = None
+    base_salary: str | None = None
+    bonus: str | None = None
+
+
+class GuaranteeCompany(BaseModel):
+    company_name: str | None = None
+    company_address: str | None = None
+    company_phone: str | None = None
+    application_date: str | None = None
+    plan_name: str | None = None
+    initial_fee: str | None = None
+    monthly_fee: str | None = None
+    coverage_amount: str | None = None
+    contract_period: str | None = None
+
+
+class OfferLetter(BaseModel):
+    employer_name: str | None = None
+    employer_address: str | None = None
+    employer_phone: str | None = None
+    department: str | None = None
+    job_title: str | None = None
+    start_date: str | None = None
+    expected_annual_income: str | None = None
+    expected_monthly_income: str | None = None
+    issue_date: str | None = None
+    hr_contact_name: str | None = None
+
+
+class PreviousEmployment(BaseModel):
+    employer_name: str | None = None
+    employer_address: str | None = None
+    employment_period: str | None = None
+    income_year: str | None = None
+    gross_income: str | None = None
+    withholding_tax: str | None = None
+    social_insurance: str | None = None
+    end_date: str | None = None
+
+
+class Student(BaseModel):
+    name: str | None = None
+    kana: str | None = None
+    birth_date: str | None = None
+    school_name: str | None = None
+    department: str | None = None
+    grade: str | None = None
+    student_number: str | None = None
+    enrollment_date: str | None = None
+    expected_graduation_date: str | None = None
+    relationship_to_applicant: str | None = None
+
+
 class Case(BaseModel):
     case_id: str
     description: str | None = None
@@ -157,3 +265,17 @@ class Case(BaseModel):
     guarantor_income: GuarantorIncome | None = None
     identity_document: IdentityDocument | None = None
     guarantor_identity_document: IdentityDocument | None = None
+    # グループ1: 法人系拡充
+    parent_company: ParentCompany | None = None
+    parent_company_financials: Financials | None = None
+    business_license: BusinessLicense | None = None
+    corporate_guarantee: CorporateGuarantee | None = None
+    # グループ2: 保証人複数 / 保証会社
+    guarantor_2: Guarantor2 | None = None
+    guarantor_2_income: Guarantor2Income | None = None
+    guarantor_2_identity_document: IdentityDocument | None = None
+    guarantee_company: GuaranteeCompany | None = None
+    # グループ3: 転職・学生
+    offer_letter: OfferLetter | None = None
+    previous_employment: PreviousEmployment | None = None
+    student: Student | None = None

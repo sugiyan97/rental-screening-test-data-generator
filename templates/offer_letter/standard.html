@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
+
+@page {
+  size: A4;
+  margin: 20mm 25mm;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif;
+}
+
+body {
+  font-size: 10.5pt;
+  line-height: 1.8;
+  color: #222;
+  margin: 0;
+}
+
+.sample-notice {
+  background: #fff3cd;
+  border: 2px solid #ffc107;
+  padding: 4px 12px;
+  margin-bottom: 10px;
+  font-size: 8.5pt;
+  font-weight: bold;
+  text-align: center;
+  color: #856404;
+}
+
+h1 {
+  font-size: 18pt;
+  text-align: center;
+  margin: 18px 0 10px;
+  letter-spacing: 0.2em;
+}
+
+.doc-meta {
+  text-align: right;
+  font-size: 9.5pt;
+  margin-bottom: 22px;
+  color: #444;
+}
+
+.addressed-to {
+  font-size: 13pt;
+  font-weight: bold;
+  margin-bottom: 18px;
+  border-bottom: 2px solid #555;
+  padding-bottom: 6px;
+}
+
+.body-text {
+  margin-bottom: 18px;
+  text-indent: 1em;
+}
+
+table.details {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 10pt;
+  margin: 14px 0;
+}
+
+table.details th,
+table.details td {
+  border: 1px solid #999;
+  padding: 6px 12px;
+  vertical-align: middle;
+}
+
+table.details th {
+  background: #efefef;
+  font-weight: bold;
+  width: 32%;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.income-row td {
+  background: #f0f4fa;
+  font-weight: bold;
+  color: #1a3c6e;
+}
+
+.issuer-section {
+  margin-top: 28px;
+  text-align: right;
+  font-size: 10.5pt;
+}
+
+.issuer-section .company-line {
+  font-weight: bold;
+  font-size: 11pt;
+  margin-bottom: 4px;
+}
+
+.issuer-section .stamp-circle {
+  display: inline-block;
+  width: 56px;
+  height: 56px;
+  border: 1.5px solid #c0392b;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 56px;
+  font-size: 7pt;
+  color: #c0392b;
+  margin-left: 10px;
+  vertical-align: middle;
+}
+
+.footer-note {
+  font-size: 8pt;
+  color: #666;
+  margin-top: 24px;
+  border-top: 1px solid #ccc;
+  padding-top: 6px;
+}
+</style>
+</head>
+<body>
+<div class="sample-notice">【テスト用サンプル書類 ― 実在の個人・法人情報ではありません / 内定通知書ではありません】</div>
+
+<p class="doc-meta">
+  発行日：{{ case.offer_letter.issue_date if case.offer_letter else '' }}
+</p>
+
+<h1>内　定　通　知　書</h1>
+
+<p class="addressed-to">{{ case.applicant.name if case.applicant else '' }}　様</p>
+
+<p class="body-text">
+  拝啓　時下ますますご清栄のこととお慶び申し上げます。<br>
+  この度は、当社の採用選考にご応募いただき誠にありがとうございました。
+  慎重に選考した結果、貴殿を下記条件にて採用することを内定いたしましたので、ここにお知らせ申し上げます。
+</p>
+
+<table class="details">
+  <tr><th>採用会社名</th><td>{{ case.offer_letter.employer_name if case.offer_letter else '' }}</td></tr>
+  <tr><th>所在地</th><td>{{ case.offer_letter.employer_address if case.offer_letter else '' }}</td></tr>
+  <tr><th>電話番号</th><td>{{ case.offer_letter.employer_phone if case.offer_letter else '' }}</td></tr>
+  <tr><th>配属予定部署</th><td>{{ case.offer_letter.department if case.offer_letter else '' }}</td></tr>
+  <tr><th>役職／職位</th><td>{{ case.offer_letter.job_title if case.offer_letter else '' }}</td></tr>
+  <tr><th>入社予定日</th><td>{{ case.offer_letter.start_date if case.offer_letter else '' }}</td></tr>
+  <tr class="income-row"><th>予定年収（税込）</th><td>{{ case.offer_letter.expected_annual_income if case.offer_letter else '' }}</td></tr>
+  <tr><th>月額給与（参考・税込）</th><td>{{ case.offer_letter.expected_monthly_income if case.offer_letter else '' }}</td></tr>
+  <tr><th>雇用形態</th><td>正社員（試用期間3ヶ月／給与条件変更なし）</td></tr>
+  <tr><th>勤務地</th><td>{{ case.offer_letter.employer_address if case.offer_letter else '' }}</td></tr>
+</table>
+
+<p class="body-text">
+  なお、本内定は所定の入社手続きが完了することを条件として有効となります。
+  ご不明な点がございましたら、下記人事担当者までご連絡くださいますようお願い申し上げます。
+</p>
+
+<div class="issuer-section">
+  <div class="company-line">{{ case.offer_letter.employer_name if case.offer_letter else '' }}</div>
+  <div>人事部　{{ case.offer_letter.hr_contact_name if case.offer_letter else '' }}　印<span class="stamp-circle">人事印<br>（ダミー）</span></div>
+</div>
+
+<p class="footer-note">
+  ※ 本書類はOCR・LLM・Document AIシステムの検証を目的として作成されたテスト用サンプルです。
+  実在する企業の内定通知ではありません。
+</p>
+</body>
+</html>
