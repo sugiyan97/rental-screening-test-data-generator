@@ -82,15 +82,29 @@ def _build_financial_statement(case: Case, variant: str = "") -> dict[str, Any]:
 
 def _build_business_plan(case: Case, variant: str = "") -> dict[str, Any]:
     c = case.company
+    a = case.applicant
     bp = case.business_plan
     return {
         "company_name": _get(c, "company_name"),
         "representative_name": _get(c, "representative_name"),
+        "applicant_name": _get(a, "name"),
+        "applicant_address": _get(a, "current_address"),
         "plan_period": _get(bp, "plan_period"),
         "business_overview": _get(bp, "business_overview"),
         "revenue_plan": _get(bp, "revenue_plan"),
         "hiring_plan": _get(bp, "hiring_plan"),
         "risk_factors": _get(bp, "risk_factors"),
+        "trade_name": _get(bp, "trade_name"),
+        "opening_date": _get(bp, "opening_date"),
+        "business_category": _get(bp, "business_category"),
+        "target_customers": _get(bp, "target_customers"),
+        "initial_capital": _get(bp, "initial_capital"),
+        "funding_plan": _get(bp, "funding_plan"),
+        "monthly_revenue_target": _get(bp, "monthly_revenue_target"),
+        "monthly_cost_estimate": _get(bp, "monthly_cost_estimate"),
+        "founder_background": _get(bp, "founder_background"),
+        "competitive_advantage": _get(bp, "competitive_advantage"),
+        "marketing_strategy": _get(bp, "marketing_strategy"),
     }
 
 

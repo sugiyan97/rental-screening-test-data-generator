@@ -39,6 +39,46 @@ def test_build_answer_business_plan(corporate_case):
     assert "plan_period" in answer["fields"]
 
 
+def test_build_answer_business_plan_corporate_startup(corporate_case):
+    answer = build_answer(corporate_case, "business_plan", "corporate_startup")
+    assert answer["fields"]["company_name"] == "テスト商事株式会社"
+    assert answer["fields"]["trade_name"] == "テスト屋号"
+    assert answer["fields"]["opening_date"] == "2026年04月01日"
+    assert answer["fields"]["initial_capital"] == "5,000,000円"
+    assert answer["fields"]["founder_background"] == "テスト経歴"
+
+
+def test_build_answer_business_plan_individual_startup(individual_case):
+    individual_case.business_plan = corporate_case_business_plan()
+    answer = build_answer(individual_case, "business_plan", "individual_startup")
+    assert answer["fields"]["applicant_name"] == "テスト 花子"
+    assert answer["fields"]["trade_name"] == "テスト屋号"
+    assert answer["fields"]["business_category"] == "テスト業種"
+    assert answer["fields"]["monthly_revenue_target"] == "500,000円"
+
+
+def corporate_case_business_plan():
+    from rental_pdf_generator.models import BusinessPlan
+    return BusinessPlan(
+        plan_period="2026年度",
+        business_overview="テスト",
+        revenue_plan="テスト",
+        hiring_plan="テスト",
+        risk_factors="テスト",
+        trade_name="テスト屋号",
+        opening_date="2026年04月01日",
+        business_category="テスト業種",
+        target_customers="テスト顧客",
+        initial_capital="5,000,000円",
+        funding_plan="自己資金のみ",
+        monthly_revenue_target="500,000円",
+        monthly_cost_estimate="200,000円",
+        founder_background="テスト経歴",
+        competitive_advantage="テスト優位性",
+        marketing_strategy="テスト戦略",
+    )
+
+
 def test_build_answer_individual(individual_case):
     answer = build_answer(individual_case, "rental_application_individual", "standard")
     assert answer["case_id"] == individual_case.case_id
