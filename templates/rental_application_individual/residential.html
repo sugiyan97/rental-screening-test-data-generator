@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
+
+@page { size: A4; margin: 12mm 18mm; }
+* { box-sizing: border-box; font-family: 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif; }
+body { font-size: 9.5pt; line-height: 1.55; color: #1a1a1a; margin: 0; }
+
+h1 { font-size: 14pt; text-align: center; margin: 0 0 6px; border-bottom: 2px solid #333; padding-bottom: 5px; letter-spacing: 0.12em; }
+h2 { font-size: 9.5pt; margin: 10px 0 4px; background: #e8e8e8; padding: 2px 8px; border-left: 4px solid #444; }
+table { width: 100%; border-collapse: collapse; margin-bottom: 8px; font-size: 9pt; }
+th, td { border: 1px solid #666; padding: 3px 7px; vertical-align: middle; }
+th { background-color: #f2f2f2; font-weight: 700; white-space: nowrap; width: 26%; }
+td.wide { width: 74%; }
+
+.sample-notice { background: #fff3cd; border: 2px solid #ffc107; padding: 3px 10px; margin-bottom: 8px; font-size: 8pt; font-weight: bold; text-align: center; color: #856404; }
+.usage-badge { background: #d6eaf8; border: 1px solid #2980b9; padding: 4px 12px; margin-bottom: 10px; font-size: 9pt; font-weight: bold; text-align: center; color: #1a5276; }
+.consent-box { border: 1.5px solid #aaa; background: #fafafa; padding: 6px 10px; font-size: 9pt; margin-bottom: 8px; }
+.sign-area { display: flex; gap: 16px; margin-top: 10px; }
+.sign-box { flex: 1; border: 1px solid #888; padding: 14px 10px 6px; }
+.sign-box .label { font-size: 8pt; color: #555; display: block; margin-bottom: 4px; }
+.stamp-box { width: 60px; height: 60px; border: 1.5px solid #888; border-radius: 50%; text-align: center; line-height: 60px; font-size: 8pt; color: #888; flex-shrink: 0; }
+.highlight-row th { background: #fef5e7; color: #7e5109; }
+</style>
+</head>
+<body>
+<div class="sample-notice">【テスト用サンプル書類 ― 実在の個人情報ではありません / 入居申込書ではありません】</div>
+<div class="usage-badge">■ 用途：居住用（residential） — 世帯構成・転居理由を含む居住特化フォーマット</div>
+<h1>入　居　申　込　書（個人用 / 居住用）</h1>
+
+<div class="meta-row" style="display:flex; justify-content:space-between; font-size:8.5pt; margin-bottom:6px;">
+  <span>申込日：&emsp;&emsp;年&emsp;月&emsp;日</span>
+  <span>申込書ID：{{ case.case_id }}</span>
+</div>
+
+<h2>■ 申込物件</h2>
+<table>
+  <tr><th>物件名称</th><td class="wide">{{ case.property.property_name if case.property else '' }}</td></tr>
+  <tr><th>所在地</th><td>{{ case.property.property_address if case.property else '' }}</td></tr>
+  <tr><th>部屋番号</th><td>{{ case.property.room_number if case.property else '' }}</td></tr>
+  <tr><th>賃料 / 管理費</th><td>{{ case.property.rent if case.property else '' }} / {{ case.property.management_fee if case.property else '' }}</td></tr>
+  <tr class="highlight-row"><th>利用用途</th><td>{{ case.property.usage_purpose if case.property else '居住用' }}</td></tr>
+  <tr><th>希望入居日</th><td>{{ case.property.desired_move_in_date if case.property else '' }}</td></tr>
+</table>
+
+<h2>■ 申込者（賃借人）</h2>
+<table>
+  <tr><th>氏名</th><td>{{ case.applicant.name if case.applicant else '' }}（{{ case.applicant.kana if case.applicant else '' }}）</td></tr>
+  <tr><th>生年月日 / 性別</th><td>{{ case.applicant.birth_date if case.applicant else '' }} / {{ case.applicant.gender if case.applicant else '' }}</td></tr>
+  <tr><th>現住所</th><td>{{ case.applicant.current_address if case.applicant else '' }}</td></tr>
+  <tr><th>電話 / メール</th><td>{{ case.applicant.phone if case.applicant else '' }} / {{ case.applicant.email if case.applicant else '' }}</td></tr>
+</table>
+
+<h2>■ 勤務先・年収</h2>
+<table>
+  <tr><th>勤務先</th><td>{{ case.employment.employer_name if case.employment else '' }}　（{{ case.employment.department if case.employment else '' }}　{{ case.employment.job_title if case.employment else '' }}）</td></tr>
+  <tr><th>勤続年数 / 年収</th><td>{{ case.employment.years_employed if case.employment else '' }} / {{ case.employment.annual_income if case.employment else '' }}</td></tr>
+</table>
+
+<h2>■ 世帯構成（同居人）<span style="font-size:8pt; color:#7e5109;">※居住用ではこの欄が審査の主要項目</span></h2>
+<table>
+  <tr>
+    <th>世帯主との続柄</th><th>氏名</th><th>生年月日</th><th>備考</th>
+  </tr>
+  <tr>
+    <td>本人</td>
+    <td>{{ case.applicant.name if case.applicant else '' }}</td>
+    <td>{{ case.applicant.birth_date if case.applicant else '' }}</td>
+    <td>—</td>
+  </tr>
+  {% if case.student %}
+  <tr>
+    <td>{{ case.student.relationship_to_applicant if case.student else '' }}</td>
+    <td>{{ case.student.name if case.student else '' }}</td>
+    <td>{{ case.student.birth_date if case.student else '' }}</td>
+    <td>学生（{{ case.student.school_name if case.student else '' }}）</td>
+  </tr>
+  {% endif %}
+  {% if case.emergency_contact %}
+  <tr>
+    <td>—</td>
+    <td colspan="3" style="font-size:8.5pt;color:#555;">緊急連絡先：{{ case.emergency_contact.name if case.emergency_contact else '' }}（{{ case.emergency_contact.relation if case.emergency_contact else '' }}）</td>
+  </tr>
+  {% endif %}
+</table>
+
+<h2>■ 転居理由・希望条件</h2>
+<table>
+  <tr><th>転居理由</th><td>結婚・出産・転勤・通勤利便性向上等（該当事項を申告）</td></tr>
+  <tr><th>現在家賃</th><td>—</td></tr>
+  <tr><th>ペット飼育</th><td>□ あり（種類：　　）　☑ なし</td></tr>
+  <tr><th>楽器使用</th><td>☑ なし　□ あり</td></tr>
+  <tr><th>駐車場利用</th><td>□ 希望　☑ 不要</td></tr>
+</table>
+
+{% if case.guarantor %}
+<h2>■ 連帯保証人</h2>
+<table>
+  <tr><th>氏名 / 続柄</th><td>{{ case.guarantor.name if case.guarantor else '' }} / {{ case.guarantor.relationship if case.guarantor else '' }}</td></tr>
+  <tr><th>住所 / 電話</th><td>{{ case.guarantor.current_address if case.guarantor else '' }} / {{ case.guarantor.phone if case.guarantor else '' }}</td></tr>
+  <tr><th>勤務先 / 年収</th><td>{{ case.guarantor.employer_name if case.guarantor else '' }} / {{ case.guarantor.annual_income if case.guarantor else '' }}</td></tr>
+</table>
+{% endif %}
+
+<h2>■ 確認・同意事項</h2>
+<div class="consent-box">
+  <p>□ 居住目的のみに使用し、事務所・店舗・転貸の用途には供しません。</p>
+  <p>□ 同居人の追加・変更は事前に賃貸人へ通知します。</p>
+  <p>□ 申込書記載内容はすべて事実であることを誓約します。</p>
+</div>
+
+<div class="sign-area">
+  <div class="sign-box" style="flex:2"><span class="label">申込者署名</span></div>
+  <div class="stamp-box">捺印</div>
+</div>
+</body>
+</html>

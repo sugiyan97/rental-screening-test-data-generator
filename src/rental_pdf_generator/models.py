@@ -235,6 +235,61 @@ class PreviousEmployment(BaseModel):
     end_date: str | None = None
 
 
+class TrialBalance(BaseModel):
+    fiscal_period: str | None = None
+    cash: str | None = None
+    accounts_receivable: str | None = None
+    inventory: str | None = None
+    total_current_assets: str | None = None
+    fixed_assets: str | None = None
+    total_assets: str | None = None
+    accounts_payable: str | None = None
+    short_term_borrowings: str | None = None
+    total_current_liabilities: str | None = None
+    long_term_borrowings: str | None = None
+    total_liabilities: str | None = None
+    total_net_assets: str | None = None
+    revenue: str | None = None
+    cost_of_sales: str | None = None
+    gross_profit: str | None = None
+    sga_expenses: str | None = None
+    operating_profit: str | None = None
+
+
+class SohoUsage(BaseModel):
+    residential_ratio: str | None = None
+    business_ratio: str | None = None
+    business_type: str | None = None
+    business_overview: str | None = None
+    visitor_frequency: str | None = None
+    trade_name: str | None = None
+    has_signboard: str | None = None
+
+
+class CorporateHousingUsage(BaseModel):
+    occupant_name: str | None = None
+    occupant_relation: str | None = None
+    occupant_department: str | None = None
+    occupant_job_title: str | None = None
+    occupant_family: str | None = None
+    rent_subsidy_amount: str | None = None
+    rent_subsidy_ratio: str | None = None
+    contract_name: str | None = None
+    parking_required: str | None = None
+
+
+class CorporateStoreUsage(BaseModel):
+    business_format: str | None = None
+    operating_hours: str | None = None
+    operating_days: str | None = None
+    closed_days: str | None = None
+    expected_visitors_per_day: str | None = None
+    noise_level: str | None = None
+    odor_level: str | None = None
+    construction_required: str | None = None
+    waste_type: str | None = None
+
+
 class BusinessLicenseApplication(BaseModel):
     applicant_name: str | None = None
     business_type: str | None = None
@@ -303,3 +358,11 @@ class Case(BaseModel):
     # 営業許可書の有無パターン
     business_license_application: BusinessLicenseApplication | None = None
     business_use_pledge: BusinessUsePledge | None = None
+    # 多年度書類対応
+    previous_financials: Financials | None = None
+    previous_income: Income | None = None
+    trial_balance: TrialBalance | None = None
+    # 用途別フィールド
+    soho_usage: SohoUsage | None = None
+    corporate_housing_usage: CorporateHousingUsage | None = None
+    corporate_store_usage: CorporateStoreUsage | None = None
