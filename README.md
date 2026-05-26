@@ -8,7 +8,7 @@ OCR・LLM・Document AI などの抽出システムを検証するため、**架
 
 ## 収録ケース一覧
 
-`input/cases.jsonl` に以下の 18 ケースが収録されている。
+`input/cases.jsonl` に以下の 23 ケースが収録されている。
 
 | ケースID | 申込者区分 | シナリオ | 生成書類 |
 |---|---|---|---|
@@ -30,6 +30,11 @@ OCR・LLM・Document AI などの抽出システムを検証するため、**架
 | CASE-000016 | 法人 | **法人・営業許可申請中** — 開業前で許可未交付、申請受付済証明書を許可書の代替として提出するパターン | 法人申込書・登記簿・決算書・事業計画書・営業許可申請書 |
 | CASE-000017 | 法人 | **法人・業態変更で営業許可不要** — テイクアウト専門業態へ変更し営業許可が不要となった旨を誓約するパターン | 法人申込書・登記簿・決算書・事業計画書・業態変更誓約書 |
 | CASE-000018 | 法人 | **法人・営業許可関連書類なし** — 事業計画書に「営業開始までに取得予定」と記載のみで、許可関連書類を一切提出しない最もシンプルなパターン | 法人申込書・登記簿・決算書・事業計画書 |
+| CASE-000019 | 個人 | **個人・居住用 variant** — 世帯構成（夫婦＋子）を重視する residential variant の検証ケース | 個人申込書（residential）・収入証明・本人ID |
+| CASE-000020 | 個人（自営業） | **個人・居住SOHO兼用 variant** — 個人事業主が居住＋事務所兼用で借りる soho variant の検証ケース | 個人申込書（soho）・確定申告書・マイナンバーカード |
+| CASE-000021 | 法人 | **法人・事務所用＋多年度決算書＋残高試算表** — office variant、当期と前期の決算書、月次残高試算表を提出する厳格審査パターン | 法人申込書（office）・登記簿・当期決算書・前期決算書・残高試算表 |
+| CASE-000022 | 法人 | **法人・社宅用 variant** — 大手商社の役員社宅契約。housing variant の入居者情報・家賃補助率を検証 | 法人申込書（housing）・登記簿・決算書 |
+| CASE-000023 | 個人（自営業） | **個人・自営業・複数年度確定申告書** — 当期と前期の確定申告書（2 期分）で収入安定性を示すパターン | 個人申込書・当期確定申告書・前期確定申告書・マイナンバーカード |
 
 ---
 
@@ -37,11 +42,12 @@ OCR・LLM・Document AI などの抽出システムを検証するため、**架
 
 | document_type | 説明 | 利用可能な variant |
 |---|---|---|
-| `rental_application_individual` | 個人用入居申込書 | `standard`, `handwritten_like` |
-| `rental_application_corporate` | 法人用入居申込書 | `standard`, `handwritten_like` |
-| `income_certificate` | 収入証明書風 | `salary_certificate`, `tax_return`, `withholding_slip` |
-| `registry_certificate` | 登記簿謄本風 | `registry_table` |
-| `financial_statement` | 決算書風（財務サマリー） | `financial_summary` |
+| `rental_application_individual` | 個人用入居申込書 | `standard`, `handwritten_like`, `residential`, `soho` |
+| `rental_application_corporate` | 法人用入居申込書 | `standard`, `handwritten_like`, `office`, `housing`, `store` |
+| `income_certificate` | 収入証明書風 | `salary_certificate`, `tax_return`, `tax_return_prior`, `withholding_slip` |
+| `registry_certificate` | 履歴事項全部証明書風 | `registry_table` |
+| `financial_statement` | 決算書風（財務サマリー） | `financial_summary`, `financial_summary_prior` |
+| `trial_balance` | 合計残高試算表風（月次） | `monthly_summary` |
 | `business_plan` | 事業計画書 | `narrative` |
 | `identity_document` | 本人確認書類（申込者） | `drivers_license`, `my_number_card`, `passport`, `residence_card` |
 | `guarantor_income_certificate` | 連帯保証人用収入証明書 | `salary_certificate` |
@@ -62,6 +68,9 @@ OCR・LLM・Document AI などの抽出システムを検証するため、**架
 ### 各書類の特徴
 
 - **入居申込書**（個人・法人）— 保証人欄・同居者欄・担当者欄・反社確認文言等を含む業務品質フォーマット。`case.guarantor_2` `case.student` が設定された場合は第2保証人・同居人セクションが自動表示される
+- **入居申込書 用途バリアント** — `residential`（居住用、世帯構成重視）、`soho`（居住SOHO兼用、業種・面積割合・看板）、`office`（事務所用、従業員数・営業時間・来客）、`housing`（社宅用、入居者情報・家賃補助率）、`store`（店舗用、業態・営業時間・騒音匂い・設備工事）の 5 variant。各 variant は用途固有のセクションを持つ
+- **多年度書類** — 決算書の `financial_summary_prior`（前年度版）、確定申告書の `tax_return_prior`（前年度版）。`case.previous_financials` / `case.previous_income` を参照
+- **合計残高試算表** — 月次の科目別残高表（資産・負債・純資産・損益）
 - **手書き風バリアント** — Klee One フォント（Google Fonts / OFL）で記入欄をレンダリング
 - **収入証明書（給与所得）** — 給与内訳（基本給・残業手当・通勤手当・賞与）・証明有効期限付き
 - **収入証明書（確定申告）** — 事業収入・必要経費・事業所得の計算式を含む確定申告書第一表風フォーマット
@@ -267,17 +276,26 @@ templates/
   rental_application_individual/
     standard.html          個人申込書（標準）
     handwritten_like.html  個人申込書（手書き風）
+    residential.html       個人申込書（居住用）
+    soho.html              個人申込書（居住SOHO兼用）
   rental_application_corporate/
     standard.html          法人申込書（標準）
     handwritten_like.html  法人申込書（手書き風）
+    office.html            法人申込書（事務所用）
+    housing.html           法人申込書（社宅用）
+    store.html             法人申込書（店舗用）
   income_certificate/
     salary_certificate.html  給与所得者向け在職証明兼年収証明書
     tax_return.html          自営業者向け確定申告書第一表風
+    tax_return_prior.html    前年度確定申告書（多年度書類用）
     withholding_slip.html    前職源泉徴収票風（転職者用）
   registry_certificate/
     registry_table.html
   financial_statement/
-    financial_summary.html
+    financial_summary.html       当期決算書
+    financial_summary_prior.html 前年度決算書（多年度書類用）
+  trial_balance/
+    monthly_summary.html         月次合計残高試算表
   business_plan/
     narrative.html
   identity_document/

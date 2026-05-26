@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
+
+@page {
+  size: A4;
+  margin: 15mm 20mm;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif;
+}
+
+body {
+  font-size: 10pt;
+  line-height: 1.5;
+  color: #222;
+  margin: 0;
+}
+
+h1 {
+  font-size: 15pt;
+  text-align: center;
+  margin: 0 0 4px;
+}
+
+.company-info {
+  text-align: center;
+  font-size: 10pt;
+  margin-bottom: 12px;
+  color: #333;
+}
+
+.sample-notice {
+  background: #fff3cd;
+  border: 2px solid #ffc107;
+  padding: 4px 12px;
+  margin-bottom: 12px;
+  font-size: 8.5pt;
+  font-weight: bold;
+  text-align: center;
+  color: #856404;
+}
+
+h2 {
+  font-size: 11pt;
+  margin: 12px 0 5px;
+  border-bottom: 1px solid #555;
+  padding-bottom: 2px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 9.5pt;
+  margin-bottom: 14px;
+}
+
+th, td {
+  border: 1px solid #777;
+  padding: 4px 10px;
+  vertical-align: middle;
+}
+
+th {
+  background-color: #f0f0f0;
+  font-weight: 700;
+  text-align: left;
+}
+
+th.col-item { width: 46%; }
+th.col-prev, th.col-curr { width: 27%; text-align: center; }
+td { text-align: right; }
+td.label { text-align: left; }
+
+.indent td.label {
+  padding-left: 22px;
+}
+
+.total-row td, .total-row th {
+  background-color: #e4eaf4;
+  font-weight: bold;
+}
+
+.section-row th {
+  background-color: #dce0e8;
+  font-weight: bold;
+}
+
+.kpi-section {
+  border: 1px solid #aaa;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+  background: #f9f9f9;
+  font-size: 9pt;
+}
+
+.kpi-section h3 {
+  font-size: 10pt;
+  margin: 0 0 6px;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 3px;
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 4px 16px;
+}
+
+.kpi-item {
+  padding: 4px 0;
+  border-bottom: 1px dotted #ccc;
+}
+
+.kpi-label {
+  font-size: 8pt;
+  color: #555;
+  display: block;
+}
+
+.kpi-value {
+  font-size: 11pt;
+  font-weight: bold;
+  color: #1a3c6e;
+}
+
+.footer-note {
+  font-size: 8pt;
+  color: #666;
+  margin-top: 14px;
+  border-top: 1px solid #ccc;
+  padding-top: 5px;
+}
+</style>
+</head>
+<body>
+<div class="sample-notice">【テスト用サンプル書類 ― 実在の財務情報ではありません】</div>
+<div style="background:#fdebd0; border:1px solid #d68910; padding:3px 12px; margin-bottom:10px; font-size:9pt; font-weight:bold; text-align:center; color:#7e5109;">■ 前年度（参考）— 過年度実績の財務サマリー</div>
+<h1>財 務 サ マ リ ー（前年度）</h1>
+<p class="company-info">
+  {{ case.company.company_name or '' }}&emsp;／&emsp;作成基準日：&emsp;&emsp;年&emsp;&emsp;月&emsp;&emsp;日
+</p>
+
+<h2>損益計算書（主要科目）</h2>
+<table>
+  <tr>
+    <th class="col-item">科目</th>
+    <th class="col-prev">前期（参考）</th>
+    <th class="col-curr">当期　{{ case.previous_financials.fiscal_year or '' }}</th>
+  </tr>
+  <tr>
+    <td class="label">売上高</td>
+    <td>—</td>
+    <td>{{ case.previous_financials.sales or '' }}</td>
+  </tr>
+  <tr class="indent">
+    <td class="label">　売上原価</td>
+    <td>—</td>
+    <td></td>
+  </tr>
+  <tr class="indent">
+    <td class="label">　売上総利益</td>
+    <td>—</td>
+    <td></td>
+  </tr>
+  <tr class="indent">
+    <td class="label">　販売費及び一般管理費</td>
+    <td>—</td>
+    <td></td>
+  </tr>
+  <tr>
+    <td class="label">営業利益</td>
+    <td>—</td>
+    <td>{{ case.previous_financials.operating_income or '' }}</td>
+  </tr>
+  <tr class="indent">
+    <td class="label">　営業外収益</td>
+    <td>—</td>
+    <td></td>
+  </tr>
+  <tr class="indent">
+    <td class="label">　営業外費用</td>
+    <td>—</td>
+    <td></td>
+  </tr>
+  <tr>
+    <td class="label">経常利益</td>
+    <td>—</td>
+    <td>{{ case.previous_financials.ordinary_income or '' }}</td>
+  </tr>
+  <tr class="total-row">
+    <td class="label">当期純利益</td>
+    <td>—</td>
+    <td>{{ case.previous_financials.net_income or '' }}</td>
+  </tr>
+</table>
+
+<h2>貸借対照表（主要科目）</h2>
+<table>
+  <tr>
+    <th class="col-item">科目</th>
+    <th class="col-prev">前期（参考）</th>
+    <th class="col-curr">当期　{{ case.previous_financials.fiscal_year or '' }}</th>
+  </tr>
+  <tr class="section-row">
+    <th>【資産の部】</th>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr class="indent">
+    <td class="label">　流動資産合計</td>
+    <td>—</td>
+    <td></td>
+  </tr>
+  <tr class="indent">
+    <td class="label">　固定資産合計</td>
+    <td>—</td>
+    <td></td>
+  </tr>
+  <tr class="total-row">
+    <td class="label">資産合計</td>
+    <td>—</td>
+    <td>{{ case.previous_financials.total_assets or '' }}</td>
+  </tr>
+  <tr class="section-row">
+    <th>【負債の部】</th>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr class="indent">
+    <td class="label">　流動負債合計</td>
+    <td>—</td>
+    <td></td>
+  </tr>
+  <tr class="indent">
+    <td class="label">　固定負債合計</td>
+    <td>—</td>
+    <td></td>
+  </tr>
+  <tr class="total-row">
+    <td class="label">負債合計</td>
+    <td>—</td>
+    <td>{{ case.previous_financials.total_liabilities or '' }}</td>
+  </tr>
+  <tr class="section-row">
+    <th>【純資産の部】</th>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr class="total-row">
+    <td class="label">純資産合計</td>
+    <td>—</td>
+    <td>{{ case.previous_financials.net_assets or '' }}</td>
+  </tr>
+</table>
+
+<div class="kpi-section">
+  <h3>経営指標（当期）</h3>
+  <div class="kpi-grid">
+    <div class="kpi-item">
+      <span class="kpi-label">売上高</span>
+      <span class="kpi-value">{{ case.previous_financials.sales or '—' }}</span>
+    </div>
+    <div class="kpi-item">
+      <span class="kpi-label">経常利益</span>
+      <span class="kpi-value">{{ case.previous_financials.ordinary_income or '—' }}</span>
+    </div>
+    <div class="kpi-item">
+      <span class="kpi-label">当期純利益</span>
+      <span class="kpi-value">{{ case.previous_financials.net_income or '—' }}</span>
+    </div>
+    <div class="kpi-item">
+      <span class="kpi-label">総資産</span>
+      <span class="kpi-value">{{ case.previous_financials.total_assets or '—' }}</span>
+    </div>
+    <div class="kpi-item">
+      <span class="kpi-label">純資産</span>
+      <span class="kpi-value">{{ case.previous_financials.net_assets or '—' }}</span>
+    </div>
+    <div class="kpi-item">
+      <span class="kpi-label">コメント</span>
+      <span class="kpi-value" style="font-size:9pt; color:#333; font-weight:normal;">前期比較データ未提出</span>
+    </div>
+  </div>
+</div>
+
+<p class="footer-note">
+  ※ 本書類はOCR・LLM・Document AIシステムの検証を目的として作成されたテスト用サンプルです。
+  実在する企業の財務情報ではありません。
+</p>
+</body>
+</html>

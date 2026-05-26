@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
+
+@page { size: A4; margin: 12mm 18mm; }
+* { box-sizing: border-box; font-family: 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif; }
+body { font-size: 9.5pt; line-height: 1.55; color: #1a1a1a; margin: 0; }
+
+h1 { font-size: 14pt; text-align: center; margin: 0 0 6px; border-bottom: 2px solid #333; padding-bottom: 5px; letter-spacing: 0.12em; }
+h2 { font-size: 9.5pt; margin: 10px 0 4px; background: #e8e8e8; padding: 2px 8px; border-left: 4px solid #444; }
+table { width: 100%; border-collapse: collapse; margin-bottom: 8px; font-size: 9pt; }
+th, td { border: 1px solid #666; padding: 3px 7px; vertical-align: middle; }
+th { background-color: #f2f2f2; font-weight: 700; white-space: nowrap; width: 28%; }
+td.wide { width: 72%; }
+
+.sample-notice { background: #fff3cd; border: 2px solid #ffc107; padding: 3px 10px; margin-bottom: 8px; font-size: 8pt; font-weight: bold; text-align: center; color: #856404; }
+.usage-badge { background: #d6dbdf; border: 1px solid #5d6d7e; padding: 4px 12px; margin-bottom: 10px; font-size: 9pt; font-weight: bold; text-align: center; color: #34495e; }
+.office-section th { background: #ebeded; color: #34495e; }
+.consent-box { border: 1.5px solid #aaa; background: #fafafa; padding: 6px 10px; font-size: 9pt; margin-bottom: 8px; }
+.compliance-box { border: 2px solid #c0392b; background: #fdf2f0; padding: 6px 10px; margin: 8px 0; font-size: 9pt; }
+.compliance-box h3 { font-size: 9.5pt; color: #c0392b; margin: 0 0 4px; }
+.sign-area { display: flex; gap: 16px; margin-top: 10px; }
+.sign-box { flex: 1; border: 1px solid #888; padding: 14px 10px 6px; }
+.sign-box .label { font-size: 8pt; color: #555; display: block; margin-bottom: 4px; }
+.stamp-box { width: 60px; height: 60px; border: 1.5px solid #888; border-radius: 50%; text-align: center; line-height: 60px; font-size: 8pt; color: #888; flex-shrink: 0; }
+</style>
+</head>
+<body>
+<div class="sample-notice">【テスト用サンプル書類 ― 実在の法人情報ではありません / 入居申込書ではありません】</div>
+<div class="usage-badge">■ 用途：事務所用（office） — 業態・従業員数・来客頻度を重視した事務所特化フォーマット</div>
+<h1>入　居　申　込　書（法人用 / 事務所用）</h1>
+
+<h2>■ 申込物件</h2>
+<table>
+  <tr><th>物件名称</th><td class="wide">{{ case.property.property_name if case.property else '' }}（{{ case.property.room_number if case.property else '' }}）</td></tr>
+  <tr><th>所在地</th><td>{{ case.property.property_address if case.property else '' }}</td></tr>
+  <tr><th>賃料 / 管理費</th><td>{{ case.property.rent if case.property else '' }} / {{ case.property.management_fee if case.property else '' }}</td></tr>
+  <tr><th>利用用途</th><td>{{ case.property.usage_purpose if case.property else '事務所' }}</td></tr>
+  <tr><th>希望入居日</th><td>{{ case.property.desired_move_in_date if case.property else '' }}</td></tr>
+</table>
+
+<h2>■ 申込法人</h2>
+<table>
+  <tr><th>商号</th><td>{{ case.company.company_name if case.company else '' }}（{{ case.company.company_kana if case.company else '' }}）</td></tr>
+  <tr><th>会社法人等番号</th><td>{{ case.company.corporate_number if case.company else '' }}</td></tr>
+  <tr><th>本店所在地</th><td>{{ case.company.head_office_address if case.company else '' }}</td></tr>
+  <tr><th>代表者</th><td>{{ case.company.representative_name if case.company else '' }}</td></tr>
+  <tr><th>設立年月日 / 資本金</th><td>{{ case.company.established_date if case.company else '' }} / {{ case.company.capital if case.company else '' }}</td></tr>
+  <tr><th>事業内容</th><td>{{ case.company.business_description if case.company else '' }}</td></tr>
+  <tr><th>全社従業員数</th><td>{{ case.company.employee_count if case.company else '' }}</td></tr>
+</table>
+
+<h2 class="office-section" style="background:#d6dbdf; border-left-color:#5d6d7e;">■ 事務所利用に関する事項 <span style="font-size:8pt; color:#34495e;">※審査の主要項目</span></h2>
+<table class="office-section">
+  <tr><th>配属予定人数</th><td>—名（うち常駐：—名）</td></tr>
+  <tr><th>営業時間</th><td>平日 9:00〜19:00（土日祝休）</td></tr>
+  <tr><th>来客頻度</th><td>週1〜2回程度（事前アポイント制）</td></tr>
+  <tr><th>看板掲示</th><td>□ 希望（建物規約に従う）　☑ 不要</td></tr>
+  <tr><th>業種カテゴリ</th><td>IT・サービス業（来客少・騒音なし）</td></tr>
+  <tr><th>夜間使用</th><td>□ あり　☑ 原則なし（深夜帯は不使用）</td></tr>
+  <tr><th>連絡先窓口担当者</th><td>—部　—（{{ case.company.phone if case.company else '' }}　{{ case.company.email if case.company else '' }}）</td></tr>
+</table>
+
+<h2>■ 請求先・支払方法</h2>
+<table>
+  <tr><th>請求書送付先</th><td>本店宛（経理部）</td></tr>
+  <tr><th>支払方法</th><td>口座振替（毎月末締・翌月末払）</td></tr>
+</table>
+
+<div class="compliance-box">
+  <h3>■ 反社会的勢力排除に関する確認</h3>
+  <p>本法人は、反社会的勢力（暴力団・暴力団員・暴力団準構成員・総会屋・社会運動標榜ゴロ・特殊知能暴力集団等）に該当しないこと、および将来にわたって関係を持たないことを表明・確約いたします。</p>
+</div>
+
+<h2>■ 確認・同意事項</h2>
+<div class="consent-box">
+  <p>□ 賃借物件は事務所用途のみに使用し、店舗・住居・転貸の用途には供しません。</p>
+  <p>□ 内装工事・什器設置については事前に書面で賃貸人の承諾を得ます。</p>
+  <p>□ 看板掲示・社名表示は建物管理規約に従います。</p>
+  <p>□ 申込書記載内容はすべて事実であることを誓約します。</p>
+</div>
+
+<div class="sign-area">
+  <div class="sign-box" style="flex:2"><span class="label">法人名・代表者署名</span></div>
+  <div class="stamp-box">法人印</div>
+</div>
+</body>
+</html>

@@ -221,3 +221,64 @@ def test_build_answer_business_use_pledge(corporate_extended_case):
     assert answer["fields"]["original_business_type"] == "飲食店営業（イートイン併設）"
     assert answer["fields"]["changed_business_type"] == "テイクアウト専門"
     assert answer["fields"]["license_required"] == "不要"
+
+
+def test_build_answer_financial_statement_prior(corporate_extended_case):
+    answer = build_answer(
+        corporate_extended_case, "financial_statement", "financial_summary_prior"
+    )
+    assert answer["fields"]["fiscal_year"] == "2024年度"
+    assert answer["fields"]["sales"] == "40,000,000円"
+    assert answer["fields"]["net_income"] == "2,400,000円"
+
+
+def test_build_answer_financial_statement_current_still_works(corporate_extended_case):
+    answer = build_answer(
+        corporate_extended_case, "financial_statement", "financial_summary"
+    )
+    assert answer["fields"]["fiscal_year"] == "2025年度"
+    assert answer["fields"]["sales"] == "50,000,000円"
+
+
+def test_build_answer_income_certificate_prior(individual_extended_case):
+    answer = build_answer(
+        individual_extended_case, "income_certificate", "tax_return_prior"
+    )
+    assert answer["fields"]["income_year"] == "2024年"
+    assert answer["fields"]["annual_income"] == "3,800,000円"
+    assert answer["fields"]["base_salary"] == "260,000円"
+
+
+def test_build_answer_trial_balance(corporate_extended_case):
+    answer = build_answer(
+        corporate_extended_case, "trial_balance", "monthly_summary"
+    )
+    assert answer["fields"]["company_name"] == "テスト商事株式会社"
+    assert answer["fields"]["fiscal_period"] == "2026年10月度（月次）"
+    assert answer["fields"]["total_assets"] == "22,500,000円"
+    assert answer["fields"]["operating_profit"] == "2,600,000円"
+
+
+def test_build_answer_corporate_with_housing_usage(corporate_extended_case):
+    answer = build_answer(
+        corporate_extended_case, "rental_application_corporate", "housing"
+    )
+    assert answer["fields"]["housing_occupant_name"] == "テスト 役員"
+    assert answer["fields"]["housing_contract_name"] == "法人契約"
+
+
+def test_build_answer_corporate_with_store_usage(corporate_extended_case):
+    answer = build_answer(
+        corporate_extended_case, "rental_application_corporate", "store"
+    )
+    assert answer["fields"]["store_business_format"] == "飲食店（カフェ業態）"
+    assert answer["fields"]["store_operating_hours"] == "8:00〜22:00"
+
+
+def test_build_answer_individual_with_soho_usage(individual_extended_case):
+    answer = build_answer(
+        individual_extended_case, "rental_application_individual", "soho"
+    )
+    assert answer["fields"]["soho_business_type"] == "Webデザイン"
+    assert answer["fields"]["soho_residential_ratio"] == "60%"
+    assert answer["fields"]["soho_has_signboard"] == "なし"

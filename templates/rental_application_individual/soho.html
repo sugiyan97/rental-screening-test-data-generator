@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
+
+@page { size: A4; margin: 12mm 18mm; }
+* { box-sizing: border-box; font-family: 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif; }
+body { font-size: 9.5pt; line-height: 1.55; color: #1a1a1a; margin: 0; }
+
+h1 { font-size: 14pt; text-align: center; margin: 0 0 6px; border-bottom: 2px solid #333; padding-bottom: 5px; letter-spacing: 0.12em; }
+h2 { font-size: 9.5pt; margin: 10px 0 4px; background: #e8e8e8; padding: 2px 8px; border-left: 4px solid #444; }
+table { width: 100%; border-collapse: collapse; margin-bottom: 8px; font-size: 9pt; }
+th, td { border: 1px solid #666; padding: 3px 7px; vertical-align: middle; }
+th { background-color: #f2f2f2; font-weight: 700; white-space: nowrap; width: 26%; }
+td.wide { width: 74%; }
+
+.sample-notice { background: #fff3cd; border: 2px solid #ffc107; padding: 3px 10px; margin-bottom: 8px; font-size: 8pt; font-weight: bold; text-align: center; color: #856404; }
+.usage-badge { background: #d4efdf; border: 1px solid #229954; padding: 4px 12px; margin-bottom: 10px; font-size: 9pt; font-weight: bold; text-align: center; color: #196f3d; }
+.consent-box { border: 1.5px solid #aaa; background: #fafafa; padding: 6px 10px; font-size: 9pt; margin-bottom: 8px; }
+.ratio-cell { background: #eafaf1; font-weight: bold; }
+.soho-section th { background: #d4efdf; color: #196f3d; }
+.sign-area { display: flex; gap: 16px; margin-top: 10px; }
+.sign-box { flex: 1; border: 1px solid #888; padding: 14px 10px 6px; }
+.sign-box .label { font-size: 8pt; color: #555; display: block; margin-bottom: 4px; }
+.stamp-box { width: 60px; height: 60px; border: 1.5px solid #888; border-radius: 50%; text-align: center; line-height: 60px; font-size: 8pt; color: #888; flex-shrink: 0; }
+</style>
+</head>
+<body>
+<div class="sample-notice">【テスト用サンプル書類 ― 実在の個人情報ではありません / 入居申込書ではありません】</div>
+<div class="usage-badge">■ 用途：居住SOHO兼用（soho） — 居住部分と事業部分の併用</div>
+<h1>入　居　申　込　書（個人用 / 居住SOHO兼用）</h1>
+
+<h2>■ 申込物件</h2>
+<table>
+  <tr><th>物件名称</th><td class="wide">{{ case.property.property_name if case.property else '' }}（{{ case.property.room_number if case.property else '' }}）</td></tr>
+  <tr><th>所在地</th><td>{{ case.property.property_address if case.property else '' }}</td></tr>
+  <tr><th>賃料 / 管理費</th><td>{{ case.property.rent if case.property else '' }} / {{ case.property.management_fee if case.property else '' }}</td></tr>
+  <tr><th>利用用途</th><td>{{ case.property.usage_purpose if case.property else 'SOHO（居住兼事務所）' }}</td></tr>
+  <tr><th>希望入居日</th><td>{{ case.property.desired_move_in_date if case.property else '' }}</td></tr>
+</table>
+
+<h2>■ 申込者</h2>
+<table>
+  <tr><th>氏名</th><td>{{ case.applicant.name if case.applicant else '' }}（{{ case.applicant.kana if case.applicant else '' }}）</td></tr>
+  <tr><th>生年月日</th><td>{{ case.applicant.birth_date if case.applicant else '' }}</td></tr>
+  <tr><th>現住所</th><td>{{ case.applicant.current_address if case.applicant else '' }}</td></tr>
+  <tr><th>電話 / メール</th><td>{{ case.applicant.phone if case.applicant else '' }} / {{ case.applicant.email if case.applicant else '' }}</td></tr>
+</table>
+
+<h2 class="soho-section" style="background:#d4efdf; border-left-color:#229954;">■ SOHO 兼用に関する事項 <span style="font-size:8pt; color:#196f3d;">※審査の主要項目</span></h2>
+<table class="soho-section">
+  <tr>
+    <th>使用面積割合</th>
+    <td class="ratio-cell">居住：{{ case.soho_usage.residential_ratio if case.soho_usage else '' }}　／　事業：{{ case.soho_usage.business_ratio if case.soho_usage else '' }}</td>
+  </tr>
+  <tr>
+    <th>業種</th>
+    <td>{{ case.soho_usage.business_type if case.soho_usage else '' }}</td>
+  </tr>
+  <tr>
+    <th>業務概要</th>
+    <td>{{ case.soho_usage.business_overview if case.soho_usage else '' }}</td>
+  </tr>
+  <tr>
+    <th>屋号・事業者名</th>
+    <td>{{ case.soho_usage.trade_name if case.soho_usage else '' }}</td>
+  </tr>
+  <tr>
+    <th>来客頻度</th>
+    <td>{{ case.soho_usage.visitor_frequency if case.soho_usage else '' }}</td>
+  </tr>
+  <tr>
+    <th>看板掲示</th>
+    <td>{{ case.soho_usage.has_signboard if case.soho_usage else '' }}</td>
+  </tr>
+</table>
+
+<h2>■ 収入情報</h2>
+<table>
+  <tr><th>収入種別</th><td>{{ case.income.income_type if case.income else '事業所得' }}</td></tr>
+  <tr><th>年間所得</th><td>{{ case.income.annual_income if case.income else '' }}（直近年度）</td></tr>
+  <tr><th>勤務先（事業）</th><td>{{ case.employment.employer_name if case.employment else '' }}</td></tr>
+</table>
+
+{% if case.guarantor %}
+<h2>■ 連帯保証人</h2>
+<table>
+  <tr><th>氏名 / 続柄</th><td>{{ case.guarantor.name if case.guarantor else '' }} / {{ case.guarantor.relationship if case.guarantor else '' }}</td></tr>
+  <tr><th>勤務先 / 年収</th><td>{{ case.guarantor.employer_name if case.guarantor else '' }} / {{ case.guarantor.annual_income if case.guarantor else '' }}</td></tr>
+</table>
+{% endif %}
+
+<h2>■ 確認・同意事項</h2>
+<div class="consent-box">
+  <p>□ 事業部分の使用は SOHO（住居兼用）として行い、不特定多数の来客が常時生じる業態は行いません。</p>
+  <p>□ 看板の掲示・設置は事前に賃貸人の承諾を得ます。</p>
+  <p>□ 業種を変更する場合は事前に賃貸人へ通知します。</p>
+  <p>□ 申込書記載内容はすべて事実であることを誓約します。</p>
+</div>
+
+<div class="sign-area">
+  <div class="sign-box" style="flex:2"><span class="label">申込者署名</span></div>
+  <div class="stamp-box">捺印</div>
+</div>
+</body>
+</html>

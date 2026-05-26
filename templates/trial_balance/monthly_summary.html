@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
+
+@page {
+  size: A4;
+  margin: 15mm 20mm;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif;
+}
+
+body {
+  font-size: 10pt;
+  line-height: 1.55;
+  color: #222;
+  margin: 0;
+}
+
+.sample-notice {
+  background: #fff3cd;
+  border: 2px solid #ffc107;
+  padding: 4px 12px;
+  margin-bottom: 10px;
+  font-size: 8.5pt;
+  font-weight: bold;
+  text-align: center;
+  color: #856404;
+}
+
+h1 {
+  font-size: 15pt;
+  text-align: center;
+  margin: 4px 0 4px;
+  letter-spacing: 0.1em;
+}
+
+.meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9pt;
+  color: #444;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 5px;
+  margin-bottom: 10px;
+}
+
+h2 {
+  font-size: 10.5pt;
+  margin: 12px 0 4px;
+  background: #e8eef5;
+  padding: 3px 8px;
+  border-left: 4px solid #2c4470;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 9.5pt;
+  margin-bottom: 8px;
+}
+
+th, td {
+  border: 1px solid #777;
+  padding: 3px 9px;
+  vertical-align: middle;
+}
+
+th {
+  background-color: #f0f0f0;
+  font-weight: 700;
+  text-align: left;
+  width: 60%;
+}
+
+td {
+  text-align: right;
+}
+
+.subtotal-row td, .subtotal-row th {
+  background: #f4f7fb;
+  font-weight: bold;
+}
+
+.total-row td, .total-row th {
+  background: #e4eaf4;
+  font-weight: bold;
+  font-size: 10pt;
+}
+
+.indent-th {
+  padding-left: 24px;
+  font-weight: normal;
+}
+
+.section-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.footer-note {
+  font-size: 8pt;
+  color: #666;
+  margin-top: 10px;
+  border-top: 1px solid #ccc;
+  padding-top: 5px;
+}
+</style>
+</head>
+<body>
+<div class="sample-notice">【テスト用サンプル書類 ― 実在の財務情報ではありません / 残高試算表ではありません】</div>
+<h1>合 計 残 高 試 算 表</h1>
+<div class="meta">
+  <span>{{ case.company.company_name if case.company else '' }}</span>
+  <span>対象期間：{{ case.trial_balance.fiscal_period if case.trial_balance else '' }}</span>
+  <span>作成日：&emsp;&emsp;&emsp;&emsp;年&emsp;&emsp;月&emsp;&emsp;日</span>
+</div>
+
+<div class="section-grid">
+  <div>
+    <h2>【資産の部】</h2>
+    <table>
+      <tr><th class="indent-th">現預金</th><td>{{ case.trial_balance.cash if case.trial_balance else '' }}</td></tr>
+      <tr><th class="indent-th">売掛金</th><td>{{ case.trial_balance.accounts_receivable if case.trial_balance else '' }}</td></tr>
+      <tr><th class="indent-th">棚卸資産</th><td>{{ case.trial_balance.inventory if case.trial_balance else '' }}</td></tr>
+      <tr class="subtotal-row"><th>流動資産合計</th><td>{{ case.trial_balance.total_current_assets if case.trial_balance else '' }}</td></tr>
+      <tr><th class="indent-th">固定資産（一括）</th><td>{{ case.trial_balance.fixed_assets if case.trial_balance else '' }}</td></tr>
+      <tr class="total-row"><th>資産合計</th><td>{{ case.trial_balance.total_assets if case.trial_balance else '' }}</td></tr>
+    </table>
+  </div>
+  <div>
+    <h2>【負債・純資産の部】</h2>
+    <table>
+      <tr><th class="indent-th">買掛金</th><td>{{ case.trial_balance.accounts_payable if case.trial_balance else '' }}</td></tr>
+      <tr><th class="indent-th">短期借入金</th><td>{{ case.trial_balance.short_term_borrowings if case.trial_balance else '' }}</td></tr>
+      <tr class="subtotal-row"><th>流動負債合計</th><td>{{ case.trial_balance.total_current_liabilities if case.trial_balance else '' }}</td></tr>
+      <tr><th class="indent-th">長期借入金</th><td>{{ case.trial_balance.long_term_borrowings if case.trial_balance else '' }}</td></tr>
+      <tr class="subtotal-row"><th>負債合計</th><td>{{ case.trial_balance.total_liabilities if case.trial_balance else '' }}</td></tr>
+      <tr class="total-row"><th>純資産合計</th><td>{{ case.trial_balance.total_net_assets if case.trial_balance else '' }}</td></tr>
+    </table>
+  </div>
+</div>
+
+<h2>【損益の部】</h2>
+<table>
+  <tr><th>売上高</th><td>{{ case.trial_balance.revenue if case.trial_balance else '' }}</td></tr>
+  <tr><th class="indent-th">売上原価</th><td>{{ case.trial_balance.cost_of_sales if case.trial_balance else '' }}</td></tr>
+  <tr class="subtotal-row"><th>売上総利益</th><td>{{ case.trial_balance.gross_profit if case.trial_balance else '' }}</td></tr>
+  <tr><th class="indent-th">販売費及び一般管理費</th><td>{{ case.trial_balance.sga_expenses if case.trial_balance else '' }}</td></tr>
+  <tr class="total-row"><th>営業利益</th><td>{{ case.trial_balance.operating_profit if case.trial_balance else '' }}</td></tr>
+</table>
+
+<p class="footer-note">
+  ※ 本書類はOCR・LLM・Document AIシステムの検証を目的として作成されたテスト用サンプルです。
+  実在する企業の財務情報ではありません。
+</p>
+</body>
+</html>

@@ -12,9 +12,11 @@ def _get(obj: Any, attr: str) -> Any:
     return getattr(obj, attr, None) if obj is not None else None
 
 
-def _build_rental_application_corporate(case: Case) -> dict[str, Any]:
+def _build_rental_application_corporate(case: Case, variant: str = "") -> dict[str, Any]:
     c = case.company
     p = case.property
+    chu = case.corporate_housing_usage
+    csu = case.corporate_store_usage
     return {
         "company_name": _get(c, "company_name"),
         "company_kana": _get(c, "company_kana"),
@@ -36,10 +38,19 @@ def _build_rental_application_corporate(case: Case) -> dict[str, Any]:
         "management_fee": _get(p, "management_fee"),
         "desired_move_in_date": _get(p, "desired_move_in_date"),
         "usage_purpose": _get(p, "usage_purpose"),
+        "housing_occupant_name": _get(chu, "occupant_name"),
+        "housing_occupant_relation": _get(chu, "occupant_relation"),
+        "housing_occupant_department": _get(chu, "occupant_department"),
+        "housing_rent_subsidy_amount": _get(chu, "rent_subsidy_amount"),
+        "housing_contract_name": _get(chu, "contract_name"),
+        "store_business_format": _get(csu, "business_format"),
+        "store_operating_hours": _get(csu, "operating_hours"),
+        "store_closed_days": _get(csu, "closed_days"),
+        "store_construction_required": _get(csu, "construction_required"),
     }
 
 
-def _build_registry_certificate(case: Case) -> dict[str, Any]:
+def _build_registry_certificate(case: Case, variant: str = "") -> dict[str, Any]:
     c = case.company
     return {
         "company_name": _get(c, "company_name"),
@@ -53,9 +64,9 @@ def _build_registry_certificate(case: Case) -> dict[str, Any]:
     }
 
 
-def _build_financial_statement(case: Case) -> dict[str, Any]:
+def _build_financial_statement(case: Case, variant: str = "") -> dict[str, Any]:
     c = case.company
-    f = case.financials
+    f = case.previous_financials if variant.endswith("_prior") else case.financials
     return {
         "company_name": _get(c, "company_name"),
         "fiscal_year": _get(f, "fiscal_year"),
@@ -69,7 +80,7 @@ def _build_financial_statement(case: Case) -> dict[str, Any]:
     }
 
 
-def _build_business_plan(case: Case) -> dict[str, Any]:
+def _build_business_plan(case: Case, variant: str = "") -> dict[str, Any]:
     c = case.company
     bp = case.business_plan
     return {
@@ -83,7 +94,7 @@ def _build_business_plan(case: Case) -> dict[str, Any]:
     }
 
 
-def _build_rental_application_individual(case: Case) -> dict[str, Any]:
+def _build_rental_application_individual(case: Case, variant: str = "") -> dict[str, Any]:
     a = case.applicant
     e = case.employment
     p = case.property
@@ -136,12 +147,19 @@ def _build_rental_application_individual(case: Case) -> dict[str, Any]:
         "cohabitant_student_name": _get(s, "name"),
         "cohabitant_student_relationship": _get(s, "relationship_to_applicant"),
         "cohabitant_student_school_name": _get(s, "school_name"),
+        "soho_business_type": _get(case.soho_usage, "business_type"),
+        "soho_business_overview": _get(case.soho_usage, "business_overview"),
+        "soho_residential_ratio": _get(case.soho_usage, "residential_ratio"),
+        "soho_business_ratio": _get(case.soho_usage, "business_ratio"),
+        "soho_visitor_frequency": _get(case.soho_usage, "visitor_frequency"),
+        "soho_trade_name": _get(case.soho_usage, "trade_name"),
+        "soho_has_signboard": _get(case.soho_usage, "has_signboard"),
     }
 
 
-def _build_income_certificate(case: Case) -> dict[str, Any]:
+def _build_income_certificate(case: Case, variant: str = "") -> dict[str, Any]:
     a = case.applicant
-    i = case.income
+    i = case.previous_income if variant.endswith("_prior") else case.income
     pe = case.previous_employment
     return {
         "name": _get(a, "name"),
@@ -166,7 +184,7 @@ def _build_income_certificate(case: Case) -> dict[str, Any]:
     }
 
 
-def _build_corporate_guarantee_contract(case: Case) -> dict[str, Any]:
+def _build_corporate_guarantee_contract(case: Case, variant: str = "") -> dict[str, Any]:
     c = case.company
     p = case.property
     cg = case.corporate_guarantee
@@ -187,7 +205,7 @@ def _build_corporate_guarantee_contract(case: Case) -> dict[str, Any]:
     }
 
 
-def _build_parent_company_guarantee_letter(case: Case) -> dict[str, Any]:
+def _build_parent_company_guarantee_letter(case: Case, variant: str = "") -> dict[str, Any]:
     c = case.company
     pc = case.parent_company
     p = case.property
@@ -207,7 +225,7 @@ def _build_parent_company_guarantee_letter(case: Case) -> dict[str, Any]:
     }
 
 
-def _build_parent_company_registry_certificate(case: Case) -> dict[str, Any]:
+def _build_parent_company_registry_certificate(case: Case, variant: str = "") -> dict[str, Any]:
     pc = case.parent_company
     return {
         "company_name": _get(pc, "company_name"),
@@ -221,7 +239,7 @@ def _build_parent_company_registry_certificate(case: Case) -> dict[str, Any]:
     }
 
 
-def _build_parent_company_financial_statement(case: Case) -> dict[str, Any]:
+def _build_parent_company_financial_statement(case: Case, variant: str = "") -> dict[str, Any]:
     pc = case.parent_company
     f = case.parent_company_financials
     return {
@@ -237,7 +255,7 @@ def _build_parent_company_financial_statement(case: Case) -> dict[str, Any]:
     }
 
 
-def _build_business_license(case: Case) -> dict[str, Any]:
+def _build_business_license(case: Case, variant: str = "") -> dict[str, Any]:
     c = case.company
     bl = case.business_license
     return {
@@ -253,7 +271,7 @@ def _build_business_license(case: Case) -> dict[str, Any]:
     }
 
 
-def _build_guarantor_2_income_certificate(case: Case) -> dict[str, Any]:
+def _build_guarantor_2_income_certificate(case: Case, variant: str = "") -> dict[str, Any]:
     g = case.guarantor_2
     gi = case.guarantor_2_income
     return {
@@ -273,7 +291,7 @@ def _build_guarantor_2_income_certificate(case: Case) -> dict[str, Any]:
     }
 
 
-def _build_guarantor_2_identity_document(case: Case) -> dict[str, Any]:
+def _build_guarantor_2_identity_document(case: Case, variant: str = "") -> dict[str, Any]:
     g = case.guarantor_2
     gid = case.guarantor_2_identity_document
     return {
@@ -290,7 +308,7 @@ def _build_guarantor_2_identity_document(case: Case) -> dict[str, Any]:
     }
 
 
-def _build_guarantee_company_application(case: Case) -> dict[str, Any]:
+def _build_guarantee_company_application(case: Case, variant: str = "") -> dict[str, Any]:
     a = case.applicant
     p = case.property
     gc = case.guarantee_company
@@ -314,7 +332,7 @@ def _build_guarantee_company_application(case: Case) -> dict[str, Any]:
     }
 
 
-def _build_offer_letter(case: Case) -> dict[str, Any]:
+def _build_offer_letter(case: Case, variant: str = "") -> dict[str, Any]:
     a = case.applicant
     ol = case.offer_letter
     return {
@@ -333,7 +351,7 @@ def _build_offer_letter(case: Case) -> dict[str, Any]:
     }
 
 
-def _build_business_license_application(case: Case) -> dict[str, Any]:
+def _build_business_license_application(case: Case, variant: str = "") -> dict[str, Any]:
     c = case.company
     p = case.property
     bla = case.business_license_application
@@ -351,7 +369,33 @@ def _build_business_license_application(case: Case) -> dict[str, Any]:
     }
 
 
-def _build_business_use_pledge(case: Case) -> dict[str, Any]:
+def _build_trial_balance(case: Case, variant: str = "") -> dict[str, Any]:
+    c = case.company
+    tb = case.trial_balance
+    return {
+        "company_name": _get(c, "company_name"),
+        "fiscal_period": _get(tb, "fiscal_period"),
+        "cash": _get(tb, "cash"),
+        "accounts_receivable": _get(tb, "accounts_receivable"),
+        "inventory": _get(tb, "inventory"),
+        "total_current_assets": _get(tb, "total_current_assets"),
+        "fixed_assets": _get(tb, "fixed_assets"),
+        "total_assets": _get(tb, "total_assets"),
+        "accounts_payable": _get(tb, "accounts_payable"),
+        "short_term_borrowings": _get(tb, "short_term_borrowings"),
+        "total_current_liabilities": _get(tb, "total_current_liabilities"),
+        "long_term_borrowings": _get(tb, "long_term_borrowings"),
+        "total_liabilities": _get(tb, "total_liabilities"),
+        "total_net_assets": _get(tb, "total_net_assets"),
+        "revenue": _get(tb, "revenue"),
+        "cost_of_sales": _get(tb, "cost_of_sales"),
+        "gross_profit": _get(tb, "gross_profit"),
+        "sga_expenses": _get(tb, "sga_expenses"),
+        "operating_profit": _get(tb, "operating_profit"),
+    }
+
+
+def _build_business_use_pledge(case: Case, variant: str = "") -> dict[str, Any]:
     c = case.company
     p = case.property
     bup = case.business_use_pledge
@@ -369,7 +413,7 @@ def _build_business_use_pledge(case: Case) -> dict[str, Any]:
     }
 
 
-def _build_student_id(case: Case) -> dict[str, Any]:
+def _build_student_id(case: Case, variant: str = "") -> dict[str, Any]:
     s = case.student
     return {
         "name": _get(s, "name"),
@@ -385,7 +429,7 @@ def _build_student_id(case: Case) -> dict[str, Any]:
     }
 
 
-def _build_identity_document(case: Case) -> dict[str, Any]:
+def _build_identity_document(case: Case, variant: str = "") -> dict[str, Any]:
     a = case.applicant
     idoc = case.identity_document
     return {
@@ -406,7 +450,7 @@ def _build_identity_document(case: Case) -> dict[str, Any]:
     }
 
 
-def _build_guarantor_income_certificate(case: Case) -> dict[str, Any]:
+def _build_guarantor_income_certificate(case: Case, variant: str = "") -> dict[str, Any]:
     g = case.guarantor
     gi = case.guarantor_income
     return {
@@ -426,7 +470,7 @@ def _build_guarantor_income_certificate(case: Case) -> dict[str, Any]:
     }
 
 
-def _build_guarantor_identity_document(case: Case) -> dict[str, Any]:
+def _build_guarantor_identity_document(case: Case, variant: str = "") -> dict[str, Any]:
     g = case.guarantor
     gid = case.guarantor_identity_document
     return {
@@ -443,7 +487,7 @@ def _build_guarantor_identity_document(case: Case) -> dict[str, Any]:
     }
 
 
-_BUILDERS: dict[str, Callable[[Case], dict[str, Any]]] = {
+_BUILDERS: dict[str, Callable[[Case, str], dict[str, Any]]] = {
     "rental_application_corporate": _build_rental_application_corporate,
     "registry_certificate": _build_registry_certificate,
     "financial_statement": _build_financial_statement,
@@ -465,6 +509,7 @@ _BUILDERS: dict[str, Callable[[Case], dict[str, Any]]] = {
     "student_id": _build_student_id,
     "business_license_application": _build_business_license_application,
     "business_use_pledge": _build_business_use_pledge,
+    "trial_balance": _build_trial_balance,
 }
 
 
@@ -475,7 +520,7 @@ def build_answer(case: Case, document_type: str, variant: str) -> dict[str, Any]
             f"  document_type: {document_type}\n"
             f"  対応済み: {list(_BUILDERS.keys())}"
         )
-    fields = _BUILDERS[document_type](case)
+    fields = _BUILDERS[document_type](case, variant)
     return {
         "case_id": case.case_id,
         "document_type": document_type,
