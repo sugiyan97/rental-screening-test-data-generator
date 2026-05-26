@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
+
+@page { size: A4; margin: 15mm 20mm; }
+* { box-sizing: border-box; font-family: 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif; }
+body { font-size: 10pt; line-height: 1.65; color: #1a1a1a; margin: 0; }
+
+.sample-notice { background: #fff3cd; border: 2px solid #ffc107; padding: 4px 12px; margin-bottom: 8px; font-size: 8.5pt; font-weight: bold; text-align: center; color: #856404; }
+.doc-badge { background: #d4efdf; border: 1px solid #229954; padding: 4px 14px; margin-bottom: 10px; font-size: 9.5pt; font-weight: bold; text-align: center; color: #196f3d; }
+
+h1 { font-size: 16pt; text-align: center; margin: 4px 0 4px; letter-spacing: 0.12em; }
+.h1-sub { text-align: center; font-size: 9pt; color: #555; margin-bottom: 14px; }
+
+h2 { font-size: 10.5pt; margin: 14px 0 6px; background: #eaf6ee; padding: 4px 10px; border-left: 4px solid #229954; }
+h3 { font-size: 10pt; margin: 10px 0 4px; color: #196f3d; }
+
+table { width: 100%; border-collapse: collapse; font-size: 9.5pt; margin-bottom: 10px; }
+th, td { border: 1px solid #777; padding: 4px 9px; vertical-align: top; }
+th { background: #f4f6f7; font-weight: bold; width: 30%; text-align: left; white-space: nowrap; }
+
+.highlight-cell { background: #eafaf1; font-weight: bold; color: #196f3d; }
+
+.plan-table th, .plan-table td { text-align: center; }
+.plan-table th { background: #d4efdf; }
+.plan-table td.row-label { text-align: left; background: #f4f6f7; font-weight: bold; }
+
+.narrative-block { background: #fafafa; border: 1px solid #ccc; padding: 8px 12px; margin-bottom: 10px; font-size: 9.5pt; }
+
+.signature-area { margin-top: 18px; padding: 8px 12px; border: 1px solid #aaa; display: flex; justify-content: space-between; align-items: center; }
+.signature-area .stamp { width: 50px; height: 50px; border: 1.5px solid #c0392b; border-radius: 50%; text-align: center; line-height: 50px; font-size: 7pt; color: #c0392b; }
+
+.footer-note { font-size: 8pt; color: #666; border-top: 1px solid #ccc; padding-top: 5px; margin-top: 12px; }
+</style>
+</head>
+<body>
+<div class="sample-notice">【テスト用サンプル書類 ― 実在の個人情報ではありません / 事業計画書ではありません】</div>
+<div class="doc-badge">■ 個人事業 開業計画書（個人事業主・フリーランス・独立開業向け）</div>
+
+<h1>事 業 計 画 書（個人事業）</h1>
+<p class="h1-sub">開業届出書添付資料／賃貸借契約申込時提出書類</p>
+
+<h2>■ 申請者情報</h2>
+<table>
+  <tr><th>氏名</th><td>{{ case.applicant.name if case.applicant else '' }}</td></tr>
+  <tr><th>住所</th><td>{{ case.applicant.current_address if case.applicant else '' }}</td></tr>
+  <tr><th>連絡先</th><td>{{ case.applicant.phone if case.applicant else '' }} / {{ case.applicant.email if case.applicant else '' }}</td></tr>
+  <tr><th>屋号</th><td class="highlight-cell">{{ case.business_plan.trade_name if case.business_plan else '' }}</td></tr>
+  <tr><th>業種</th><td>{{ case.business_plan.business_category if case.business_plan else '' }}</td></tr>
+  <tr><th>開業予定日</th><td class="highlight-cell">{{ case.business_plan.opening_date if case.business_plan else '' }}</td></tr>
+  <tr><th>事業計画期間</th><td>{{ case.business_plan.plan_period if case.business_plan else '' }}</td></tr>
+</table>
+
+<h2>■ 事業概要</h2>
+<div class="narrative-block">
+  {{ case.business_plan.business_overview if case.business_plan else '' }}
+</div>
+
+<h2>■ 創業者（代表）の経歴・強み</h2>
+<div class="narrative-block">
+  {{ case.business_plan.founder_background if case.business_plan else '' }}
+</div>
+
+<h2>■ 想定顧客・市場</h2>
+<table>
+  <tr><th>想定顧客層</th><td>{{ case.business_plan.target_customers if case.business_plan else '' }}</td></tr>
+  <tr><th>競合優位性</th><td>{{ case.business_plan.competitive_advantage if case.business_plan else '' }}</td></tr>
+  <tr><th>マーケティング戦略</th><td>{{ case.business_plan.marketing_strategy if case.business_plan else '' }}</td></tr>
+</table>
+
+<h2>■ 売上・収支計画</h2>
+<table class="plan-table">
+  <tr>
+    <th>項目</th>
+    <th>1年目（開業時）</th>
+    <th>2年目</th>
+    <th>3年目</th>
+  </tr>
+  <tr>
+    <td class="row-label">月次売上目標</td>
+    <td>{{ case.business_plan.monthly_revenue_target if case.business_plan else '' }}</td>
+    <td>—</td>
+    <td>—</td>
+  </tr>
+  <tr>
+    <td class="row-label">月次費用見込</td>
+    <td>{{ case.business_plan.monthly_cost_estimate if case.business_plan else '' }}</td>
+    <td>—</td>
+    <td>—</td>
+  </tr>
+  <tr>
+    <td class="row-label">年間売上計画</td>
+    <td colspan="3" style="text-align:left;">{{ case.business_plan.revenue_plan if case.business_plan else '' }}</td>
+  </tr>
+</table>
+
+<h2>■ 資金計画</h2>
+<table>
+  <tr><th>自己資金（開業時）</th><td class="highlight-cell">{{ case.business_plan.initial_capital if case.business_plan else '' }}</td></tr>
+  <tr><th>資金調達計画</th><td>{{ case.business_plan.funding_plan if case.business_plan else '' }}</td></tr>
+</table>
+
+<h2>■ 採用・組織計画</h2>
+<div class="narrative-block">
+  {{ case.business_plan.hiring_plan if case.business_plan else '当面は代表1名で運営。3年目以降に業務量に応じて外注／パート採用を検討。' }}
+</div>
+
+<h2>■ リスク要因と対応</h2>
+<div class="narrative-block">
+  {{ case.business_plan.risk_factors if case.business_plan else '' }}
+</div>
+
+<div class="signature-area">
+  <div>
+    <div><strong>提出者：</strong>{{ case.applicant.name if case.applicant else '' }}</div>
+    <div><strong>屋号：</strong>{{ case.business_plan.trade_name if case.business_plan else '' }}</div>
+    <div><strong>提出日：</strong>&emsp;&emsp;年&emsp;月&emsp;日</div>
+  </div>
+  <div class="stamp">事業主印<br>（ダミー）</div>
+</div>
+
+<p class="footer-note">
+  ※ 本書類はOCR・LLM・Document AIシステムの検証を目的として作成されたテスト用サンプルです。
+  実在する事業計画ではありません。
+</p>
+</body>
+</html>

@@ -74,6 +74,18 @@ class BusinessPlan(BaseModel):
     revenue_plan: str | None = None
     hiring_plan: str | None = None
     risk_factors: str | None = None
+    # 開業計画用の追加フィールド（個人・法人スタートアップ向け）
+    trade_name: str | None = None              # 屋号（個人事業主）
+    opening_date: str | None = None             # 開業予定日
+    business_category: str | None = None        # 業種
+    target_customers: str | None = None         # 想定顧客層
+    initial_capital: str | None = None          # 開業資金（自己資金）
+    funding_plan: str | None = None             # 資金調達計画（借入・出資）
+    monthly_revenue_target: str | None = None   # 月次売上目標
+    monthly_cost_estimate: str | None = None    # 月次費用見込
+    founder_background: str | None = None       # 代表者・創業者の経歴
+    competitive_advantage: str | None = None    # 競合優位性
+    marketing_strategy: str | None = None       # マーケティング戦略
 
 
 class EmergencyContact(BaseModel):

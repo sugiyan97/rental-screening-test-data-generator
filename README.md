@@ -8,7 +8,7 @@ OCR・LLM・Document AI などの抽出システムを検証するため、**架
 
 ## 収録ケース一覧
 
-`input/cases.jsonl` に以下の 23 ケースが収録されている。
+`input/cases.jsonl` に以下の 25 ケースが収録されている。
 
 | ケースID | 申込者区分 | シナリオ | 生成書類 |
 |---|---|---|---|
@@ -35,6 +35,8 @@ OCR・LLM・Document AI などの抽出システムを検証するため、**架
 | CASE-000021 | 法人 | **法人・事務所用＋多年度決算書＋残高試算表** — office variant、当期と前期の決算書、月次残高試算表を提出する厳格審査パターン | 法人申込書（office）・登記簿・当期決算書・前期決算書・残高試算表 |
 | CASE-000022 | 法人 | **法人・社宅用 variant** — 大手商社の役員社宅契約。housing variant の入居者情報・家賃補助率を検証 | 法人申込書（housing）・登記簿・決算書 |
 | CASE-000023 | 個人（自営業） | **個人・自営業・複数年度確定申告書** — 当期と前期の確定申告書（2 期分）で収入安定性を示すパターン | 個人申込書・当期確定申告書・前期確定申告書・マイナンバーカード |
+| CASE-000024 | 個人（自営業） | **個人・独立開業＋事業計画書** — 会社員から個人事業主へ転身、事業計画書（individual_startup）で屋号・開業資金・売上計画・代表者経歴を提示するパターン | 個人申込書（SOHO）・事業計画書（個人開業版）・運転免許証 |
+| CASE-000025 | 法人（新設） | **法人スタートアップ＋事業計画書** — 設立 6 ヶ月以内の新設法人。事業計画書（corporate_startup）で創業者経歴・3 ヵ年計画・資金調達計画を提示するパターン | 法人申込書（事務所）・登記簿・事業計画書（法人スタートアップ版）・代表者運転免許証 |
 
 ---
 
@@ -48,7 +50,7 @@ OCR・LLM・Document AI などの抽出システムを検証するため、**架
 | `registry_certificate` | 履歴事項全部証明書風 | `registry_table` |
 | `financial_statement` | 決算書風（財務サマリー） | `financial_summary`, `financial_summary_prior` |
 | `trial_balance` | 合計残高試算表風（月次） | `monthly_summary` |
-| `business_plan` | 事業計画書 | `narrative` |
+| `business_plan` | 事業計画書 | `narrative`, `individual_startup`, `corporate_startup` |
 | `identity_document` | 本人確認書類（申込者） | `drivers_license`, `my_number_card`, `passport`, `residence_card` |
 | `guarantor_income_certificate` | 連帯保証人用収入証明書 | `salary_certificate` |
 | `guarantor_identity_document` | 連帯保証人用本人確認書類 | `drivers_license` |
@@ -77,7 +79,9 @@ OCR・LLM・Document AI などの抽出システムを検証するため、**架
 - **収入証明書（源泉徴収票）** — 前職源泉徴収票風。支払金額・源泉徴収税額・社会保険料・退職日を表示
 - **登記簿謄本風** — 法務局形式に近い原因・日付・登記事項の列構成
 - **財務サマリー** — 2期比較列・経営指標欄付き
-- **事業計画書** — 3ヵ年計画表・資金調達計画・SWOT 分析欄付き
+- **事業計画書** — 既存 `narrative` に加え、開業時向けの 2 variant を用意：
+  - `individual_startup`：個人事業主・フリーランス開業向け。屋号・開業資金・代表者経歴・3 ヵ年売上計画・想定顧客層を含む
+  - `corporate_startup`：新設法人・スタートアップ向け。創業メンバー経歴・市場分析・3 ヵ年計画・資金調達計画（VC 調達等）・SWOT 観点のリスク分析を含む
 - **本人確認書類** — 運転免許証・マイナンバーカード・パスポート・在留カード（いずれも顔写真ダミー入り）
 - **連帯保証人書類** — 保証人用の収入証明書・本人確認書類（書類上部に「連帯保証人用」バッジを表示）。第2保証人用には別途 `guarantor_2_*` 系を使用
 - **代表者連帯保証契約書** — 法人代表者個人が連帯保証する契約書フォーマット（被保証会社／連帯保証人／対象物件／保証条件／署名捺印欄）
@@ -297,7 +301,9 @@ templates/
   trial_balance/
     monthly_summary.html         月次合計残高試算表
   business_plan/
-    narrative.html
+    narrative.html               事業計画書（一般・既存事業向け）
+    individual_startup.html      事業計画書（個人事業主の開業向け）
+    corporate_startup.html       事業計画書（新設法人・スタートアップ向け）
   identity_document/
     drivers_license.html   運転免許証風
     my_number_card.html    マイナンバーカード風
