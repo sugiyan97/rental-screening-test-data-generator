@@ -161,6 +161,46 @@ def _build_identity_document(case: Case) -> dict[str, Any]:
         "expiry": _get(idoc, "expiry"),
         "issue_date": _get(idoc, "issue_date"),
         "issue_place": _get(idoc, "issue_place"),
+        "residence_card_number": _get(idoc, "residence_card_number"),
+        "visa_type": _get(idoc, "visa_type"),
+        "period_of_stay": _get(idoc, "period_of_stay"),
+    }
+
+
+def _build_guarantor_income_certificate(case: Case) -> dict[str, Any]:
+    g = case.guarantor
+    gi = case.guarantor_income
+    return {
+        "name": _get(g, "name"),
+        "current_address": _get(g, "current_address"),
+        "relationship": _get(g, "relationship"),
+        "income_year": _get(gi, "income_year"),
+        "annual_income": _get(gi, "annual_income"),
+        "monthly_income": _get(gi, "monthly_income"),
+        "income_type": _get(gi, "income_type"),
+        "base_salary": _get(gi, "base_salary"),
+        "bonus": _get(gi, "bonus"),
+        "employer_name": _get(gi, "employer_name"),
+        "employer_phone": _get(gi, "employer_phone"),
+        "employer_address": _get(gi, "employer_address"),
+        "issue_date": _get(gi, "issue_date"),
+    }
+
+
+def _build_guarantor_identity_document(case: Case) -> dict[str, Any]:
+    g = case.guarantor
+    gid = case.guarantor_identity_document
+    return {
+        "name": _get(g, "name"),
+        "birth_date": _get(g, "birth_date"),
+        "address": _get(g, "current_address"),
+        "relationship": _get(g, "relationship"),
+        "license_number": _get(gid, "license_number"),
+        "my_number": _get(gid, "my_number"),
+        "passport_number": _get(gid, "passport_number"),
+        "expiry": _get(gid, "expiry"),
+        "issue_date": _get(gid, "issue_date"),
+        "issue_place": _get(gid, "issue_place"),
     }
 
 
@@ -172,6 +212,8 @@ _BUILDERS: dict[str, Callable[[Case], dict[str, Any]]] = {
     "rental_application_individual": _build_rental_application_individual,
     "income_certificate": _build_income_certificate,
     "identity_document": _build_identity_document,
+    "guarantor_income_certificate": _build_guarantor_income_certificate,
+    "guarantor_identity_document": _build_guarantor_identity_document,
 }
 
 

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
+
+@page {
+  size: A4;
+  margin: 20mm 25mm;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif;
+}
+
+body {
+  font-size: 10pt;
+  line-height: 1.5;
+  color: #111;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.sample-notice {
+  background: #fff3cd;
+  border: 2px solid #ffc107;
+  padding: 4px 14px;
+  margin-bottom: 14px;
+  font-size: 8.5pt;
+  font-weight: bold;
+  text-align: center;
+  color: #856404;
+  width: 100%;
+}
+
+.page-title {
+  font-size: 12pt;
+  font-weight: bold;
+  margin-bottom: 6px;
+  color: #333;
+  text-align: center;
+}
+
+/* カード外枠（実際の在留カードは 85.6×54mm） */
+.card {
+  width: 85.6mm;
+  min-height: 54mm;
+  border: 2px solid #1e8449;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow: 2px 2px 6px rgba(0,0,0,0.18);
+  margin-bottom: 10mm;
+}
+
+/* ヘッダー */
+.card-header {
+  background: linear-gradient(135deg, #1e8449 55%, #27ae60 100%);
+  color: #fff;
+  text-align: center;
+  padding: 3px 6px 2px;
+}
+
+.card-header .main-title {
+  font-size: 10pt;
+  font-weight: bold;
+  letter-spacing: 0.08em;
+}
+
+.card-header .sub-title {
+  font-size: 7pt;
+  opacity: 0.9;
+}
+
+/* カード本体 */
+.card-body {
+  display: flex;
+  padding: 4px 5px;
+  gap: 5px;
+}
+
+/* 顔写真プレースホルダー */
+.photo-placeholder {
+  width: 22mm;
+  min-height: 28mm;
+  background: #d5d8dc;
+  border: 1px dashed #999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 2px;
+}
+
+.photo-placeholder svg {
+  width: 14mm;
+  height: 14mm;
+  fill: #888;
+}
+
+.photo-placeholder .photo-label {
+  font-size: 6pt;
+  color: #666;
+  margin-top: 2px;
+  text-align: center;
+}
+
+/* フィールド欄 */
+.card-fields {
+  flex: 1;
+  font-size: 7.5pt;
+}
+
+.field-row {
+  border-bottom: 1px solid #ddd;
+  padding: 2px 2px;
+  display: flex;
+  flex-direction: column;
+}
+
+.field-row:last-child {
+  border-bottom: none;
+}
+
+.field-label {
+  color: #1e8449;
+  font-size: 6pt;
+  font-weight: bold;
+}
+
+.field-value {
+  color: #111;
+  font-size: 7.5pt;
+}
+
+/* 在留資格バッジ */
+.visa-badge {
+  background: #e8f8f5;
+  border: 1px solid #1e8449;
+  padding: 1px 4px;
+  font-size: 7.5pt;
+  font-weight: bold;
+  color: #1e5638;
+  display: inline-block;
+}
+
+/* カードフッター */
+.card-footer {
+  background: #1e8449;
+  color: #fff;
+  font-size: 6.5pt;
+  padding: 2px 6px;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* 裏面 */
+.card-back {
+  width: 85.6mm;
+  min-height: 54mm;
+  border: 2px solid #1e8449;
+  border-radius: 4px;
+  background: #f0faf4;
+  box-shadow: 2px 2px 6px rgba(0,0,0,0.18);
+}
+
+.card-back-header {
+  background: linear-gradient(135deg, #1e8449 55%, #27ae60 100%);
+  color: #fff;
+  text-align: center;
+  padding: 3px 6px;
+  font-size: 9pt;
+  font-weight: bold;
+}
+
+.card-back-body {
+  padding: 5px 8px;
+  font-size: 8pt;
+}
+
+.back-field-row {
+  padding: 2px 0;
+  border-bottom: 1px dotted #aaa;
+  display: flex;
+  gap: 6px;
+}
+
+.back-field-label {
+  color: #1e8449;
+  font-weight: bold;
+  min-width: 22mm;
+  font-size: 7pt;
+}
+
+.card-label-top {
+  font-size: 9pt;
+  font-weight: bold;
+  color: #333;
+  text-align: center;
+  margin-bottom: 2px;
+}
+</style>
+</head>
+<body>
+<div class="sample-notice">【テスト用サンプル書類 ― 実在の個人情報ではありません / 在留カードではありません】</div>
+
+<div class="page-title">本人確認書類（在留カード風サンプル）</div>
+
+<!-- 表面 -->
+<div class="card-label-top">〔 表 面 〕</div>
+<div class="card">
+  <div class="card-header">
+    <div class="main-title">在 留 カ ー ド</div>
+    <div class="sub-title">RESIDENCE CARD (SAMPLE)</div>
+  </div>
+  <div class="card-body">
+    <div class="photo-placeholder">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+      </svg>
+      <div class="photo-label">顔写真<br>（ダミー）</div>
+    </div>
+    <div class="card-fields">
+      <div class="field-row">
+        <span class="field-label">氏名 / Name</span>
+        <span class="field-value">{{ case.applicant.name if case.applicant else '' }}</span>
+        <span class="field-value" style="font-size:6.5pt; color:#444;">{{ case.identity_document.name_en if case.identity_document else '' }}</span>
+      </div>
+      <div class="field-row">
+        <span class="field-label">生年月日 / Date of birth</span>
+        <span class="field-value">{{ case.applicant.birth_date if case.applicant else '' }}</span>
+      </div>
+      <div class="field-row">
+        <span class="field-label">性別 / Sex</span>
+        <span class="field-value">{{ case.applicant.gender if case.applicant else '' }}</span>
+      </div>
+      <div class="field-row">
+        <span class="field-label">国籍・地域 / Nationality</span>
+        <span class="field-value">{{ case.identity_document.nationality if case.identity_document else '' }}</span>
+      </div>
+      <div class="field-row">
+        <span class="field-label">在留資格 / Status of residence</span>
+        <span class="field-value"><span class="visa-badge">{{ case.identity_document.visa_type if case.identity_document else '' }}</span></span>
+      </div>
+      <div class="field-row">
+        <span class="field-label">在留期間 / Period of stay</span>
+        <span class="field-value">{{ case.identity_document.period_of_stay if case.identity_document else '' }}</span>
+      </div>
+      <div class="field-row">
+        <span class="field-label">有効期限 / Date of expiry</span>
+        <span class="field-value" style="color:#c0392b; font-weight:bold;">{{ case.identity_document.expiry if case.identity_document else '' }}</span>
+      </div>
+    </div>
+  </div>
+  <div class="card-footer">
+    <span>在留カード番号：{{ case.identity_document.residence_card_number if case.identity_document else '' }}</span>
+    <span>出入国在留管理庁</span>
+  </div>
+</div>
+
+<!-- 裏面 -->
+<div class="card-label-top">〔 裏 面 〕</div>
+<div class="card card-back">
+  <div class="card-back-header">在 留 カ ー ド（裏面）</div>
+  <div class="card-back-body">
+    <div class="back-field-row">
+      <span class="back-field-label">住居地</span>
+      <span style="font-size:7.5pt;">{{ case.applicant.current_address if case.applicant else '' }}</span>
+    </div>
+    <div class="back-field-row">
+      <span class="back-field-label">資格外活動許可</span>
+      <span>□ 許可（包括）　□ 許可（個別）　□ 許可なし</span>
+    </div>
+    <div class="back-field-row">
+      <span class="back-field-label">就労制限</span>
+      <span>就労制限の内容 ： 在留資格に基づく活動に限る</span>
+    </div>
+    <div class="back-field-row">
+      <span class="back-field-label">備考</span>
+      <span>テスト用サンプル・架空データ</span>
+    </div>
+  </div>
+</div>
+</body>
+</html>

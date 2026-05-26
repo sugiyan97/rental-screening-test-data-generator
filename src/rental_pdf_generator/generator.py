@@ -50,11 +50,13 @@ class CasePdfGenerator:
 
             browser.close()
 
-        case_meta = {
+        case_meta: dict = {
             "case_id": case.case_id,
             "applicant_type": case.applicant_type,
             "generated_documents": generated_documents,
         }
+        if case.description:
+            case_meta["description"] = case.description
         write_json(case_dir / "case_meta.json", case_meta)
         return case_meta
 
