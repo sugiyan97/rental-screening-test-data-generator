@@ -194,6 +194,25 @@ CORPORATE_EXTENDED_CASE_DATA: dict = {
         "guarantee_period": "賃貸借契約期間に同じ",
         "contract_date": "2026年06月20日",
     },
+    "business_license_application": {
+        "applicant_name": "テスト商事株式会社",
+        "business_type": "飲食店営業（テスト用）",
+        "license_address": "東京都新宿区テスト1-1-1",
+        "application_date": "2026年10月20日",
+        "receipt_number": "TEST-AP-99999",
+        "issuing_authority": "テスト保健所",
+        "expected_issue_date": "2026年12月10日",
+        "status_note": "申請中につき許可書未交付",
+    },
+    "business_use_pledge": {
+        "pledger_name": "テスト商事株式会社",
+        "representative_name": "テスト 太郎",
+        "pledge_date": "2026年11月01日",
+        "original_business_type": "飲食店営業（イートイン併設）",
+        "changed_business_type": "テイクアウト専門",
+        "change_reason": "テスト用変更理由",
+        "license_required": "不要",
+    },
 }
 
 

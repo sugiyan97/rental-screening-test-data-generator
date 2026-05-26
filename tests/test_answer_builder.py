@@ -198,3 +198,26 @@ def test_build_answer_income_with_previous_employment(individual_extended_case):
     assert answer["fields"]["previous_employer_name"] == "テスト前職株式会社"
     assert answer["fields"]["previous_gross_income"] == "4,000,000円"
     assert answer["fields"]["previous_end_date"] == "2026年08月31日"
+
+
+def test_build_answer_business_license_application(corporate_extended_case):
+    answer = build_answer(
+        corporate_extended_case, "business_license_application", "restaurant"
+    )
+    assert answer["fields"]["company_name"] == "テスト商事株式会社"
+    assert answer["fields"]["applicant_name"] == "テスト商事株式会社"
+    assert answer["fields"]["receipt_number"] == "TEST-AP-99999"
+    assert answer["fields"]["status_note"] == "申請中につき許可書未交付"
+    assert answer["fields"]["issuing_authority"] == "テスト保健所"
+
+
+def test_build_answer_business_use_pledge(corporate_extended_case):
+    answer = build_answer(
+        corporate_extended_case, "business_use_pledge", "no_license_required"
+    )
+    assert answer["fields"]["company_name"] == "テスト商事株式会社"
+    assert answer["fields"]["pledger_name"] == "テスト商事株式会社"
+    assert answer["fields"]["representative_name"] == "テスト 太郎"
+    assert answer["fields"]["original_business_type"] == "飲食店営業（イートイン併設）"
+    assert answer["fields"]["changed_business_type"] == "テイクアウト専門"
+    assert answer["fields"]["license_required"] == "不要"
