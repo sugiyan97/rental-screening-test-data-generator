@@ -4,15 +4,26 @@ services:
     volumes:
       - ./input:/app/input:ro
       - ./output:/app/output
+      - ./templates:/app/templates:ro
+      - ./src:/app/src:ro
+      - ./scripts:/app/scripts:ro
 
   test:
     build: .
     volumes:
       - ./output:/tmp/test-output
+      - ./templates:/app/templates:ro
+      - ./src:/app/src:ro
+      - ./scripts:/app/scripts:ro
+      - ./tests:/app/tests:ro
     entrypoint: ["uv", "run", "pytest", "-v"]
     command: []
 
   lint:
     build: .
+    volumes:
+      - ./src:/app/src:ro
+      - ./scripts:/app/scripts:ro
+      - ./tests:/app/tests:ro
     entrypoint: ["uv", "run", "ruff", "check", "."]
     command: []
