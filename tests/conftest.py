@@ -148,3 +148,139 @@ def individual_case_data() -> dict:
 @pytest.fixture
 def individual_case() -> Case:
     return Case.model_validate(INDIVIDUAL_CASE_DATA)
+
+
+CORPORATE_EXTENDED_CASE_DATA: dict = {
+    **CORPORATE_CASE_DATA,
+    "case_id": "CASE-TEST-EXT-CORP",
+    "parent_company": {
+        "company_name": "テストホールディングス株式会社",
+        "corporate_number": "1111111111111",
+        "head_office_address": "東京都港区テスト10-10-10",
+        "representative_name": "親会社 代表",
+        "capital": "100,000,000円",
+        "established_date": "2010年04月01日",
+        "business_description": "グループ企業の経営管理",
+        "fiscal_year_end": "3月31日",
+        "relationship": "100%親会社",
+    },
+    "parent_company_financials": {
+        "fiscal_year": "2025年度",
+        "sales": "500,000,000円",
+        "operating_income": "60,000,000円",
+        "ordinary_income": "58,000,000円",
+        "net_income": "40,000,000円",
+        "total_assets": "300,000,000円",
+        "total_liabilities": "120,000,000円",
+        "net_assets": "180,000,000円",
+    },
+    "business_license": {
+        "license_name": "飲食店営業許可",
+        "license_number": "TEST-XYZ-12345",
+        "licensee_name": "テスト商事株式会社",
+        "business_type": "飲食店営業",
+        "license_address": "東京都新宿区テスト1-1-1",
+        "issue_date": "2024年01月10日",
+        "expiry": "2032年01月09日",
+        "issuing_authority": "テスト保健所",
+    },
+    "corporate_guarantee": {
+        "guarantor_name": "テスト 太郎",
+        "guarantor_kana": "テスト タロウ",
+        "guarantor_address": "東京都千代田区テスト2-2-2",
+        "guarantor_birth_date": "1980年01月01日",
+        "relationship_to_company": "代表取締役",
+        "guarantee_amount": "3,600,000円（賃料36ヶ月分）",
+        "guarantee_period": "賃貸借契約期間に同じ",
+        "contract_date": "2026年06月20日",
+    },
+}
+
+
+INDIVIDUAL_EXTENDED_CASE_DATA: dict = {
+    **INDIVIDUAL_CASE_DATA,
+    "case_id": "CASE-TEST-EXT-IND",
+    "guarantor_2": {
+        "name": "テスト 二郎",
+        "kana": "テスト ジロウ",
+        "birth_date": "1968年03月03日",
+        "relationship": "叔父",
+        "current_address": "東京都品川区テスト5-5-5",
+        "phone": "090-9999-0005",
+        "employer_name": "テスト保証株式会社",
+        "annual_income": "7,000,000円",
+    },
+    "guarantor_2_income": {
+        "income_year": "2025年",
+        "annual_income": "7,000,000円",
+        "monthly_income": "583,000円",
+        "income_type": "給与所得",
+        "employer_name": "テスト保証株式会社",
+        "employer_phone": "03-9999-0006",
+        "employer_address": "東京都品川区テスト6-6-6",
+        "issue_date": "2026年05月01日",
+        "base_salary": "450,000円",
+        "bonus": "1,400,000円",
+    },
+    "guarantor_2_identity_document": {
+        "license_number": "888888888888",
+        "expiry": "2027年03月03日",
+        "issue_date": "2022年03月03日",
+        "issue_place": "東京都",
+    },
+    "guarantee_company": {
+        "company_name": "テスト家賃保証株式会社",
+        "company_address": "東京都中央区テスト7-7-7",
+        "company_phone": "03-9999-0007",
+        "application_date": "2026年07月15日",
+        "plan_name": "テストプラン",
+        "initial_fee": "賃料60%",
+        "monthly_fee": "賃料1%",
+        "coverage_amount": "1,920,000円",
+        "contract_period": "1年自動更新",
+    },
+    "offer_letter": {
+        "employer_name": "テスト新会社株式会社",
+        "employer_address": "東京都品川区テスト8-8-8",
+        "employer_phone": "03-9999-0008",
+        "department": "営業部",
+        "job_title": "マネージャー",
+        "start_date": "2026年09月01日",
+        "expected_annual_income": "6,500,000円",
+        "expected_monthly_income": "470,000円",
+        "issue_date": "2026年07月10日",
+        "hr_contact_name": "テスト 人事",
+    },
+    "previous_employment": {
+        "employer_name": "テスト前職株式会社",
+        "employer_address": "東京都新宿区テスト9-9-9",
+        "employment_period": "2020年04月01日 〜 2026年08月31日",
+        "income_year": "2025年",
+        "gross_income": "4,000,000円",
+        "withholding_tax": "150,000円",
+        "social_insurance": "560,000円",
+        "end_date": "2026年08月31日",
+    },
+    "student": {
+        "name": "テスト 学生",
+        "kana": "テスト ガクセイ",
+        "birth_date": "2006年04月01日",
+        "school_name": "テスト大学",
+        "department": "経済学部",
+        "grade": "学部1年",
+        "student_number": "T260123-456",
+        "enrollment_date": "2026年04月01日",
+        "expected_graduation_date": "2030年03月31日",
+        "relationship_to_applicant": "長男",
+    },
+}
+
+
+@pytest.fixture
+def corporate_extended_case() -> Case:
+    return Case.model_validate(CORPORATE_EXTENDED_CASE_DATA)
+
+
+@pytest.fixture
+def individual_extended_case() -> Case:
+    return Case.model_validate(INDIVIDUAL_EXTENDED_CASE_DATA)

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
+
+@page {
+  size: A4;
+  margin: 15mm 20mm;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif;
+}
+
+body {
+  font-size: 10pt;
+  line-height: 1.6;
+  color: #222;
+  margin: 0;
+}
+
+h1 {
+  font-size: 15pt;
+  text-align: center;
+  margin: 0 0 6px;
+  letter-spacing: 0.1em;
+}
+
+.cert-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 8.5pt;
+  color: #555;
+  margin-bottom: 8px;
+}
+
+.sample-notice {
+  background: #fff3cd;
+  border: 2px solid #ffc107;
+  padding: 4px 12px;
+  margin-bottom: 10px;
+  font-size: 8.5pt;
+  font-weight: bold;
+  text-align: center;
+  color: #856404;
+}
+
+.doc-badge {
+  background: #eaf3ff;
+  border: 1px solid #2980b9;
+  padding: 3px 12px;
+  margin-bottom: 10px;
+  font-size: 9pt;
+  font-weight: bold;
+  text-align: center;
+  color: #1a5276;
+}
+
+h2 {
+  font-size: 10.5pt;
+  margin: 12px 0 5px;
+  background: #eef3f8;
+  padding: 3px 8px;
+  border-left: 4px solid #2980b9;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 9.5pt;
+  margin-bottom: 10px;
+}
+
+th, td {
+  border: 1px solid #666;
+  padding: 4px 9px;
+  vertical-align: middle;
+}
+
+th {
+  background-color: #f5f5f5;
+  font-weight: 700;
+  width: 36%;
+}
+
+.compliance-box {
+  border: 1.5px solid #c0392b;
+  background: #fdf2f0;
+  padding: 8px 10px;
+  margin: 14px 0;
+  font-size: 9pt;
+}
+
+.compliance-box h3 {
+  font-size: 10pt;
+  margin: 0 0 4px;
+  color: #c0392b;
+}
+
+.check-row {
+  margin: 4px 0;
+}
+
+.check-box {
+  font-size: 11pt;
+  margin-right: 6px;
+}
+
+.signature-area {
+  margin-top: 18px;
+  padding: 8px 12px;
+  border: 1px solid #aaa;
+  background: #fafafa;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.signature-area .stamp-circle {
+  display: inline-block;
+  width: 50px;
+  height: 50px;
+  border: 1.5px solid #c0392b;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 50px;
+  font-size: 7pt;
+  color: #c0392b;
+}
+
+.footer-note {
+  font-size: 8pt;
+  color: #666;
+  border-top: 1px solid #ccc;
+  padding-top: 6px;
+  margin-top: 14px;
+}
+</style>
+</head>
+<body>
+<div class="sample-notice">【テスト用サンプル書類 ― 実在の個人・法人情報ではありません / 保証会社申込書ではありません】</div>
+<div class="doc-badge">■ 家賃保証会社 入居審査申込書</div>
+<h1>家賃保証委託申込書</h1>
+
+<div class="cert-meta">
+  <span>申込書ID：{{ case.case_id }}-GC-APP</span>
+  <span>申込日：{{ case.guarantee_company.application_date if case.guarantee_company else '' }}</span>
+  <span>保証会社：{{ case.guarantee_company.company_name if case.guarantee_company else '' }}</span>
+</div>
+
+<h2>■ 申込者情報（賃借人）</h2>
+<table>
+  <tr><th>氏名</th><td>{{ case.applicant.name if case.applicant else '' }}</td></tr>
+  <tr><th>生年月日</th><td>{{ case.applicant.birth_date if case.applicant else '' }}</td></tr>
+  <tr><th>現住所</th><td>{{ case.applicant.current_address if case.applicant else '' }}</td></tr>
+  <tr><th>電話番号</th><td>{{ case.applicant.phone if case.applicant else '' }}</td></tr>
+</table>
+
+<h2>■ 賃借予定物件</h2>
+<table>
+  <tr><th>物件名称</th><td>{{ case.property.property_name if case.property else '' }}</td></tr>
+  <tr><th>所在地</th><td>{{ case.property.property_address if case.property else '' }}</td></tr>
+  <tr><th>賃料（月額）</th><td>{{ case.property.rent if case.property else '' }}</td></tr>
+</table>
+
+<h2>■ 保証会社情報</h2>
+<table>
+  <tr><th>保証会社名</th><td>{{ case.guarantee_company.company_name if case.guarantee_company else '' }}</td></tr>
+  <tr><th>所在地</th><td>{{ case.guarantee_company.company_address if case.guarantee_company else '' }}</td></tr>
+  <tr><th>電話番号</th><td>{{ case.guarantee_company.company_phone if case.guarantee_company else '' }}</td></tr>
+</table>
+
+<h2>■ 保証プラン</h2>
+<table>
+  <tr><th>プラン名</th><td>{{ case.guarantee_company.plan_name if case.guarantee_company else '' }}</td></tr>
+  <tr><th>初回保証料</th><td>{{ case.guarantee_company.initial_fee if case.guarantee_company else '' }}</td></tr>
+  <tr><th>月額保証料</th><td>{{ case.guarantee_company.monthly_fee if case.guarantee_company else '' }}</td></tr>
+  <tr><th>保証極度額</th><td>{{ case.guarantee_company.coverage_amount if case.guarantee_company else '' }}</td></tr>
+  <tr><th>保証期間</th><td>{{ case.guarantee_company.contract_period if case.guarantee_company else '' }}</td></tr>
+</table>
+
+<div class="compliance-box">
+  <h3>■ 確認・同意事項</h3>
+  <div class="check-row"><span class="check-box">☑</span>本申込内容に虚偽の記載がないことを誓約します。</div>
+  <div class="check-row"><span class="check-box">☑</span>個人信用情報機関への照会・登録に同意します。</div>
+  <div class="check-row"><span class="check-box">☑</span>反社会的勢力等との関係がないことを表明・保証します。</div>
+  <div class="check-row"><span class="check-box">☑</span>保証会社による緊急連絡先・勤務先への確認連絡に同意します。</div>
+</div>
+
+<div class="signature-area">
+  <div>
+    申込者署名：{{ case.applicant.name if case.applicant else '' }}
+  </div>
+  <div class="stamp-circle">申込印<br>（ダミー）</div>
+</div>
+
+<p class="footer-note">
+  ※ 本書類はOCR・LLM・Document AIシステムの検証を目的として作成されたテスト用サンプルです。
+  実在する保証会社申込書ではありません。
+</p>
+</body>
+</html>

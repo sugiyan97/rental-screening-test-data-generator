@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
+
+@page {
+  size: A4;
+  margin: 15mm 18mm;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif;
+}
+
+body {
+  font-size: 10pt;
+  line-height: 1.6;
+  color: #222;
+  margin: 0;
+}
+
+.sample-notice {
+  background: #fff3cd;
+  border: 2px solid #ffc107;
+  padding: 4px 12px;
+  margin-bottom: 8px;
+  font-size: 8.5pt;
+  font-weight: bold;
+  text-align: center;
+  color: #856404;
+}
+
+h1 {
+  font-size: 14pt;
+  text-align: center;
+  margin: 0 0 4px;
+  letter-spacing: 0.1em;
+}
+
+.h1-sub {
+  text-align: center;
+  font-size: 9pt;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+.doc-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 8.5pt;
+  color: #555;
+  margin-bottom: 8px;
+}
+
+.payee-section {
+  border: 1.5px solid #555;
+  padding: 6px 10px;
+  margin-bottom: 8px;
+}
+
+.payee-section h3 {
+  font-size: 9.5pt;
+  margin: 0 0 4px;
+  background: #efefef;
+  padding: 2px 6px;
+}
+
+.payee-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 9.5pt;
+}
+
+.payee-table td {
+  padding: 2px 6px;
+  vertical-align: top;
+}
+
+.payee-table td:first-child {
+  font-weight: bold;
+  white-space: nowrap;
+  width: 24%;
+}
+
+table.amount-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 10pt;
+  margin: 10px 0;
+}
+
+table.amount-table th,
+table.amount-table td {
+  border: 1px solid #555;
+  padding: 6px 10px;
+  vertical-align: middle;
+}
+
+table.amount-table th {
+  background: #efefef;
+  font-weight: bold;
+  text-align: left;
+  width: 38%;
+}
+
+table.amount-table td {
+  text-align: right;
+}
+
+.amount-highlight {
+  font-size: 12pt;
+  font-weight: bold;
+  color: #1a3c6e;
+}
+
+.total-row td {
+  background: #e8f0f8;
+  font-weight: bold;
+}
+
+.issuer-section {
+  margin-top: 14px;
+  border: 1px solid #aaa;
+  padding: 8px 12px;
+  background: #fafafa;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.issuer-section .stamp-square {
+  display: inline-block;
+  width: 52px;
+  height: 52px;
+  border: 1.5px solid #c0392b;
+  text-align: center;
+  line-height: 50px;
+  font-size: 7pt;
+  color: #c0392b;
+  margin-left: 8px;
+}
+
+.footer-note {
+  font-size: 8pt;
+  color: #666;
+  border-top: 1px solid #ccc;
+  padding-top: 5px;
+  margin-top: 10px;
+}
+</style>
+</head>
+<body>
+<div class="sample-notice">【テスト用サンプル書類 ― 実在の個人情報ではありません / 源泉徴収票ではありません】</div>
+<h1>給与所得の源泉徴収票</h1>
+<p class="h1-sub">所得税法第226条に基づく</p>
+
+<div class="doc-meta">
+  <span>源泉徴収票ID：{{ case.case_id }}-WHS</span>
+  <span>対象年度：{{ case.previous_employment.income_year if case.previous_employment else '' }}</span>
+</div>
+
+<div class="payee-section">
+  <h3>受給者</h3>
+  <table class="payee-table">
+    <tr><td>氏名</td><td>{{ case.applicant.name if case.applicant else '' }}</td></tr>
+    <tr><td>住所</td><td>{{ case.applicant.current_address if case.applicant else '' }}</td></tr>
+    <tr><td>役職</td><td>—</td></tr>
+  </table>
+</div>
+
+<table class="amount-table">
+  <tr>
+    <th>支払金額（年間給与総額）</th>
+    <td><span class="amount-highlight">{{ case.previous_employment.gross_income if case.previous_employment else '' }}</span></td>
+  </tr>
+  <tr>
+    <th>給与所得控除後の金額</th>
+    <td>—</td>
+  </tr>
+  <tr>
+    <th>所得控除の額の合計額</th>
+    <td>—</td>
+  </tr>
+  <tr class="total-row">
+    <th>源泉徴収税額</th>
+    <td>{{ case.previous_employment.withholding_tax if case.previous_employment else '' }}</td>
+  </tr>
+  <tr>
+    <th>社会保険料等の金額</th>
+    <td>{{ case.previous_employment.social_insurance if case.previous_employment else '' }}</td>
+  </tr>
+  <tr>
+    <th>勤続期間</th>
+    <td style="text-align:left;">{{ case.previous_employment.employment_period if case.previous_employment else '' }}</td>
+  </tr>
+  <tr>
+    <th>退職年月日</th>
+    <td style="text-align:left;">{{ case.previous_employment.end_date if case.previous_employment else '' }}</td>
+  </tr>
+</table>
+
+<div class="issuer-section">
+  <div>
+    <div><strong>支払者（前職事業所）</strong></div>
+    <div>名称：{{ case.previous_employment.employer_name if case.previous_employment else '' }}</div>
+    <div>所在地：{{ case.previous_employment.employer_address if case.previous_employment else '' }}</div>
+  </div>
+  <div class="stamp-square">事業所印<br>（ダミー）</div>
+</div>
+
+<p class="footer-note">
+  ※ 本書類はOCR・LLM・Document AIシステムの検証を目的として作成されたテスト用サンプルです。
+  実在する個人の納税情報ではありません。公的書類として使用することはできません。
+</p>
+</body>
+</html>

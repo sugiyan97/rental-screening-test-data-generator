@@ -88,3 +88,113 @@ def test_build_answer_none_fields_when_no_data(corporate_case):
 def test_build_answer_unsupported_type_raises(corporate_case):
     with pytest.raises(UnsupportedDocumentTypeError):
         build_answer(corporate_case, "unknown_document_type", "standard")
+
+
+def test_build_answer_corporate_guarantee_contract(corporate_extended_case):
+    answer = build_answer(
+        corporate_extended_case, "corporate_guarantee_contract", "standard"
+    )
+    assert answer["fields"]["company_name"] == "テスト商事株式会社"
+    assert answer["fields"]["guarantor_name"] == "テスト 太郎"
+    assert answer["fields"]["relationship_to_company"] == "代表取締役"
+    assert answer["fields"]["guarantee_amount"] == "3,600,000円（賃料36ヶ月分）"
+
+
+def test_build_answer_parent_company_guarantee_letter(corporate_extended_case):
+    answer = build_answer(
+        corporate_extended_case, "parent_company_guarantee_letter", "standard"
+    )
+    assert answer["fields"]["subsidiary_name"] == "テスト商事株式会社"
+    assert answer["fields"]["parent_company_name"] == "テストホールディングス株式会社"
+    assert answer["fields"]["parent_company_capital"] == "100,000,000円"
+    assert answer["fields"]["relationship"] == "100%親会社"
+
+
+def test_build_answer_parent_company_registry_certificate(corporate_extended_case):
+    answer = build_answer(
+        corporate_extended_case, "parent_company_registry_certificate", "registry_table"
+    )
+    assert answer["fields"]["company_name"] == "テストホールディングス株式会社"
+    assert answer["fields"]["corporate_number"] == "1111111111111"
+    assert answer["fields"]["representative_name"] == "親会社 代表"
+
+
+def test_build_answer_parent_company_financial_statement(corporate_extended_case):
+    answer = build_answer(
+        corporate_extended_case, "parent_company_financial_statement", "financial_summary"
+    )
+    assert answer["fields"]["company_name"] == "テストホールディングス株式会社"
+    assert answer["fields"]["sales"] == "500,000,000円"
+    assert answer["fields"]["net_income"] == "40,000,000円"
+
+
+def test_build_answer_business_license(corporate_extended_case):
+    answer = build_answer(corporate_extended_case, "business_license", "restaurant")
+    assert answer["fields"]["company_name"] == "テスト商事株式会社"
+    assert answer["fields"]["license_name"] == "飲食店営業許可"
+    assert answer["fields"]["license_number"] == "TEST-XYZ-12345"
+    assert answer["fields"]["issuing_authority"] == "テスト保健所"
+
+
+def test_build_answer_guarantor_2_income_certificate(individual_extended_case):
+    answer = build_answer(
+        individual_extended_case, "guarantor_2_income_certificate", "salary_certificate"
+    )
+    assert answer["fields"]["name"] == "テスト 二郎"
+    assert answer["fields"]["relationship"] == "叔父"
+    assert answer["fields"]["annual_income"] == "7,000,000円"
+    assert answer["fields"]["employer_name"] == "テスト保証株式会社"
+
+
+def test_build_answer_guarantor_2_identity_document(individual_extended_case):
+    answer = build_answer(
+        individual_extended_case, "guarantor_2_identity_document", "drivers_license"
+    )
+    assert answer["fields"]["name"] == "テスト 二郎"
+    assert answer["fields"]["license_number"] == "888888888888"
+    assert answer["fields"]["relationship"] == "叔父"
+
+
+def test_build_answer_guarantee_company_application(individual_extended_case):
+    answer = build_answer(
+        individual_extended_case, "guarantee_company_application", "standard"
+    )
+    assert answer["fields"]["applicant_name"] == "テスト 花子"
+    assert answer["fields"]["guarantee_company_name"] == "テスト家賃保証株式会社"
+    assert answer["fields"]["plan_name"] == "テストプラン"
+    assert answer["fields"]["coverage_amount"] == "1,920,000円"
+
+
+def test_build_answer_offer_letter(individual_extended_case):
+    answer = build_answer(individual_extended_case, "offer_letter", "standard")
+    assert answer["fields"]["applicant_name"] == "テスト 花子"
+    assert answer["fields"]["employer_name"] == "テスト新会社株式会社"
+    assert answer["fields"]["start_date"] == "2026年09月01日"
+    assert answer["fields"]["expected_annual_income"] == "6,500,000円"
+
+
+def test_build_answer_student_id(individual_extended_case):
+    answer = build_answer(individual_extended_case, "student_id", "standard")
+    assert answer["fields"]["name"] == "テスト 学生"
+    assert answer["fields"]["school_name"] == "テスト大学"
+    assert answer["fields"]["student_number"] == "T260123-456"
+    assert answer["fields"]["relationship_to_applicant"] == "長男"
+
+
+def test_build_answer_individual_with_guarantor_2(individual_extended_case):
+    answer = build_answer(
+        individual_extended_case, "rental_application_individual", "standard"
+    )
+    assert answer["fields"]["guarantor_2_name"] == "テスト 二郎"
+    assert answer["fields"]["guarantor_2_relationship"] == "叔父"
+    assert answer["fields"]["cohabitant_student_name"] == "テスト 学生"
+    assert answer["fields"]["cohabitant_student_school_name"] == "テスト大学"
+
+
+def test_build_answer_income_with_previous_employment(individual_extended_case):
+    answer = build_answer(
+        individual_extended_case, "income_certificate", "withholding_slip"
+    )
+    assert answer["fields"]["previous_employer_name"] == "テスト前職株式会社"
+    assert answer["fields"]["previous_gross_income"] == "4,000,000円"
+    assert answer["fields"]["previous_end_date"] == "2026年08月31日"

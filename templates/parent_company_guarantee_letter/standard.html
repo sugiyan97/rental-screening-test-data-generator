@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
+
+@page {
+  size: A4;
+  margin: 20mm 22mm;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif;
+}
+
+body {
+  font-size: 10pt;
+  line-height: 1.8;
+  color: #222;
+  margin: 0;
+}
+
+.sample-notice {
+  background: #fff3cd;
+  border: 2px solid #ffc107;
+  padding: 4px 12px;
+  margin-bottom: 8px;
+  font-size: 8.5pt;
+  font-weight: bold;
+  text-align: center;
+  color: #856404;
+}
+
+.parent-badge {
+  background: #fdebd0;
+  border: 1px solid #d68910;
+  padding: 3px 12px;
+  margin-bottom: 12px;
+  font-size: 9pt;
+  font-weight: bold;
+  text-align: center;
+  color: #7e5109;
+}
+
+h1 {
+  font-size: 16pt;
+  text-align: center;
+  margin: 8px 0 4px;
+  letter-spacing: 0.15em;
+}
+
+.doc-meta {
+  text-align: right;
+  font-size: 9pt;
+  margin-bottom: 18px;
+  color: #444;
+}
+
+.addressed-to {
+  font-size: 11pt;
+  margin-bottom: 14px;
+  font-weight: bold;
+}
+
+.preamble {
+  margin-bottom: 14px;
+}
+
+.party-section {
+  margin: 14px 0;
+  border: 1px solid #999;
+  padding: 8px 12px;
+  background: #fafafa;
+}
+
+.party-section h3 {
+  font-size: 10pt;
+  margin: 0 0 6px;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 3px;
+}
+
+.party-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 9.5pt;
+}
+
+.party-table td {
+  padding: 2px 6px;
+  vertical-align: top;
+}
+
+.party-table td:first-child {
+  font-weight: bold;
+  width: 28%;
+  white-space: nowrap;
+}
+
+.clause-list {
+  margin: 14px 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+.clause-list li {
+  margin-bottom: 8px;
+  padding-left: 32px;
+  text-indent: -32px;
+}
+
+.clause-list .clause-no {
+  font-weight: bold;
+  margin-right: 8px;
+}
+
+.signature-area {
+  margin-top: 30px;
+  text-align: right;
+  font-size: 10pt;
+}
+
+.signature-area .stamp-box {
+  display: inline-block;
+  width: 60px;
+  height: 60px;
+  border: 1.5px solid #c0392b;
+  border-radius: 50%;
+  margin-left: 14px;
+  vertical-align: middle;
+  text-align: center;
+  line-height: 60px;
+  font-size: 8pt;
+  color: #c0392b;
+}
+
+.footer-note {
+  font-size: 8pt;
+  color: #666;
+  margin-top: 20px;
+  border-top: 1px solid #ccc;
+  padding-top: 6px;
+}
+</style>
+</head>
+<body>
+<div class="sample-notice">【テスト用サンプル書類 ― 実在の法人情報ではありません / 保証書ではありません】</div>
+<div class="parent-badge">■ 親会社グループ保証 — 賃貸借契約に係る保証書</div>
+
+<h1>保 　 証 　 書</h1>
+
+<p class="doc-meta">
+  作成日：&emsp;&emsp;&emsp;&emsp;年&emsp;&emsp;月&emsp;&emsp;日
+</p>
+
+<p class="addressed-to">賃貸人 御中</p>
+
+<p class="preamble">
+  下記の被保証会社（子会社）と貴社との間で締結される下記物件の賃貸借契約に基づき、被保証会社が負担する一切の金銭債務（賃料・原状回復費用・違約金等を含む。）について、保証会社（親会社）は被保証会社と連帯して履行する責任を負うことをここに保証いたします。
+</p>
+
+<div class="party-section">
+  <h3>■ 被保証会社（賃借人）</h3>
+  <table class="party-table">
+    <tr><td>商号</td><td>{{ case.company.company_name if case.company else '' }}</td></tr>
+    <tr><td>本店所在地</td><td>{{ case.company.head_office_address if case.company else '' }}</td></tr>
+    <tr><td>代表者</td><td>{{ case.company.representative_name if case.company else '' }}</td></tr>
+  </table>
+</div>
+
+<div class="party-section">
+  <h3>■ 保証会社（親会社）</h3>
+  <table class="party-table">
+    <tr><td>商号</td><td>{{ case.parent_company.company_name if case.parent_company else '' }}</td></tr>
+    <tr><td>会社法人等番号</td><td>{{ case.parent_company.corporate_number if case.parent_company else '' }}</td></tr>
+    <tr><td>本店所在地</td><td>{{ case.parent_company.head_office_address if case.parent_company else '' }}</td></tr>
+    <tr><td>代表者</td><td>{{ case.parent_company.representative_name if case.parent_company else '' }}</td></tr>
+    <tr><td>資本金</td><td>{{ case.parent_company.capital if case.parent_company else '' }}</td></tr>
+    <tr><td>関係</td><td>{{ case.parent_company.relationship if case.parent_company else '' }}</td></tr>
+  </table>
+</div>
+
+<div class="party-section">
+  <h3>■ 対象物件</h3>
+  <table class="party-table">
+    <tr><td>物件名称</td><td>{{ case.property.property_name if case.property else '' }}</td></tr>
+    <tr><td>所在地</td><td>{{ case.property.property_address if case.property else '' }}</td></tr>
+    <tr><td>賃料（月額）</td><td>{{ case.property.rent if case.property else '' }}</td></tr>
+  </table>
+</div>
+
+<ul class="clause-list">
+  <li><span class="clause-no">第1条</span>保証会社は、被保証会社が賃貸借契約に基づき貴社に対して負担する一切の債務について、連帯保証人としての責任を負う。</li>
+  <li><span class="clause-no">第2条</span>本保証の保証期間は、賃貸借契約の有効期間と同一とし、契約更新の場合は当然に更新されるものとする。</li>
+  <li><span class="clause-no">第3条</span>本保証の極度額は、被保証会社の月額賃料の36ヶ月分相当額とする。</li>
+  <li><span class="clause-no">第4条</span>保証会社は、被保証会社の経営状況・支払能力に重大な変動が生じた場合、速やかに貴社に通知する。</li>
+</ul>
+
+<div class="signature-area">
+  保証会社：{{ case.parent_company.company_name if case.parent_company else '' }}<br>
+  代表者：{{ case.parent_company.representative_name if case.parent_company else '' }}　印<span class="stamp-box">親会社印<br>（ダミー）</span>
+</div>
+
+<p class="footer-note">
+  ※ 本書類はOCR・LLM・Document AIシステムの検証を目的として作成されたテスト用サンプルです。
+  実在する企業間の保証契約ではありません。
+</p>
+</body>
+</html>
