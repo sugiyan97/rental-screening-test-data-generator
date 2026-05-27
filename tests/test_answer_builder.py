@@ -11,7 +11,28 @@ def test_build_answer_corporate(corporate_case):
     assert answer["fields"]["company_name"] == "テスト商事株式会社"
     assert answer["fields"]["corporate_number"] == "9999999999999"
     assert "property_name" in answer["fields"]
-    assert "representative_name" in answer["fields"]
+    assert answer["fields"]["representative_name"] == "テスト 太郎"
+    assert answer["fields"]["representative_kana"] == "テスト タロウ"
+    assert answer["fields"]["representative_birth_date"] == "1980年01月01日"
+    assert answer["fields"]["representative_age"] == "46"
+    assert answer["fields"]["representative_address"] == "東京都千代田区テスト町2-2-2"
+
+
+def test_build_answer_corporate_no_guarantor(corporate_case):
+    answer = build_answer(corporate_case, "rental_application_corporate", "standard")
+    assert answer["fields"]["guarantor_name"] is None
+    assert answer["fields"]["guarantor_kana"] is None
+
+
+def test_build_answer_corporate_with_guarantor(corporate_extended_case):
+    answer = build_answer(
+        corporate_extended_case, "rental_application_corporate", "office"
+    )
+    assert answer["fields"]["guarantor_name"] == "テスト 連帯"
+    assert answer["fields"]["guarantor_kana"] == "テスト レンタイ"
+    assert answer["fields"]["guarantor_birth_date"] == "1982年02月02日"
+    assert answer["fields"]["guarantor_relationship"] == "代表取締役の配偶者"
+    assert answer["fields"]["guarantor_annual_income"] == "9,000,000円"
 
 
 def test_build_answer_registry(corporate_case):

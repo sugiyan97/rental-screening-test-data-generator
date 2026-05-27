@@ -218,14 +218,52 @@ th {
   <tr>
     <th>代表者氏名</th>
     <td>{{ case.company.representative_name or '' }}</td>
+    <th>代表者フリガナ</th>
+    <td>{{ case.company.representative_kana or '' }}</td>
+  </tr>
+  <tr>
     <th>代表者生年月日</th>
     <td>{{ case.company.representative_birth_date or '' }}</td>
+    <th>代表者年齢</th>
+    <td>{{ case.company.representative_age or '' }}</td>
   </tr>
   <tr>
     <th>代表者住所</th>
     <td colspan="3">{{ case.company.representative_address or '' }}</td>
   </tr>
 </table>
+
+{% if case.guarantor %}
+<h2>■ 連帯保証人</h2>
+<table>
+  <tr>
+    <th>氏名</th>
+    <td>{{ case.guarantor.name or '' }}</td>
+    <th>フリガナ</th>
+    <td>{{ case.guarantor.kana or '' }}</td>
+  </tr>
+  <tr>
+    <th>生年月日</th>
+    <td>{{ case.guarantor.birth_date or '' }}</td>
+    <th>申込法人との関係</th>
+    <td>{{ case.guarantor.relationship or '' }}</td>
+  </tr>
+  <tr>
+    <th>現住所</th>
+    <td colspan="3">{{ case.guarantor.current_address or '' }}</td>
+  </tr>
+  <tr>
+    <th>電話番号</th>
+    <td>{{ case.guarantor.phone or '' }}</td>
+    <th>勤務先</th>
+    <td>{{ case.guarantor.employer_name or '' }}</td>
+  </tr>
+  <tr>
+    <th>年収（税込）</th>
+    <td colspan="3">{{ case.guarantor.annual_income or '' }}</td>
+  </tr>
+</table>
+{% endif %}
 
 <h2>■ 担当者情報（申込窓口）</h2>
 <table>

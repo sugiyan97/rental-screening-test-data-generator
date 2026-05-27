@@ -11,7 +11,9 @@ CORPORATE_CASE_DATA: dict = {
         "corporate_number": "9999999999999",
         "head_office_address": "東京都千代田区テスト町1-1-1",
         "representative_name": "テスト 太郎",
+        "representative_kana": "テスト タロウ",
         "representative_birth_date": "1980年01月01日",
+        "representative_age": "46",
         "representative_address": "東京都千代田区テスト町2-2-2",
         "phone": "03-9999-0001",
         "email": "test@example.test",
@@ -164,6 +166,16 @@ def individual_case() -> Case:
 CORPORATE_EXTENDED_CASE_DATA: dict = {
     **CORPORATE_CASE_DATA,
     "case_id": "CASE-TEST-EXT-CORP",
+    "guarantor": {
+        "name": "テスト 連帯",
+        "kana": "テスト レンタイ",
+        "birth_date": "1982年02月02日",
+        "relationship": "代表取締役の配偶者",
+        "current_address": "東京都千代田区テスト町2-2-2",
+        "phone": "090-9999-0009",
+        "employer_name": "テスト電機株式会社",
+        "annual_income": "9,000,000円",
+    },
     "parent_company": {
         "company_name": "テストホールディングス株式会社",
         "corporate_number": "1111111111111",
