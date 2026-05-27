@@ -186,6 +186,25 @@ def test_build_answer_guarantor_2_income_certificate(individual_extended_case):
     assert answer["fields"]["employer_name"] == "テスト保証株式会社"
 
 
+def test_build_answer_guarantor_seal_certificate(individual_extended_case):
+    answer = build_answer(
+        individual_extended_case, "guarantor_seal_certificate", "standard"
+    )
+    assert answer["fields"]["name"] == "テスト 一郎"
+    assert answer["fields"]["registration_number"] == "テスト-第99999号"
+    assert answer["fields"]["issuing_municipality"] == "東京都テスト区"
+
+
+def test_build_answer_guarantor_residence_certificate(individual_extended_case):
+    answer = build_answer(
+        individual_extended_case, "guarantor_residence_certificate", "standard"
+    )
+    assert answer["fields"]["name"] == "テスト 一郎"
+    assert answer["fields"]["gender"] == "男性"
+    assert answer["fields"]["head_of_household"] == "テスト 一郎"
+    assert answer["fields"]["resident_since"] == "2018年04月01日"
+
+
 def test_build_answer_guarantor_2_identity_document(individual_extended_case):
     answer = build_answer(
         individual_extended_case, "guarantor_2_identity_document", "drivers_license"

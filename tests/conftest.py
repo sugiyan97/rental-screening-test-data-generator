@@ -414,6 +414,21 @@ INDIVIDUAL_EXTENDED_CASE_DATA: dict = {
         "issue_date": "2026年09月02日",
         "issuer_staff": "テスト 担当",
     },
+    "guarantor_seal_certificate": {
+        "registration_number": "テスト-第99999号",
+        "registration_date": "2020年05月15日",
+        "issuing_municipality": "東京都テスト区",
+        "issue_date": "2026年07月25日",
+    },
+    "guarantor_residence_certificate": {
+        "gender": "男性",
+        "honseki": "東京都テスト区テスト1-1-1",
+        "head_of_household": "テスト 一郎",
+        "relation_to_head": "世帯主",
+        "resident_since": "2018年04月01日",
+        "issuing_municipality": "東京都テスト区",
+        "issue_date": "2026年07月25日",
+    },
 }
 
 

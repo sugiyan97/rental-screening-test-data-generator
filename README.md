@@ -8,7 +8,7 @@ OCR・LLM・Document AI などの抽出システムを検証するため、**架
 
 ## 収録ケース一覧
 
-`input/cases.jsonl` に以下の 30 ケースが収録されている。description には【新規】／【既存】／【個人】（給与所得者）のカテゴリプレフィクスを付与し、提出書類カテゴリも括弧内に明記。
+`input/cases.jsonl` に以下の 31 ケースが収録されている。description には【新規】／【既存】／【個人】（給与所得者）のカテゴリプレフィクスを付与し、提出書類カテゴリも括弧内に明記。
 
 | ケースID | カテゴリ | シナリオ | 提出書類 |
 |---|---|---|---|
@@ -42,6 +42,7 @@ OCR・LLM・Document AI などの抽出システムを検証するため、**架
 | CASE-000028 | 新規・個人事業 | 業歴1期未満。確定申告書なし、開業届＋事業計画書＋残高証明書で代替 | 申込書soho＋開業届＋事業計画書＋残高証明書＋本人ID |
 | CASE-000029 | 既存・法人 | 業歴10年の既存事業＋新事業展開のための事業計画書付き | 申込書office＋登記簿＋当期決算＋前期決算＋事業計画書＋代表者ID |
 | CASE-000030 | 新規・法人 | 資金調達済スタートアップ。資金エビデンス（自己資金＋融資＋VC出資＋補助金）と事業計画書で賃料支払能力を裏付け | 申込書office＋登記簿＋事業計画書＋資金エビデンス＋代表者ID |
+| CASE-000031 | 新規・法人＋個人連帯保証人 | CASE-000030 と同様の資金調達済スタートアップに代表者の配偶者が個人連帯保証人として参加。連帯保証人の個人証明書一式（収入証明・本人確認・印鑑登録証明書・住民票）＋連帯保証契約書を提出 | 申込書office＋登記簿＋事業計画書＋資金エビデンス＋代表者ID＋連帯保証契約書＋保証人収入＋保証人ID＋保証人印鑑証明＋保証人住民票（10書類） |
 
 ---
 
@@ -64,6 +65,8 @@ OCR・LLM・Document AI などの抽出システムを検証するため、**架
 | `guarantor_identity_document` | 連帯保証人用本人確認書類 | `drivers_license` |
 | `guarantor_2_income_certificate` | 第2連帯保証人用収入証明書 | `salary_certificate` |
 | `guarantor_2_identity_document` | 第2連帯保証人用本人確認書類 | `drivers_license` |
+| `guarantor_seal_certificate` | 連帯保証人用 印鑑登録証明書 | `standard` |
+| `guarantor_residence_certificate` | 連帯保証人用 住民票の写し | `standard` |
 | `corporate_guarantee_contract` | 代表者連帯保証契約書（法人賃貸借契約附属） | `standard` |
 | `parent_company_guarantee_letter` | 親会社保証書（グループ保証） | `standard` |
 | `parent_company_registry_certificate` | 親会社登記簿謄本風 | `registry_table` |
@@ -95,6 +98,7 @@ OCR・LLM・Document AI などの抽出システムを検証するため、**架
   - `corporate_startup`：新設法人・スタートアップ向け。創業メンバー経歴・市場分析・3 ヵ年計画・資金調達計画（VC 調達等）・SWOT 観点のリスク分析を含む
 - **本人確認書類** — 運転免許証・マイナンバーカード・パスポート・在留カード（いずれも顔写真ダミー入り）
 - **連帯保証人書類** — 保証人用の収入証明書・本人確認書類（書類上部に「連帯保証人用」バッジを表示）。第2保証人用には別途 `guarantor_2_*` 系を使用
+- **連帯保証人の個人証明書** — 印鑑登録証明書（`guarantor_seal_certificate`：実印の印影プレースホルダー・登録番号・自治体長印）・住民票の写し（`guarantor_residence_certificate`：世帯主・続柄・本籍・住民となった年月日）。連帯保証人が個人の場合に実務で要求される証明書一式
 - **代表者連帯保証契約書** — 法人代表者個人が連帯保証する契約書フォーマット（被保証会社／連帯保証人／対象物件／保証条件／署名捺印欄）
 - **親会社系書類** — グループ保証用の親会社登記簿・親会社決算書・親会社保証書セット（書類上部に「親会社用」バッジを表示）
 - **営業許可証** — 飲食店営業許可証風（食品衛生法基準、保健所発行スタイル）
@@ -334,6 +338,10 @@ templates/
     salary_certificate.html  第2連帯保証人用収入証明書
   guarantor_2_identity_document/
     drivers_license.html     第2連帯保証人用運転免許証風
+  guarantor_seal_certificate/
+    standard.html            連帯保証人用 印鑑登録証明書
+  guarantor_residence_certificate/
+    standard.html            連帯保証人用 住民票の写し
   corporate_guarantee_contract/
     standard.html            代表者連帯保証契約書（法人賃貸用）
   parent_company_guarantee_letter/

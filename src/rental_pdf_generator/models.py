@@ -152,6 +152,23 @@ class IdentityDocument(BaseModel):
     period_of_stay: str | None = None
 
 
+class SealRegistrationCertificate(BaseModel):
+    registration_number: str | None = None
+    registration_date: str | None = None
+    issuing_municipality: str | None = None
+    issue_date: str | None = None
+
+
+class ResidenceCertificate(BaseModel):
+    gender: str | None = None
+    honseki: str | None = None
+    head_of_household: str | None = None
+    relation_to_head: str | None = None
+    resident_since: str | None = None
+    issuing_municipality: str | None = None
+    issue_date: str | None = None
+
+
 class ParentCompany(BaseModel):
     company_name: str | None = None
     company_kana: str | None = None
@@ -403,6 +420,9 @@ class Case(BaseModel):
     guarantor_2_income: Guarantor2Income | None = None
     guarantor_2_identity_document: IdentityDocument | None = None
     guarantee_company: GuaranteeCompany | None = None
+    # 連帯保証人（個人）の追加証明書
+    guarantor_seal_certificate: SealRegistrationCertificate | None = None
+    guarantor_residence_certificate: ResidenceCertificate | None = None
     # グループ3: 転職・学生
     offer_letter: OfferLetter | None = None
     previous_employment: PreviousEmployment | None = None
