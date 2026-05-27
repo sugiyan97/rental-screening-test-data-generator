@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
+
+@page { size: A4; margin: 22mm 26mm; }
+* { box-sizing: border-box; font-family: 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif; }
+body { font-size: 10.5pt; line-height: 1.7; color: #1a1a1a; margin: 0; }
+
+.sample-notice { background: #fff3cd; border: 2px solid #ffc107; padding: 4px 12px; margin-bottom: 8px; font-size: 8.5pt; font-weight: bold; text-align: center; color: #856404; }
+.guarantor-badge { background: #e8f4fd; border: 1px solid #3498db; padding: 3px 12px; margin-bottom: 12px; font-size: 9pt; font-weight: bold; text-align: center; color: #1a6496; }
+
+h1 { font-size: 18pt; text-align: center; letter-spacing: 0.3em; margin: 6px 0 6px; }
+.subtitle { text-align: center; font-size: 9.5pt; color: #555; margin-bottom: 20px; }
+
+.cert-no { font-size: 9pt; text-align: right; color: #444; margin-bottom: 10px; }
+
+table { width: 100%; border-collapse: collapse; font-size: 10.5pt; margin: 12px 0; }
+th, td { border: 1px solid #777; padding: 7px 12px; vertical-align: middle; }
+th { background: #f2f2f2; font-weight: bold; width: 28%; text-align: left; white-space: nowrap; }
+
+.preamble { text-align: center; font-size: 10.5pt; margin: 16px 0; }
+
+.issuer-block { margin-top: 24px; text-align: right; font-size: 10.5pt; }
+.issuer-block .stamp-square { display: inline-block; width: 54px; height: 54px; border: 2px solid #c0392b; text-align: center; line-height: 50px; font-size: 7pt; color: #c0392b; margin-left: 12px; vertical-align: middle; }
+
+.footer-note { font-size: 8pt; color: #666; margin-top: 18px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="sample-notice">【テスト用サンプル書類 ― 実在の個人情報ではありません / 住民票ではありません】</div>
+<div class="guarantor-badge">■ 連帯保証人用 — 住民票の写し</div>
+
+<p class="cert-no">証明書番号：JUMIN-{{ case.case_id }}</p>
+
+<h1>住 民 票 の 写 し</h1>
+<p class="subtitle">住民基本台帳法に基づく証明（ダミー）</p>
+
+<p class="preamble">この写しは、住民基本台帳に記録されている事項の全部を証明したものです。</p>
+
+<table>
+  <tr><th>氏名</th><td>{{ case.guarantor.name if case.guarantor else '' }}</td></tr>
+  <tr><th>生年月日</th><td>{{ case.guarantor.birth_date if case.guarantor else '' }}</td></tr>
+  <tr><th>性別</th><td>{{ case.guarantor_residence_certificate.gender if case.guarantor_residence_certificate else '' }}</td></tr>
+  <tr><th>住所</th><td>{{ case.guarantor.current_address if case.guarantor else '' }}</td></tr>
+  <tr><th>世帯主</th><td>{{ case.guarantor_residence_certificate.head_of_household if case.guarantor_residence_certificate else '' }}</td></tr>
+  <tr><th>世帯主との続柄</th><td>{{ case.guarantor_residence_certificate.relation_to_head if case.guarantor_residence_certificate else '' }}</td></tr>
+  <tr><th>本籍</th><td>{{ case.guarantor_residence_certificate.honseki if case.guarantor_residence_certificate else '' }}</td></tr>
+  <tr><th>住民となった年月日</th><td>{{ case.guarantor_residence_certificate.resident_since if case.guarantor_residence_certificate else '' }}</td></tr>
+</table>
+
+<div class="issuer-block">
+  <div>発行年月日：{{ case.guarantor_residence_certificate.issue_date if case.guarantor_residence_certificate else '' }}</div>
+  <div>{{ case.guarantor_residence_certificate.issuing_municipality if case.guarantor_residence_certificate else '' }}長　印<span class="stamp-square">公印<br>（ダミー）</span></div>
+</div>
+
+<p class="footer-note">
+  ※ 本書類はOCR・LLM・Document AIシステムの検証を目的として作成されたテスト用サンプルです。
+  実在する住民票情報ではありません。公的書類として使用することはできません。
+</p>
+</body>
+</html>

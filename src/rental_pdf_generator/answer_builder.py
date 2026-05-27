@@ -561,6 +561,39 @@ def _build_guarantor_identity_document(case: Case, variant: str = "") -> dict[st
     }
 
 
+def _build_guarantor_seal_certificate(case: Case, variant: str = "") -> dict[str, Any]:
+    g = case.guarantor
+    sc = case.guarantor_seal_certificate
+    return {
+        "name": _get(g, "name"),
+        "birth_date": _get(g, "birth_date"),
+        "address": _get(g, "current_address"),
+        "relationship": _get(g, "relationship"),
+        "registration_number": _get(sc, "registration_number"),
+        "registration_date": _get(sc, "registration_date"),
+        "issuing_municipality": _get(sc, "issuing_municipality"),
+        "issue_date": _get(sc, "issue_date"),
+    }
+
+
+def _build_guarantor_residence_certificate(case: Case, variant: str = "") -> dict[str, Any]:
+    g = case.guarantor
+    rc = case.guarantor_residence_certificate
+    return {
+        "name": _get(g, "name"),
+        "birth_date": _get(g, "birth_date"),
+        "address": _get(g, "current_address"),
+        "relationship": _get(g, "relationship"),
+        "gender": _get(rc, "gender"),
+        "honseki": _get(rc, "honseki"),
+        "head_of_household": _get(rc, "head_of_household"),
+        "relation_to_head": _get(rc, "relation_to_head"),
+        "resident_since": _get(rc, "resident_since"),
+        "issuing_municipality": _get(rc, "issuing_municipality"),
+        "issue_date": _get(rc, "issue_date"),
+    }
+
+
 _BUILDERS: dict[str, Callable[[Case, str], dict[str, Any]]] = {
     "rental_application_corporate": _build_rental_application_corporate,
     "registry_certificate": _build_registry_certificate,
@@ -571,6 +604,8 @@ _BUILDERS: dict[str, Callable[[Case, str], dict[str, Any]]] = {
     "identity_document": _build_identity_document,
     "guarantor_income_certificate": _build_guarantor_income_certificate,
     "guarantor_identity_document": _build_guarantor_identity_document,
+    "guarantor_seal_certificate": _build_guarantor_seal_certificate,
+    "guarantor_residence_certificate": _build_guarantor_residence_certificate,
     "corporate_guarantee_contract": _build_corporate_guarantee_contract,
     "parent_company_guarantee_letter": _build_parent_company_guarantee_letter,
     "parent_company_registry_certificate": _build_parent_company_registry_certificate,
