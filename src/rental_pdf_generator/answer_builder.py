@@ -383,6 +383,44 @@ def _build_business_license_application(case: Case, variant: str = "") -> dict[s
     }
 
 
+def _build_business_opening_notice(case: Case, variant: str = "") -> dict[str, Any]:
+    a = case.applicant
+    n = case.business_opening_notice
+    return {
+        "owner_name": _get(n, "owner_name") or _get(a, "name"),
+        "owner_birth_date": _get(n, "owner_birth_date") or _get(a, "birth_date"),
+        "tax_address": _get(n, "tax_address") or _get(a, "current_address"),
+        "issuing_tax_office": _get(n, "issuing_tax_office"),
+        "submission_date": _get(n, "submission_date"),
+        "occupation": _get(n, "occupation"),
+        "trade_name": _get(n, "trade_name"),
+        "opening_date": _get(n, "opening_date"),
+        "business_overview": _get(n, "business_overview"),
+        "employs_others": _get(n, "employs_others"),
+    }
+
+
+def _build_bank_balance_certificate(case: Case, variant: str = "") -> dict[str, Any]:
+    b = case.bank_balance_certificate
+    a = case.applicant
+    c = case.company
+    return {
+        "account_holder": (
+            _get(b, "account_holder")
+            or _get(c, "company_name")
+            or _get(a, "name")
+        ),
+        "bank_name": _get(b, "bank_name"),
+        "branch_name": _get(b, "branch_name"),
+        "account_type": _get(b, "account_type"),
+        "account_number": _get(b, "account_number"),
+        "balance_as_of_date": _get(b, "balance_as_of_date"),
+        "balance_amount": _get(b, "balance_amount"),
+        "issue_date": _get(b, "issue_date"),
+        "issuer_staff": _get(b, "issuer_staff"),
+    }
+
+
 def _build_trial_balance(case: Case, variant: str = "") -> dict[str, Any]:
     c = case.company
     tb = case.trial_balance
@@ -524,6 +562,8 @@ _BUILDERS: dict[str, Callable[[Case, str], dict[str, Any]]] = {
     "business_license_application": _build_business_license_application,
     "business_use_pledge": _build_business_use_pledge,
     "trial_balance": _build_trial_balance,
+    "business_opening_notice": _build_business_opening_notice,
+    "bank_balance_certificate": _build_bank_balance_certificate,
 }
 
 

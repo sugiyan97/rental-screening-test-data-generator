@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
+
+@page { size: A4; margin: 15mm 20mm; }
+* { box-sizing: border-box; font-family: 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif; }
+body { font-size: 10pt; line-height: 1.7; color: #222; margin: 0; }
+
+.sample-notice { background: #fff3cd; border: 2px solid #ffc107; padding: 4px 12px; margin-bottom: 8px; font-size: 8.5pt; font-weight: bold; text-align: center; color: #856404; }
+.doc-badge { background: #d4efdf; border: 1px solid #229954; padding: 4px 14px; margin-bottom: 12px; font-size: 9.5pt; font-weight: bold; text-align: center; color: #196f3d; }
+
+h1 { font-size: 16pt; text-align: center; margin: 6px 0 4px; letter-spacing: 0.15em; }
+.h1-sub { text-align: center; font-size: 9.5pt; color: #555; margin-bottom: 16px; }
+
+.doc-meta { display: flex; justify-content: space-between; font-size: 9pt; color: #444; margin-bottom: 10px; }
+
+.receipt-stamp { float: right; width: 80px; height: 80px; border: 2px solid #c0392b; border-radius: 50%; text-align: center; font-size: 8pt; color: #c0392b; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-left: 12px; margin-bottom: 6px; }
+.receipt-stamp .label { font-size: 7pt; margin-bottom: 2px; }
+.receipt-stamp .date { font-size: 8pt; font-weight: bold; }
+
+h2 { font-size: 10.5pt; margin: 12px 0 4px; background: #eaf6ee; padding: 3px 10px; border-left: 4px solid #229954; }
+
+table { width: 100%; border-collapse: collapse; font-size: 10pt; margin-bottom: 10px; }
+th, td { border: 1px solid #777; padding: 5px 9px; vertical-align: middle; }
+th { background: #f4f6f7; font-weight: bold; width: 32%; text-align: left; white-space: nowrap; }
+.highlight-cell { background: #eafaf1; font-weight: bold; color: #196f3d; }
+
+.section-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 8px; }
+.section-grid .section-box { border: 1px solid #aaa; padding: 6px 10px; }
+.section-grid .section-box h3 { font-size: 9.5pt; margin: 0 0 4px; color: #196f3d; border-bottom: 1px solid #ccc; padding-bottom: 2px; }
+
+.footer-note { font-size: 8pt; color: #666; margin-top: 14px; border-top: 1px solid #ccc; padding-top: 5px; }
+</style>
+</head>
+<body>
+<div class="sample-notice">【テスト用サンプル書類 ― 実在の届出情報ではありません / 開業届ではありません】</div>
+<div class="doc-badge">■ 個人事業の開業・廃業等届出書（開業届）写し</div>
+
+<div class="receipt-stamp">
+  <div class="label">受付印</div>
+  <div class="date">{{ case.business_opening_notice.submission_date if case.business_opening_notice else '' }}</div>
+  <div style="font-size:6.5pt;">{{ case.business_opening_notice.issuing_tax_office if case.business_opening_notice else '' }}</div>
+</div>
+
+<h1>個人事業の開業・廃業等届出書</h1>
+<p class="h1-sub">所得税法第229条に基づく届出書（控）</p>
+
+<div class="doc-meta">
+  <span>提出先：{{ case.business_opening_notice.issuing_tax_office if case.business_opening_notice else '' }}</span>
+  <span>提出日：{{ case.business_opening_notice.submission_date if case.business_opening_notice else '' }}</span>
+</div>
+
+<h2>■ 届出区分・対象</h2>
+<table>
+  <tr><th>届出区分</th><td>☑ 開業　□ 廃業　□ 事務所・事業所の新設／増設／移転／廃止</td></tr>
+  <tr><th>所得の種類</th><td>☑ 事業所得　□ 不動産所得　□ 山林所得</td></tr>
+</table>
+
+<h2>■ 届出者情報</h2>
+<table>
+  <tr><th>氏名（フリガナ）</th><td>{{ case.business_opening_notice.owner_name if case.business_opening_notice else (case.applicant.name if case.applicant else '') }}</td></tr>
+  <tr><th>生年月日</th><td>{{ case.business_opening_notice.owner_birth_date if case.business_opening_notice else (case.applicant.birth_date if case.applicant else '') }}</td></tr>
+  <tr><th>納税地（住所）</th><td>{{ case.business_opening_notice.tax_address if case.business_opening_notice else (case.applicant.current_address if case.applicant else '') }}</td></tr>
+  <tr><th>職業</th><td>{{ case.business_opening_notice.occupation if case.business_opening_notice else '' }}</td></tr>
+  <tr><th>屋号</th><td class="highlight-cell">{{ case.business_opening_notice.trade_name if case.business_opening_notice else '' }}</td></tr>
+</table>
+
+<h2>■ 事業の開始等</h2>
+<table>
+  <tr><th>開業年月日</th><td class="highlight-cell">{{ case.business_opening_notice.opening_date if case.business_opening_notice else '' }}</td></tr>
+  <tr><th>事業の概要</th><td>{{ case.business_opening_notice.business_overview if case.business_opening_notice else '' }}</td></tr>
+</table>
+
+<div class="section-grid">
+  <div class="section-box">
+    <h3>事業従事者の状況</h3>
+    <div>給与等の支払を行う者：{{ case.business_opening_notice.employs_others if case.business_opening_notice else 'なし' }}</div>
+  </div>
+  <div class="section-box">
+    <h3>関連申請書の提出</h3>
+    <div>□ 青色申告承認申請書</div>
+    <div>□ 源泉所得税の納期の特例の承認に関する申請書</div>
+  </div>
+</div>
+
+<p class="footer-note">
+  ※ 本書類はOCR・LLM・Document AIシステムの検証を目的として作成されたテスト用サンプルです。
+  実在する税務署への届出ではありません。公的書類として使用することはできません。
+</p>
+</body>
+</html>
