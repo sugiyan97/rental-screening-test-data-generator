@@ -8,7 +8,7 @@ OCR・LLM・Document AI などの抽出システムを検証するため、**架
 
 ## 収録ケース一覧
 
-`input/cases.jsonl` に以下の 31 ケースが収録されている。description には【新規】／【既存】／【個人】（給与所得者）のカテゴリプレフィクスを付与し、提出書類カテゴリも括弧内に明記。
+`input/cases.jsonl` に以下の 32 ケースが収録されている。description には【新規】／【既存】／【個人】（給与所得者）のカテゴリプレフィクスを付与し、提出書類カテゴリも括弧内に明記。
 
 | ケースID | カテゴリ | シナリオ | 提出書類 |
 |---|---|---|---|
@@ -43,6 +43,7 @@ OCR・LLM・Document AI などの抽出システムを検証するため、**架
 | CASE-000029 | 既存・法人 | 業歴10年の既存事業＋新事業展開のための事業計画書付き | 申込書office＋登記簿＋当期決算＋前期決算＋事業計画書＋代表者ID |
 | CASE-000030 | 新規・法人 | 資金調達済スタートアップ。資金エビデンス（自己資金＋融資＋VC出資＋補助金）と事業計画書で賃料支払能力を裏付け | 申込書office＋登記簿＋事業計画書＋資金エビデンス＋代表者ID |
 | CASE-000031 | 新規・法人＋個人連帯保証人 | CASE-000030 と同様の資金調達済スタートアップに代表者の配偶者が個人連帯保証人として参加。第1期決算書に加え、連帯保証人の個人証明書一式（収入証明・本人確認・印鑑登録証明書・住民票）＋連帯保証契約書を提出 | 申込書office＋登記簿＋決算書＋事業計画書＋資金エビデンス＋代表者ID＋連帯保証契約書＋保証人収入＋保証人ID＋保証人印鑑証明＋保証人住民票（11書類） |
+| CASE-000032 | 新規・法人＋個人連帯保証人2名 | CASE-000031 から派生し、代表者の配偶者に加えて代表者の実父も第2連帯保証人として参加。両保証人とも個人証明書一式（収入証明・本人確認・印鑑登録証明書・住民票）を提出する最も手厚い保証パターン | 申込書office＋登記簿＋決算書＋事業計画書＋資金エビデンス＋代表者ID＋連帯保証契約書＋保証人1の4書類＋保証人2の4書類（15書類） |
 
 ---
 
@@ -67,6 +68,8 @@ OCR・LLM・Document AI などの抽出システムを検証するため、**架
 | `guarantor_2_identity_document` | 第2連帯保証人用本人確認書類 | `drivers_license` |
 | `guarantor_seal_certificate` | 連帯保証人用 印鑑登録証明書 | `standard` |
 | `guarantor_residence_certificate` | 連帯保証人用 住民票の写し | `standard` |
+| `guarantor_2_seal_certificate` | 第2連帯保証人用 印鑑登録証明書 | `standard` |
+| `guarantor_2_residence_certificate` | 第2連帯保証人用 住民票の写し | `standard` |
 | `corporate_guarantee_contract` | 代表者連帯保証契約書（法人賃貸借契約附属） | `standard` |
 | `parent_company_guarantee_letter` | 親会社保証書（グループ保証） | `standard` |
 | `parent_company_registry_certificate` | 親会社登記簿謄本風 | `registry_table` |
@@ -81,7 +84,9 @@ OCR・LLM・Document AI などの抽出システムを検証するため、**架
 ### 各書類の特徴
 
 - **入居申込書**（個人・法人）— 保証人欄・同居者欄・担当者欄・反社確認文言等を含む業務品質フォーマット。`case.guarantor_2` `case.student` が設定された場合は第2保証人・同居人セクションが自動表示される
-- **法人申込書の代表者情報** — 全 variant（standard/handwritten_like/office/housing/store）で代表者の氏名・フリガナ（`representative_kana`）・生年月日・年齢（`representative_age`）・住所を表示。`case.guarantor` が設定された場合は法人申込書にも連帯保証人セクション（氏名・フリガナ・生年月日・続柄・住所・勤務先・年収）が自動表示される
+- **法人申込書の代表者情報** — 全 variant（standard/handwritten_like/office/housing/store）で代表者の氏名・フリガナ（`representative_kana`）・生年月日・年齢（`representative_age`）・性別（`representative_gender`）・住所を表示。`case.guarantor` / `case.guarantor_2` が設定された場合は法人申込書にも連帯保証人①②セクション（氏名・フリガナ・生年月日・年齢・性別・続柄・住所・勤務先・年収）が自動表示される
+- **郵便番号** — 物件所在地・法人本店・代表者住所・申込者住所・緊急連絡先・連帯保証人住所に 〒XXX-XXXX 形式の仮郵便番号を表示（`postal_code` 系フィールド）。エリア（区市）に応じた実在しそうなプレフィクスを使用
+- **性別・年齢** — 申込者に加え、代表者・連帯保証人①②にも性別（`gender`）・年齢（`age`）を表示
 - **入居申込書 用途バリアント** — `residential`（居住用、世帯構成重視）、`soho`（居住SOHO兼用、業種・面積割合・看板）、`office`（事務所用、従業員数・営業時間・来客）、`housing`（社宅用、入居者情報・家賃補助率）、`store`（店舗用、業態・営業時間・騒音匂い・設備工事）の 5 variant。各 variant は用途固有のセクションを持つ
 - **多年度書類** — 決算書の `financial_summary_prior`（前年度版）、確定申告書の `tax_return_prior`（前年度版）。`case.previous_financials` / `case.previous_income` を参照
 - **合計残高試算表** — 月次の科目別残高表（資産・負債・純資産・損益）
@@ -343,6 +348,10 @@ templates/
     standard.html            連帯保証人用 印鑑登録証明書
   guarantor_residence_certificate/
     standard.html            連帯保証人用 住民票の写し
+  guarantor_2_seal_certificate/
+    standard.html            第2連帯保証人用 印鑑登録証明書
+  guarantor_2_residence_certificate/
+    standard.html            第2連帯保証人用 住民票の写し
   corporate_guarantee_contract/
     standard.html            代表者連帯保証契約書（法人賃貸用）
   parent_company_guarantee_letter/

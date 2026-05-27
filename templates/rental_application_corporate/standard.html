@@ -153,7 +153,7 @@ th {
   </tr>
   <tr>
     <th>物件所在地</th>
-    <td colspan="3">{{ case.property.property_address or '' }}</td>
+    <td colspan="3">〒{{ case.property.postal_code or '' }}　{{ case.property.property_address or '' }}</td>
   </tr>
   <tr>
     <th>賃料（月額）</th>
@@ -187,7 +187,7 @@ th {
   </tr>
   <tr>
     <th>本店所在地</th>
-    <td colspan="3">{{ case.company.head_office_address or '' }}</td>
+    <td colspan="3">〒{{ case.company.postal_code or '' }}　{{ case.company.head_office_address or '' }}</td>
   </tr>
   <tr>
     <th>代表電話番号</th>
@@ -228,8 +228,14 @@ th {
     <td>{{ case.company.representative_age or '' }}</td>
   </tr>
   <tr>
+    <th>代表者性別</th>
+    <td>{{ case.company.representative_gender or '' }}</td>
+    <th>　</th>
+    <td>　</td>
+  </tr>
+  <tr>
     <th>代表者住所</th>
-    <td colspan="3">{{ case.company.representative_address or '' }}</td>
+    <td colspan="3">〒{{ case.company.representative_postal_code or '' }}　{{ case.company.representative_address or '' }}</td>
   </tr>
 </table>
 
@@ -245,12 +251,18 @@ th {
   <tr>
     <th>生年月日</th>
     <td>{{ case.guarantor.birth_date or '' }}</td>
+    <th>年齢</th>
+    <td>{{ case.guarantor.age or '' }}</td>
+  </tr>
+  <tr>
+    <th>性別</th>
+    <td>{{ case.guarantor.gender or '' }}</td>
     <th>申込法人との関係</th>
     <td>{{ case.guarantor.relationship or '' }}</td>
   </tr>
   <tr>
     <th>現住所</th>
-    <td colspan="3">{{ case.guarantor.current_address or '' }}</td>
+    <td colspan="3">〒{{ case.guarantor.postal_code or '' }}　{{ case.guarantor.current_address or '' }}</td>
   </tr>
   <tr>
     <th>電話番号</th>
@@ -261,6 +273,42 @@ th {
   <tr>
     <th>年収（税込）</th>
     <td colspan="3">{{ case.guarantor.annual_income or '' }}</td>
+  </tr>
+</table>
+{% endif %}
+
+{% if case.guarantor_2 %}
+<h2>■ 連帯保証人②</h2>
+<table>
+  <tr>
+    <th>氏名</th>
+    <td>{{ case.guarantor_2.name or '' }}</td>
+    <th>フリガナ</th>
+    <td>{{ case.guarantor_2.kana or '' }}</td>
+  </tr>
+  <tr>
+    <th>生年月日</th>
+    <td>{{ case.guarantor_2.birth_date or '' }}</td>
+    <th>年齢 / 性別</th>
+    <td>{{ case.guarantor_2.age or '' }} / {{ case.guarantor_2.gender or '' }}</td>
+  </tr>
+  <tr>
+    <th>申込法人との関係</th>
+    <td colspan="3">{{ case.guarantor_2.relationship or '' }}</td>
+  </tr>
+  <tr>
+    <th>現住所</th>
+    <td colspan="3">〒{{ case.guarantor_2.postal_code or '' }}　{{ case.guarantor_2.current_address or '' }}</td>
+  </tr>
+  <tr>
+    <th>電話番号</th>
+    <td>{{ case.guarantor_2.phone or '' }}</td>
+    <th>勤務先</th>
+    <td>{{ case.guarantor_2.employer_name or '' }}</td>
+  </tr>
+  <tr>
+    <th>年収（税込）</th>
+    <td colspan="3">{{ case.guarantor_2.annual_income or '' }}</td>
   </tr>
 </table>
 {% endif %}

@@ -18,15 +18,19 @@ def _build_rental_application_corporate(case: Case, variant: str = "") -> dict[s
     chu = case.corporate_housing_usage
     csu = case.corporate_store_usage
     g = case.guarantor
+    g2 = case.guarantor_2
     return {
         "company_name": _get(c, "company_name"),
         "company_kana": _get(c, "company_kana"),
         "corporate_number": _get(c, "corporate_number"),
+        "postal_code": _get(c, "postal_code"),
         "head_office_address": _get(c, "head_office_address"),
         "representative_name": _get(c, "representative_name"),
         "representative_kana": _get(c, "representative_kana"),
         "representative_birth_date": _get(c, "representative_birth_date"),
         "representative_age": _get(c, "representative_age"),
+        "representative_gender": _get(c, "representative_gender"),
+        "representative_postal_code": _get(c, "representative_postal_code"),
         "representative_address": _get(c, "representative_address"),
         "phone": _get(c, "phone"),
         "email": _get(c, "email"),
@@ -36,6 +40,7 @@ def _build_rental_application_corporate(case: Case, variant: str = "") -> dict[s
         "employee_count": _get(c, "employee_count"),
         "property_name": _get(p, "property_name"),
         "room_number": _get(p, "room_number"),
+        "property_postal_code": _get(p, "postal_code"),
         "property_address": _get(p, "property_address"),
         "rent": _get(p, "rent"),
         "management_fee": _get(p, "management_fee"),
@@ -53,11 +58,25 @@ def _build_rental_application_corporate(case: Case, variant: str = "") -> dict[s
         "guarantor_name": _get(g, "name"),
         "guarantor_kana": _get(g, "kana"),
         "guarantor_birth_date": _get(g, "birth_date"),
+        "guarantor_age": _get(g, "age"),
+        "guarantor_gender": _get(g, "gender"),
         "guarantor_relationship": _get(g, "relationship"),
+        "guarantor_postal_code": _get(g, "postal_code"),
         "guarantor_current_address": _get(g, "current_address"),
         "guarantor_phone": _get(g, "phone"),
         "guarantor_employer_name": _get(g, "employer_name"),
         "guarantor_annual_income": _get(g, "annual_income"),
+        "guarantor_2_name": _get(g2, "name"),
+        "guarantor_2_kana": _get(g2, "kana"),
+        "guarantor_2_birth_date": _get(g2, "birth_date"),
+        "guarantor_2_age": _get(g2, "age"),
+        "guarantor_2_gender": _get(g2, "gender"),
+        "guarantor_2_relationship": _get(g2, "relationship"),
+        "guarantor_2_postal_code": _get(g2, "postal_code"),
+        "guarantor_2_current_address": _get(g2, "current_address"),
+        "guarantor_2_phone": _get(g2, "phone"),
+        "guarantor_2_employer_name": _get(g2, "employer_name"),
+        "guarantor_2_annual_income": _get(g2, "annual_income"),
     }
 
 
@@ -133,6 +152,7 @@ def _build_rental_application_individual(case: Case, variant: str = "") -> dict[
         "birth_date": _get(a, "birth_date"),
         "age": _get(a, "age"),
         "gender": _get(a, "gender"),
+        "postal_code": _get(a, "postal_code"),
         "current_address": _get(a, "current_address"),
         "phone": _get(a, "phone"),
         "email": _get(a, "email"),
@@ -146,17 +166,22 @@ def _build_rental_application_individual(case: Case, variant: str = "") -> dict[
         "employer_address": _get(e, "employer_address"),
         "property_name": _get(p, "property_name"),
         "room_number": _get(p, "room_number"),
+        "property_postal_code": _get(p, "postal_code"),
         "rent": _get(p, "rent"),
         "management_fee": _get(p, "management_fee"),
         "desired_move_in_date": _get(p, "desired_move_in_date"),
         "emergency_contact_name": _get(ec, "name"),
         "emergency_contact_relation": _get(ec, "relation"),
         "emergency_contact_phone": _get(ec, "phone"),
+        "emergency_contact_postal_code": _get(ec, "postal_code"),
         "emergency_contact_address": _get(ec, "address"),
         "guarantor_name": _get(g, "name"),
         "guarantor_kana": _get(g, "kana"),
         "guarantor_birth_date": _get(g, "birth_date"),
+        "guarantor_age": _get(g, "age"),
+        "guarantor_gender": _get(g, "gender"),
         "guarantor_relationship": _get(g, "relationship"),
+        "guarantor_postal_code": _get(g, "postal_code"),
         "guarantor_current_address": _get(g, "current_address"),
         "guarantor_phone": _get(g, "phone"),
         "guarantor_employer_name": _get(g, "employer_name"),
@@ -164,7 +189,10 @@ def _build_rental_application_individual(case: Case, variant: str = "") -> dict[
         "guarantor_2_name": _get(g2, "name"),
         "guarantor_2_kana": _get(g2, "kana"),
         "guarantor_2_birth_date": _get(g2, "birth_date"),
+        "guarantor_2_age": _get(g2, "age"),
+        "guarantor_2_gender": _get(g2, "gender"),
         "guarantor_2_relationship": _get(g2, "relationship"),
+        "guarantor_2_postal_code": _get(g2, "postal_code"),
         "guarantor_2_current_address": _get(g2, "current_address"),
         "guarantor_2_phone": _get(g2, "phone"),
         "guarantor_2_employer_name": _get(g2, "employer_name"),
@@ -605,6 +633,39 @@ def _build_guarantor_residence_certificate(case: Case, variant: str = "") -> dic
     }
 
 
+def _build_guarantor_2_seal_certificate(case: Case, variant: str = "") -> dict[str, Any]:
+    g = case.guarantor_2
+    sc = case.guarantor_2_seal_certificate
+    return {
+        "name": _get(g, "name"),
+        "birth_date": _get(g, "birth_date"),
+        "address": _get(g, "current_address"),
+        "relationship": _get(g, "relationship"),
+        "registration_number": _get(sc, "registration_number"),
+        "registration_date": _get(sc, "registration_date"),
+        "issuing_municipality": _get(sc, "issuing_municipality"),
+        "issue_date": _get(sc, "issue_date"),
+    }
+
+
+def _build_guarantor_2_residence_certificate(case: Case, variant: str = "") -> dict[str, Any]:
+    g = case.guarantor_2
+    rc = case.guarantor_2_residence_certificate
+    return {
+        "name": _get(g, "name"),
+        "birth_date": _get(g, "birth_date"),
+        "address": _get(g, "current_address"),
+        "relationship": _get(g, "relationship"),
+        "gender": _get(rc, "gender"),
+        "honseki": _get(rc, "honseki"),
+        "head_of_household": _get(rc, "head_of_household"),
+        "relation_to_head": _get(rc, "relation_to_head"),
+        "resident_since": _get(rc, "resident_since"),
+        "issuing_municipality": _get(rc, "issuing_municipality"),
+        "issue_date": _get(rc, "issue_date"),
+    }
+
+
 _BUILDERS: dict[str, Callable[[Case, str], dict[str, Any]]] = {
     "rental_application_corporate": _build_rental_application_corporate,
     "registry_certificate": _build_registry_certificate,
@@ -617,6 +678,8 @@ _BUILDERS: dict[str, Callable[[Case, str], dict[str, Any]]] = {
     "guarantor_identity_document": _build_guarantor_identity_document,
     "guarantor_seal_certificate": _build_guarantor_seal_certificate,
     "guarantor_residence_certificate": _build_guarantor_residence_certificate,
+    "guarantor_2_seal_certificate": _build_guarantor_2_seal_certificate,
+    "guarantor_2_residence_certificate": _build_guarantor_2_residence_certificate,
     "corporate_guarantee_contract": _build_corporate_guarantee_contract,
     "parent_company_guarantee_letter": _build_parent_company_guarantee_letter,
     "parent_company_registry_certificate": _build_parent_company_registry_certificate,

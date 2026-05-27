@@ -45,7 +45,7 @@ td.wide { width: 74%; }
 <table>
   <tr><th>氏名</th><td>{{ case.applicant.name if case.applicant else '' }}（{{ case.applicant.kana if case.applicant else '' }}）</td></tr>
   <tr><th>生年月日</th><td>{{ case.applicant.birth_date if case.applicant else '' }}</td></tr>
-  <tr><th>現住所</th><td>{{ case.applicant.current_address if case.applicant else '' }}</td></tr>
+  <tr><th>現住所</th><td>〒{{ case.applicant.postal_code if case.applicant else '' }}　{{ case.applicant.current_address if case.applicant else '' }}</td></tr>
   <tr><th>電話 / メール</th><td>{{ case.applicant.phone if case.applicant else '' }} / {{ case.applicant.email if case.applicant else '' }}</td></tr>
 </table>
 
@@ -88,6 +88,7 @@ td.wide { width: 74%; }
 <h2>■ 連帯保証人</h2>
 <table>
   <tr><th>氏名 / 続柄</th><td>{{ case.guarantor.name if case.guarantor else '' }} / {{ case.guarantor.relationship if case.guarantor else '' }}</td></tr>
+  <tr><th>生年月日 / 年齢 / 性別</th><td>{{ case.guarantor.birth_date if case.guarantor else '' }} / {{ case.guarantor.age if case.guarantor else '' }} / {{ case.guarantor.gender if case.guarantor else '' }}</td></tr>
   <tr><th>勤務先 / 年収</th><td>{{ case.guarantor.employer_name if case.guarantor else '' }} / {{ case.guarantor.annual_income if case.guarantor else '' }}</td></tr>
 </table>
 {% endif %}

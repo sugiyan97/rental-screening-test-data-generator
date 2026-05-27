@@ -35,7 +35,7 @@ th { background-color: #f2f2f2; font-weight: 700; white-space: nowrap; width: 28
 <h2>■ 申込物件</h2>
 <table>
   <tr><th>物件名称</th><td>{{ case.property.property_name if case.property else '' }}（{{ case.property.room_number if case.property else '' }}）</td></tr>
-  <tr><th>所在地</th><td>{{ case.property.property_address if case.property else '' }}</td></tr>
+  <tr><th>所在地</th><td>〒{{ case.property.postal_code if case.property else '' }}　{{ case.property.property_address if case.property else '' }}</td></tr>
   <tr><th>賃料 / 管理費</th><td>{{ case.property.rent if case.property else '' }} / {{ case.property.management_fee if case.property else '' }}</td></tr>
   <tr><th>利用用途</th><td>{{ case.property.usage_purpose if case.property else '店舗' }}</td></tr>
   <tr><th>希望入居日</th><td>{{ case.property.desired_move_in_date if case.property else '' }}</td></tr>
@@ -45,26 +45,38 @@ th { background-color: #f2f2f2; font-weight: 700; white-space: nowrap; width: 28
 <table>
   <tr><th>商号</th><td>{{ case.company.company_name if case.company else '' }}</td></tr>
   <tr><th>会社法人等番号</th><td>{{ case.company.corporate_number if case.company else '' }}</td></tr>
-  <tr><th>本店所在地</th><td>{{ case.company.head_office_address if case.company else '' }}</td></tr>
+  <tr><th>本店所在地</th><td>〒{{ case.company.postal_code if case.company else '' }}　{{ case.company.head_office_address if case.company else '' }}</td></tr>
   <tr><th>事業内容</th><td>{{ case.company.business_description if case.company else '' }}</td></tr>
 </table>
 
 <h2>■ 代表者情報</h2>
 <table>
   <tr><th>代表者氏名</th><td>{{ case.company.representative_name if case.company else '' }}（{{ case.company.representative_kana if case.company else '' }}）</td></tr>
-  <tr><th>生年月日 / 年齢</th><td>{{ case.company.representative_birth_date if case.company else '' }} / {{ case.company.representative_age if case.company else '' }}</td></tr>
-  <tr><th>代表者住所</th><td>{{ case.company.representative_address if case.company else '' }}</td></tr>
+  <tr><th>生年月日 / 年齢 / 性別</th><td>{{ case.company.representative_birth_date if case.company else '' }} / {{ case.company.representative_age if case.company else '' }} / {{ case.company.representative_gender if case.company else '' }}</td></tr>
+  <tr><th>代表者住所</th><td>〒{{ case.company.representative_postal_code if case.company else '' }}　{{ case.company.representative_address if case.company else '' }}</td></tr>
 </table>
 
 {% if case.guarantor %}
 <h2>■ 連帯保証人</h2>
 <table>
   <tr><th>氏名</th><td>{{ case.guarantor.name if case.guarantor else '' }}（{{ case.guarantor.kana if case.guarantor else '' }}）</td></tr>
-  <tr><th>生年月日</th><td>{{ case.guarantor.birth_date if case.guarantor else '' }}</td></tr>
+  <tr><th>生年月日 / 年齢 / 性別</th><td>{{ case.guarantor.birth_date if case.guarantor else '' }} / {{ case.guarantor.age if case.guarantor else '' }} / {{ case.guarantor.gender if case.guarantor else '' }}</td></tr>
   <tr><th>申込法人との関係</th><td>{{ case.guarantor.relationship if case.guarantor else '' }}</td></tr>
-  <tr><th>現住所</th><td>{{ case.guarantor.current_address if case.guarantor else '' }}</td></tr>
+  <tr><th>現住所</th><td>〒{{ case.guarantor.postal_code if case.guarantor else '' }}　{{ case.guarantor.current_address if case.guarantor else '' }}</td></tr>
   <tr><th>電話番号 / 勤務先</th><td>{{ case.guarantor.phone if case.guarantor else '' }} / {{ case.guarantor.employer_name if case.guarantor else '' }}</td></tr>
   <tr><th>年収（税込）</th><td>{{ case.guarantor.annual_income if case.guarantor else '' }}</td></tr>
+</table>
+{% endif %}
+
+{% if case.guarantor_2 %}
+<h2>■ 連帯保証人②</h2>
+<table>
+  <tr><th>氏名</th><td>{{ case.guarantor_2.name if case.guarantor_2 else '' }}（{{ case.guarantor_2.kana if case.guarantor_2 else '' }}）</td></tr>
+  <tr><th>生年月日 / 年齢 / 性別</th><td>{{ case.guarantor_2.birth_date if case.guarantor_2 else '' }} / {{ case.guarantor_2.age if case.guarantor_2 else '' }} / {{ case.guarantor_2.gender if case.guarantor_2 else '' }}</td></tr>
+  <tr><th>申込法人との関係</th><td>{{ case.guarantor_2.relationship if case.guarantor_2 else '' }}</td></tr>
+  <tr><th>現住所</th><td>〒{{ case.guarantor_2.postal_code if case.guarantor_2 else '' }}　{{ case.guarantor_2.current_address if case.guarantor_2 else '' }}</td></tr>
+  <tr><th>電話番号 / 勤務先</th><td>{{ case.guarantor_2.phone if case.guarantor_2 else '' }} / {{ case.guarantor_2.employer_name if case.guarantor_2 else '' }}</td></tr>
+  <tr><th>年収（税込）</th><td>{{ case.guarantor_2.annual_income if case.guarantor_2 else '' }}</td></tr>
 </table>
 {% endif %}
 
