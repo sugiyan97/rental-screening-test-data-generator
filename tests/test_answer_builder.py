@@ -322,3 +322,24 @@ def test_build_answer_individual_with_soho_usage(individual_extended_case):
     assert answer["fields"]["soho_business_type"] == "Webデザイン"
     assert answer["fields"]["soho_residential_ratio"] == "60%"
     assert answer["fields"]["soho_has_signboard"] == "なし"
+
+
+def test_build_answer_business_opening_notice(individual_extended_case):
+    answer = build_answer(
+        individual_extended_case, "business_opening_notice", "individual"
+    )
+    assert answer["fields"]["owner_name"] == "テスト 花子"
+    assert answer["fields"]["trade_name"] == "テスト屋号"
+    assert answer["fields"]["issuing_tax_office"] == "テスト税務署"
+    assert answer["fields"]["opening_date"] == "2026年06月01日"
+    assert answer["fields"]["employs_others"] == "なし"
+
+
+def test_build_answer_bank_balance_certificate(individual_extended_case):
+    answer = build_answer(
+        individual_extended_case, "bank_balance_certificate", "standard"
+    )
+    assert answer["fields"]["account_holder"] == "テスト 花子"
+    assert answer["fields"]["bank_name"] == "テストメガバンク"
+    assert answer["fields"]["branch_name"] == "テスト支店"
+    assert answer["fields"]["balance_amount"] == "3,500,000円"

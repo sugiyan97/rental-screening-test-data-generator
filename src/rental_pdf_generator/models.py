@@ -247,6 +247,31 @@ class PreviousEmployment(BaseModel):
     end_date: str | None = None
 
 
+class BusinessOpeningNotice(BaseModel):
+    issuing_tax_office: str | None = None
+    submission_date: str | None = None
+    tax_address: str | None = None
+    owner_name: str | None = None
+    owner_birth_date: str | None = None
+    occupation: str | None = None
+    trade_name: str | None = None
+    opening_date: str | None = None
+    business_overview: str | None = None
+    employs_others: str | None = None
+
+
+class BankBalanceCertificate(BaseModel):
+    account_holder: str | None = None
+    bank_name: str | None = None
+    branch_name: str | None = None
+    account_type: str | None = None
+    account_number: str | None = None
+    balance_as_of_date: str | None = None
+    balance_amount: str | None = None
+    issue_date: str | None = None
+    issuer_staff: str | None = None
+
+
 class TrialBalance(BaseModel):
     fiscal_period: str | None = None
     cash: str | None = None
@@ -378,3 +403,6 @@ class Case(BaseModel):
     soho_usage: SohoUsage | None = None
     corporate_housing_usage: CorporateHousingUsage | None = None
     corporate_store_usage: CorporateStoreUsage | None = None
+    # 開業時補助書類
+    business_opening_notice: BusinessOpeningNotice | None = None
+    bank_balance_certificate: BankBalanceCertificate | None = None

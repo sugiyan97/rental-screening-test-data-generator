@@ -377,6 +377,29 @@ INDIVIDUAL_EXTENDED_CASE_DATA: dict = {
         "trade_name": "テストデザインスタジオ",
         "has_signboard": "なし",
     },
+    "business_opening_notice": {
+        "issuing_tax_office": "テスト税務署",
+        "submission_date": "2026年06月01日",
+        "tax_address": "東京都杉並区テスト1-1-1",
+        "owner_name": "テスト 花子",
+        "owner_birth_date": "1995年06月15日",
+        "occupation": "テスト職業",
+        "trade_name": "テスト屋号",
+        "opening_date": "2026年06月01日",
+        "business_overview": "テスト事業概要",
+        "employs_others": "なし",
+    },
+    "bank_balance_certificate": {
+        "account_holder": "テスト 花子",
+        "bank_name": "テストメガバンク",
+        "branch_name": "テスト支店",
+        "account_type": "普通預金",
+        "account_number": "1111111",
+        "balance_as_of_date": "2026年09月01日",
+        "balance_amount": "3,500,000円",
+        "issue_date": "2026年09月02日",
+        "issuer_staff": "テスト 担当",
+    },
 }
 
 
