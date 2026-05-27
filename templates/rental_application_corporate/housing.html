@@ -43,10 +43,28 @@ th { background-color: #f2f2f2; font-weight: 700; white-space: nowrap; width: 28
 <table>
   <tr><th>商号</th><td>{{ case.company.company_name if case.company else '' }}</td></tr>
   <tr><th>本店所在地</th><td>{{ case.company.head_office_address if case.company else '' }}</td></tr>
-  <tr><th>代表者</th><td>{{ case.company.representative_name if case.company else '' }}</td></tr>
   <tr><th>設立 / 資本金</th><td>{{ case.company.established_date if case.company else '' }} / {{ case.company.capital if case.company else '' }}</td></tr>
   <tr><th>事業内容</th><td>{{ case.company.business_description if case.company else '' }}</td></tr>
 </table>
+
+<h2>■ 代表者情報</h2>
+<table>
+  <tr><th>代表者氏名</th><td>{{ case.company.representative_name if case.company else '' }}（{{ case.company.representative_kana if case.company else '' }}）</td></tr>
+  <tr><th>生年月日 / 年齢</th><td>{{ case.company.representative_birth_date if case.company else '' }} / {{ case.company.representative_age if case.company else '' }}</td></tr>
+  <tr><th>代表者住所</th><td>{{ case.company.representative_address if case.company else '' }}</td></tr>
+</table>
+
+{% if case.guarantor %}
+<h2>■ 連帯保証人</h2>
+<table>
+  <tr><th>氏名</th><td>{{ case.guarantor.name if case.guarantor else '' }}（{{ case.guarantor.kana if case.guarantor else '' }}）</td></tr>
+  <tr><th>生年月日</th><td>{{ case.guarantor.birth_date if case.guarantor else '' }}</td></tr>
+  <tr><th>申込法人との関係</th><td>{{ case.guarantor.relationship if case.guarantor else '' }}</td></tr>
+  <tr><th>現住所</th><td>{{ case.guarantor.current_address if case.guarantor else '' }}</td></tr>
+  <tr><th>電話番号 / 勤務先</th><td>{{ case.guarantor.phone if case.guarantor else '' }} / {{ case.guarantor.employer_name if case.guarantor else '' }}</td></tr>
+  <tr><th>年収（税込）</th><td>{{ case.guarantor.annual_income if case.guarantor else '' }}</td></tr>
+</table>
+{% endif %}
 
 <h2 class="housing-section" style="background:#d6eaf8; border-left-color:#2874a6;">■ 入居予定者（実際の居住者） <span style="font-size:8pt; color:#1a5276;">※審査の主要項目</span></h2>
 <table class="housing-section">

@@ -17,13 +17,16 @@ def _build_rental_application_corporate(case: Case, variant: str = "") -> dict[s
     p = case.property
     chu = case.corporate_housing_usage
     csu = case.corporate_store_usage
+    g = case.guarantor
     return {
         "company_name": _get(c, "company_name"),
         "company_kana": _get(c, "company_kana"),
         "corporate_number": _get(c, "corporate_number"),
         "head_office_address": _get(c, "head_office_address"),
         "representative_name": _get(c, "representative_name"),
+        "representative_kana": _get(c, "representative_kana"),
         "representative_birth_date": _get(c, "representative_birth_date"),
+        "representative_age": _get(c, "representative_age"),
         "representative_address": _get(c, "representative_address"),
         "phone": _get(c, "phone"),
         "email": _get(c, "email"),
@@ -47,6 +50,14 @@ def _build_rental_application_corporate(case: Case, variant: str = "") -> dict[s
         "store_operating_hours": _get(csu, "operating_hours"),
         "store_closed_days": _get(csu, "closed_days"),
         "store_construction_required": _get(csu, "construction_required"),
+        "guarantor_name": _get(g, "name"),
+        "guarantor_kana": _get(g, "kana"),
+        "guarantor_birth_date": _get(g, "birth_date"),
+        "guarantor_relationship": _get(g, "relationship"),
+        "guarantor_current_address": _get(g, "current_address"),
+        "guarantor_phone": _get(g, "phone"),
+        "guarantor_employer_name": _get(g, "employer_name"),
+        "guarantor_annual_income": _get(g, "annual_income"),
     }
 
 

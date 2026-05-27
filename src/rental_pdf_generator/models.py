@@ -14,7 +14,9 @@ class Company(BaseModel):
     corporate_number: str | None = None
     head_office_address: str | None = None
     representative_name: str | None = None
+    representative_kana: str | None = None
     representative_birth_date: str | None = None
+    representative_age: str | None = None
     representative_address: str | None = None
     phone: str | None = None
     email: str | None = None

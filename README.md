@@ -81,6 +81,7 @@ OCR・LLM・Document AI などの抽出システムを検証するため、**架
 ### 各書類の特徴
 
 - **入居申込書**（個人・法人）— 保証人欄・同居者欄・担当者欄・反社確認文言等を含む業務品質フォーマット。`case.guarantor_2` `case.student` が設定された場合は第2保証人・同居人セクションが自動表示される
+- **法人申込書の代表者情報** — 全 variant（standard/handwritten_like/office/housing/store）で代表者の氏名・フリガナ（`representative_kana`）・生年月日・年齢（`representative_age`）・住所を表示。`case.guarantor` が設定された場合は法人申込書にも連帯保証人セクション（氏名・フリガナ・生年月日・続柄・住所・勤務先・年収）が自動表示される
 - **入居申込書 用途バリアント** — `residential`（居住用、世帯構成重視）、`soho`（居住SOHO兼用、業種・面積割合・看板）、`office`（事務所用、従業員数・営業時間・来客）、`housing`（社宅用、入居者情報・家賃補助率）、`store`（店舗用、業態・営業時間・騒音匂い・設備工事）の 5 variant。各 variant は用途固有のセクションを持つ
 - **多年度書類** — 決算書の `financial_summary_prior`（前年度版）、確定申告書の `tax_return_prior`（前年度版）。`case.previous_financials` / `case.previous_income` を参照
 - **合計残高試算表** — 月次の科目別残高表（資産・負債・純資産・損益）
