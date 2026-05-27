@@ -421,6 +421,28 @@ def _build_bank_balance_certificate(case: Case, variant: str = "") -> dict[str, 
     }
 
 
+def _build_funding_evidence(case: Case, variant: str = "") -> dict[str, Any]:
+    c = case.company
+    fe = case.funding_evidence
+    p = case.property
+    return {
+        "company_name": _get(c, "company_name"),
+        "as_of_date": _get(fe, "as_of_date"),
+        "own_capital": _get(fe, "own_capital"),
+        "bank_loan": _get(fe, "bank_loan"),
+        "bank_loan_lender": _get(fe, "bank_loan_lender"),
+        "investment": _get(fe, "investment"),
+        "investor_name": _get(fe, "investor_name"),
+        "subsidy": _get(fe, "subsidy"),
+        "subsidy_source": _get(fe, "subsidy_source"),
+        "total_funding": _get(fe, "total_funding"),
+        "fund_usage": _get(fe, "fund_usage"),
+        "monthly_rent_coverage": _get(fe, "monthly_rent_coverage"),
+        "evidence_documents": _get(fe, "evidence_documents"),
+        "rent": _get(p, "rent"),
+    }
+
+
 def _build_trial_balance(case: Case, variant: str = "") -> dict[str, Any]:
     c = case.company
     tb = case.trial_balance
@@ -564,6 +586,7 @@ _BUILDERS: dict[str, Callable[[Case, str], dict[str, Any]]] = {
     "trial_balance": _build_trial_balance,
     "business_opening_notice": _build_business_opening_notice,
     "bank_balance_certificate": _build_bank_balance_certificate,
+    "funding_evidence": _build_funding_evidence,
 }
 
 

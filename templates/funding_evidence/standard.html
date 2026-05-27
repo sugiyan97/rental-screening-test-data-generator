@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
+
+@page { size: A4; margin: 15mm 20mm; }
+* { box-sizing: border-box; font-family: 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif; }
+body { font-size: 10pt; line-height: 1.65; color: #1a1a1a; margin: 0; }
+
+.sample-notice { background: #fff3cd; border: 2px solid #ffc107; padding: 4px 12px; margin-bottom: 8px; font-size: 8.5pt; font-weight: bold; text-align: center; color: #856404; }
+.doc-badge { background: #d6eaf8; border: 1px solid #2874a6; padding: 4px 14px; margin-bottom: 12px; font-size: 9.5pt; font-weight: bold; text-align: center; color: #1a5276; }
+
+h1 { font-size: 16pt; text-align: center; margin: 6px 0 4px; letter-spacing: 0.12em; }
+.h1-sub { text-align: center; font-size: 9pt; color: #555; margin-bottom: 14px; }
+
+.doc-meta { display: flex; justify-content: space-between; font-size: 9pt; color: #444; margin-bottom: 10px; }
+
+h2 { font-size: 10.5pt; margin: 14px 0 6px; background: #eaf2f8; padding: 4px 10px; border-left: 4px solid #2874a6; }
+
+table { width: 100%; border-collapse: collapse; font-size: 10pt; margin-bottom: 10px; }
+th, td { border: 1px solid #777; padding: 5px 10px; vertical-align: middle; }
+th { background: #f4f6f7; font-weight: bold; text-align: left; white-space: nowrap; }
+
+.breakdown-table th { width: 40%; }
+.breakdown-table td { text-align: right; }
+.breakdown-table .source-note { font-size: 8pt; color: #666; text-align: left; }
+
+.total-row th, .total-row td { background: #d6eaf8; font-weight: bold; font-size: 11.5pt; color: #1a5276; }
+
+.coverage-box { border: 2px solid #2874a6; background: #eaf2f8; padding: 8px 12px; margin: 12px 0; font-size: 10pt; }
+.coverage-box .big { font-size: 13pt; font-weight: bold; color: #1a5276; }
+
+.narrative-block { background: #fafafa; border: 1px solid #ccc; padding: 8px 12px; margin-bottom: 10px; font-size: 9.5pt; }
+
+.evidence-list { font-size: 9pt; }
+.evidence-list li { margin-bottom: 3px; }
+
+.footer-note { font-size: 8pt; color: #666; border-top: 1px solid #ccc; padding-top: 5px; margin-top: 12px; }
+</style>
+</head>
+<body>
+<div class="sample-notice">【テスト用サンプル書類 ― 実在の資金・財務情報ではありません】</div>
+<div class="doc-badge">■ 資金エビデンス（資金調達証明書） — 賃料支払能力の裏付け資料</div>
+
+<h1>資 金 調 達 状 況 証 明 書</h1>
+<p class="h1-sub">賃貸借契約申込時提出書類／賃料支払能力エビデンス</p>
+
+<div class="doc-meta">
+  <span>会社名：{{ case.company.company_name if case.company else '' }}</span>
+  <span>基準日：{{ case.funding_evidence.as_of_date if case.funding_evidence else '' }}</span>
+</div>
+
+<h2>■ 資金調達の内訳</h2>
+<table class="breakdown-table">
+  <tr>
+    <th>資金源</th>
+    <th style="text-align:right; width:30%;">金額</th>
+    <th class="source-note" style="width:30%;">調達元・備考</th>
+  </tr>
+  <tr>
+    <th>自己資金（資本金）</th>
+    <td>{{ case.funding_evidence.own_capital if case.funding_evidence else '' }}</td>
+    <td class="source-note">払込済資本金</td>
+  </tr>
+  <tr>
+    <th>金融機関融資</th>
+    <td>{{ case.funding_evidence.bank_loan if case.funding_evidence else '' }}</td>
+    <td class="source-note">{{ case.funding_evidence.bank_loan_lender if case.funding_evidence else '' }}</td>
+  </tr>
+  <tr>
+    <th>出資（増資・新株予約権）</th>
+    <td>{{ case.funding_evidence.investment if case.funding_evidence else '' }}</td>
+    <td class="source-note">{{ case.funding_evidence.investor_name if case.funding_evidence else '' }}</td>
+  </tr>
+  <tr>
+    <th>補助金・助成金</th>
+    <td>{{ case.funding_evidence.subsidy if case.funding_evidence else '' }}</td>
+    <td class="source-note">{{ case.funding_evidence.subsidy_source if case.funding_evidence else '' }}</td>
+  </tr>
+  <tr class="total-row">
+    <th>調達額合計</th>
+    <td>{{ case.funding_evidence.total_funding if case.funding_evidence else '' }}</td>
+    <td class="source-note" style="color:#1a5276;">—</td>
+  </tr>
+</table>
+
+<div class="coverage-box">
+  <div>本物件の月額賃料（{{ case.property.rent if case.property else '' }}）に対する支払能力：</div>
+  <div class="big">{{ case.funding_evidence.monthly_rent_coverage if case.funding_evidence else '' }}</div>
+</div>
+
+<h2>■ 資金使途</h2>
+<div class="narrative-block">
+  {{ case.funding_evidence.fund_usage if case.funding_evidence else '' }}
+</div>
+
+<h2>■ 裏付け書類（添付・参照）</h2>
+<div class="narrative-block evidence-list">
+  {{ case.funding_evidence.evidence_documents if case.funding_evidence else '' }}
+</div>
+
+<p class="footer-note">
+  ※ 本書類はOCR・LLM・Document AIシステムの検証を目的として作成されたテスト用サンプルです。
+  実在する企業の資金調達・財務情報ではありません。公的証明書として使用することはできません。
+</p>
+</body>
+</html>

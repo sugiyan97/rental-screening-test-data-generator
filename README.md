@@ -8,7 +8,7 @@ OCR・LLM・Document AI などの抽出システムを検証するため、**架
 
 ## 収録ケース一覧
 
-`input/cases.jsonl` に以下の 29 ケースが収録されている。description には【新規】／【既存】／【個人】（給与所得者）のカテゴリプレフィクスを付与し、提出書類カテゴリも括弧内に明記。
+`input/cases.jsonl` に以下の 30 ケースが収録されている。description には【新規】／【既存】／【個人】（給与所得者）のカテゴリプレフィクスを付与し、提出書類カテゴリも括弧内に明記。
 
 | ケースID | カテゴリ | シナリオ | 提出書類 |
 |---|---|---|---|
@@ -41,6 +41,7 @@ OCR・LLM・Document AI などの抽出システムを検証するため、**架
 | CASE-000027 | 新規・法人 | 新設法人の事務所契約（決算書なし、預貯金残高証明書で代替） | 申込書office＋登記簿＋事業計画書＋残高証明書＋代表者ID |
 | CASE-000028 | 新規・個人事業 | 業歴1期未満。確定申告書なし、開業届＋事業計画書＋残高証明書で代替 | 申込書soho＋開業届＋事業計画書＋残高証明書＋本人ID |
 | CASE-000029 | 既存・法人 | 業歴10年の既存事業＋新事業展開のための事業計画書付き | 申込書office＋登記簿＋当期決算＋前期決算＋事業計画書＋代表者ID |
+| CASE-000030 | 新規・法人 | 資金調達済スタートアップ。資金エビデンス（自己資金＋融資＋VC出資＋補助金）と事業計画書で賃料支払能力を裏付け | 申込書office＋登記簿＋事業計画書＋資金エビデンス＋代表者ID |
 
 ---
 
@@ -56,6 +57,7 @@ OCR・LLM・Document AI などの抽出システムを検証するため、**架
 | `trial_balance` | 合計残高試算表風（月次） | `monthly_summary` |
 | `business_opening_notice` | 個人事業の開業・廃業等届出書（開業届）写し風 | `individual` |
 | `bank_balance_certificate` | 預貯金残高証明書風（金融機関発行） | `standard` |
+| `funding_evidence` | 資金エビデンス（資金調達証明書） | `standard` |
 | `business_plan` | 事業計画書 | `narrative`, `individual_startup`, `corporate_startup` |
 | `identity_document` | 本人確認書類（申込者） | `drivers_license`, `my_number_card`, `passport`, `residence_card` |
 | `guarantor_income_certificate` | 連帯保証人用収入証明書 | `salary_certificate` |
@@ -81,6 +83,7 @@ OCR・LLM・Document AI などの抽出システムを検証するため、**架
 - **合計残高試算表** — 月次の科目別残高表（資産・負債・純資産・損益）
 - **開業届** — 個人事業の開業・廃業等届出書写し風。新規個人事業（業歴1期未満）で確定申告書の代替として提出
 - **預貯金残高証明書** — 金融機関発行の残高証明書風。新規法人・新規個人事業で自己資金の証明に使用
+- **資金エビデンス（資金調達証明書）** — 自己資金（資本金）・金融機関融資・VC等の出資・補助金の調達内訳を 1 枚にまとめ、月額賃料に対する支払能力を裏付ける書類。資金調達済スタートアップ向け
 - **手書き風バリアント** — Klee One フォント（Google Fonts / OFL）で記入欄をレンダリング
 - **収入証明書（給与所得）** — 給与内訳（基本給・残業手当・通勤手当・賞与）・証明有効期限付き
 - **収入証明書（確定申告）** — 事業収入・必要経費・事業所得の計算式を含む確定申告書第一表風フォーマット
@@ -312,6 +315,8 @@ templates/
     individual.html              個人事業の開業届写し
   bank_balance_certificate/
     standard.html                預貯金残高証明書
+  funding_evidence/
+    standard.html                資金エビデンス（資金調達証明書）
   business_plan/
     narrative.html               事業計画書（一般・既存事業向け）
     individual_startup.html      事業計画書（個人事業主の開業向け）

@@ -251,6 +251,16 @@ def test_build_answer_business_license_application(corporate_extended_case):
     assert answer["fields"]["issuing_authority"] == "テスト保健所"
 
 
+def test_build_answer_funding_evidence(corporate_extended_case):
+    answer = build_answer(corporate_extended_case, "funding_evidence", "standard")
+    assert answer["fields"]["company_name"] == "テスト商事株式会社"
+    assert answer["fields"]["own_capital"] == "20,000,000円"
+    assert answer["fields"]["bank_loan"] == "30,000,000円"
+    assert answer["fields"]["investment"] == "120,000,000円"
+    assert answer["fields"]["total_funding"] == "175,000,000円"
+    assert answer["fields"]["investor_name"] == "テストVC"
+
+
 def test_build_answer_business_use_pledge(corporate_extended_case):
     answer = build_answer(
         corporate_extended_case, "business_use_pledge", "no_license_required"

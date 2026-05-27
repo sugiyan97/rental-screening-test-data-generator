@@ -272,6 +272,21 @@ class BankBalanceCertificate(BaseModel):
     issuer_staff: str | None = None
 
 
+class FundingEvidence(BaseModel):
+    as_of_date: str | None = None              # 基準日
+    own_capital: str | None = None             # 自己資金（資本金）
+    bank_loan: str | None = None               # 金融機関融資
+    bank_loan_lender: str | None = None        # 融資元金融機関
+    investment: str | None = None              # 出資（VC・エンジェル）
+    investor_name: str | None = None           # 出資者
+    subsidy: str | None = None                 # 補助金・助成金
+    subsidy_source: str | None = None          # 補助金交付元
+    total_funding: str | None = None           # 合計調達額
+    fund_usage: str | None = None              # 資金使途
+    monthly_rent_coverage: str | None = None   # 賃料支払能力（月額賃料の何ヶ月分か）
+    evidence_documents: str | None = None      # 裏付け書類一覧
+
+
 class TrialBalance(BaseModel):
     fiscal_period: str | None = None
     cash: str | None = None
@@ -406,3 +421,4 @@ class Case(BaseModel):
     # 開業時補助書類
     business_opening_notice: BusinessOpeningNotice | None = None
     bank_balance_certificate: BankBalanceCertificate | None = None
+    funding_evidence: FundingEvidence | None = None
