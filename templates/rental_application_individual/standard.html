@@ -189,7 +189,7 @@ td.wide {
   </tr>
   <tr>
     <th>現住所</th>
-    <td colspan="3">{{ case.applicant.current_address or '' }}</td>
+    <td colspan="3">〒{{ case.applicant.postal_code or '' }}　{{ case.applicant.current_address or '' }}</td>
   </tr>
   <tr>
     <th>現在の家賃</th>
@@ -269,7 +269,7 @@ td.wide {
     <th>電話番号</th>
     <td>{{ case.emergency_contact.phone or '' }}</td>
     <th>住所</th>
-    <td>{{ case.emergency_contact.address or '' }}</td>
+    <td>〒{{ case.emergency_contact.postal_code or '' }}　{{ case.emergency_contact.address or '' }}</td>
   </tr>
 </table>
 
@@ -285,12 +285,18 @@ td.wide {
   <tr>
     <th>生年月日</th>
     <td>{{ case.guarantor.birth_date or '' }}</td>
+    <th>年齢 / 性別</th>
+    <td>{{ case.guarantor.age or '' }} / {{ case.guarantor.gender or '' }}</td>
+  </tr>
+  <tr>
     <th>続柄</th>
     <td>{{ case.guarantor.relationship or '' }}</td>
+    <th>　</th>
+    <td>　</td>
   </tr>
   <tr>
     <th>現住所</th>
-    <td colspan="3">{{ case.guarantor.current_address or '' }}</td>
+    <td colspan="3">〒{{ case.guarantor.postal_code or '' }}　{{ case.guarantor.current_address or '' }}</td>
   </tr>
   <tr>
     <th>電話番号</th>
@@ -344,12 +350,18 @@ td.wide {
   <tr>
     <th>生年月日</th>
     <td>{{ case.guarantor_2.birth_date or '' }}</td>
+    <th>年齢 / 性別</th>
+    <td>{{ case.guarantor_2.age or '' }} / {{ case.guarantor_2.gender or '' }}</td>
+  </tr>
+  <tr>
     <th>続柄</th>
     <td>{{ case.guarantor_2.relationship or '' }}</td>
+    <th>　</th>
+    <td>　</td>
   </tr>
   <tr>
     <th>現住所</th>
-    <td colspan="3">{{ case.guarantor_2.current_address or '' }}</td>
+    <td colspan="3">〒{{ case.guarantor_2.postal_code or '' }}　{{ case.guarantor_2.current_address or '' }}</td>
   </tr>
   <tr>
     <th>電話番号</th>

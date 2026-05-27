@@ -15,7 +15,10 @@ def test_build_answer_corporate(corporate_case):
     assert answer["fields"]["representative_kana"] == "テスト タロウ"
     assert answer["fields"]["representative_birth_date"] == "1980年01月01日"
     assert answer["fields"]["representative_age"] == "46"
+    assert answer["fields"]["representative_gender"] == "男性"
     assert answer["fields"]["representative_address"] == "東京都千代田区テスト町2-2-2"
+    assert answer["fields"]["postal_code"] == "100-0001"
+    assert answer["fields"]["representative_postal_code"] == "100-0002"
 
 
 def test_build_answer_corporate_no_guarantor(corporate_case):
@@ -31,8 +34,43 @@ def test_build_answer_corporate_with_guarantor(corporate_extended_case):
     assert answer["fields"]["guarantor_name"] == "テスト 連帯"
     assert answer["fields"]["guarantor_kana"] == "テスト レンタイ"
     assert answer["fields"]["guarantor_birth_date"] == "1982年02月02日"
+    assert answer["fields"]["guarantor_age"] == "44"
+    assert answer["fields"]["guarantor_gender"] == "男性"
     assert answer["fields"]["guarantor_relationship"] == "代表取締役の配偶者"
+    assert answer["fields"]["guarantor_postal_code"] == "100-0003"
     assert answer["fields"]["guarantor_annual_income"] == "9,000,000円"
+
+
+def test_build_answer_guarantor_2_seal_certificate(individual_extended_case):
+    answer = build_answer(
+        individual_extended_case, "guarantor_2_seal_certificate", "standard"
+    )
+    assert answer["fields"]["name"] == "テスト 二郎"
+    assert answer["fields"]["registration_number"] == "テスト2-第88888号"
+    assert answer["fields"]["issuing_municipality"] == "東京都テスト2区"
+
+
+def test_build_answer_guarantor_2_residence_certificate(individual_extended_case):
+    answer = build_answer(
+        individual_extended_case, "guarantor_2_residence_certificate", "standard"
+    )
+    assert answer["fields"]["name"] == "テスト 二郎"
+    assert answer["fields"]["head_of_household"] == "テスト 二郎"
+    assert answer["fields"]["resident_since"] == "2015年04月01日"
+
+
+def test_build_answer_individual_guarantor_gender_age_postal(individual_extended_case):
+    answer = build_answer(
+        individual_extended_case, "rental_application_individual", "standard"
+    )
+    # guarantor (テスト 一郎) gender/age/postal は INDIVIDUAL_CASE_DATA 由来で None の場合あり
+    assert "guarantor_gender" in answer["fields"]
+    assert "guarantor_age" in answer["fields"]
+    assert "guarantor_postal_code" in answer["fields"]
+    assert "guarantor_2_gender" in answer["fields"]
+    assert "guarantor_2_postal_code" in answer["fields"]
+    assert "postal_code" in answer["fields"]
+    assert "emergency_contact_postal_code" in answer["fields"]
 
 
 def test_build_answer_registry(corporate_case):

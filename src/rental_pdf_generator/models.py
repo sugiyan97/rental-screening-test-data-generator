@@ -12,11 +12,14 @@ class Company(BaseModel):
     company_name: str | None = None
     company_kana: str | None = None
     corporate_number: str | None = None
+    postal_code: str | None = None
     head_office_address: str | None = None
     representative_name: str | None = None
     representative_kana: str | None = None
     representative_birth_date: str | None = None
     representative_age: str | None = None
+    representative_gender: str | None = None
+    representative_postal_code: str | None = None
     representative_address: str | None = None
     phone: str | None = None
     email: str | None = None
@@ -33,6 +36,7 @@ class Applicant(BaseModel):
     birth_date: str | None = None
     age: str | None = None
     gender: str | None = None
+    postal_code: str | None = None
     current_address: str | None = None
     phone: str | None = None
     email: str | None = None
@@ -52,6 +56,7 @@ class Employment(BaseModel):
 class Property(BaseModel):
     property_name: str | None = None
     room_number: str | None = None
+    postal_code: str | None = None
     property_address: str | None = None
     rent: str | None = None
     management_fee: str | None = None
@@ -94,6 +99,7 @@ class EmergencyContact(BaseModel):
     name: str | None = None
     relation: str | None = None
     phone: str | None = None
+    postal_code: str | None = None
     address: str | None = None
 
 
@@ -119,7 +125,10 @@ class Guarantor(BaseModel):
     name: str | None = None
     kana: str | None = None
     birth_date: str | None = None
+    age: str | None = None
+    gender: str | None = None
     relationship: str | None = None
+    postal_code: str | None = None
     current_address: str | None = None
     phone: str | None = None
     employer_name: str | None = None
@@ -210,7 +219,10 @@ class Guarantor2(BaseModel):
     name: str | None = None
     kana: str | None = None
     birth_date: str | None = None
+    age: str | None = None
+    gender: str | None = None
     relationship: str | None = None
+    postal_code: str | None = None
     current_address: str | None = None
     phone: str | None = None
     employer_name: str | None = None
@@ -425,6 +437,8 @@ class Case(BaseModel):
     # 連帯保証人（個人）の追加証明書
     guarantor_seal_certificate: SealRegistrationCertificate | None = None
     guarantor_residence_certificate: ResidenceCertificate | None = None
+    guarantor_2_seal_certificate: SealRegistrationCertificate | None = None
+    guarantor_2_residence_certificate: ResidenceCertificate | None = None
     # グループ3: 転職・学生
     offer_letter: OfferLetter | None = None
     previous_employment: PreviousEmployment | None = None
