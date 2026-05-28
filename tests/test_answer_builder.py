@@ -329,6 +329,17 @@ def test_build_answer_business_license_application(corporate_extended_case):
     assert answer["fields"]["issuing_authority"] == "テスト保健所"
 
 
+def test_build_answer_payment_track_record_pledge(corporate_extended_case):
+    answer = build_answer(
+        corporate_extended_case, "payment_track_record_pledge", "standard"
+    )
+    assert answer["fields"]["pledger_name"] == "テスト商事株式会社"
+    assert answer["fields"]["representative_name"] == "テスト 太郎"
+    assert answer["fields"]["delinquency_record"] == "延滞なし"
+    assert answer["fields"]["payment_period"] == "2014年04月〜2026年08月"
+    assert answer["fields"]["current_lease_rent"] == "300,000円/月"
+
+
 def test_build_answer_funding_evidence(corporate_extended_case):
     answer = build_answer(corporate_extended_case, "funding_evidence", "standard")
     assert answer["fields"]["company_name"] == "テスト商事株式会社"

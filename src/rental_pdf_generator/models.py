@@ -303,6 +303,19 @@ class BankBalanceCertificate(BaseModel):
     issuer_staff: str | None = None
 
 
+class PaymentTrackRecordPledge(BaseModel):
+    pledger_name: str | None = None            # 確約者（法人名）
+    representative_name: str | None = None
+    pledge_date: str | None = None
+    current_lease_property: str | None = None  # 現在賃借中の物件
+    current_lease_rent: str | None = None      # 現賃料
+    payment_period: str | None = None          # 支払実績期間
+    delinquency_record: str | None = None      # 延滞履歴（例: 延滞なし）
+    payment_method: str | None = None          # 支払方法
+    references: str | None = None              # 取引先・照会先
+    pledge_statement: str | None = None        # 確約文
+
+
 class FundingEvidence(BaseModel):
     as_of_date: str | None = None              # 基準日
     own_capital: str | None = None             # 自己資金（資本金）
@@ -458,3 +471,4 @@ class Case(BaseModel):
     business_opening_notice: BusinessOpeningNotice | None = None
     bank_balance_certificate: BankBalanceCertificate | None = None
     funding_evidence: FundingEvidence | None = None
+    payment_track_record_pledge: PaymentTrackRecordPledge | None = None
