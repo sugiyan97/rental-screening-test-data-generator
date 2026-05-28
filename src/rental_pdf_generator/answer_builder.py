@@ -482,6 +482,29 @@ def _build_funding_evidence(case: Case, variant: str = "") -> dict[str, Any]:
     }
 
 
+def _build_payment_track_record_pledge(case: Case, variant: str = "") -> dict[str, Any]:
+    c = case.company
+    p = case.property
+    pt = case.payment_track_record_pledge
+    return {
+        "company_name": _get(c, "company_name"),
+        "pledger_name": _get(pt, "pledger_name") or _get(c, "company_name"),
+        "representative_name": (
+            _get(pt, "representative_name") or _get(c, "representative_name")
+        ),
+        "pledge_date": _get(pt, "pledge_date"),
+        "current_lease_property": _get(pt, "current_lease_property"),
+        "current_lease_rent": _get(pt, "current_lease_rent"),
+        "payment_period": _get(pt, "payment_period"),
+        "delinquency_record": _get(pt, "delinquency_record"),
+        "payment_method": _get(pt, "payment_method"),
+        "references": _get(pt, "references"),
+        "pledge_statement": _get(pt, "pledge_statement"),
+        "property_name": _get(p, "property_name"),
+        "rent": _get(p, "rent"),
+    }
+
+
 def _build_trial_balance(case: Case, variant: str = "") -> dict[str, Any]:
     c = case.company
     tb = case.trial_balance
@@ -696,6 +719,7 @@ _BUILDERS: dict[str, Callable[[Case, str], dict[str, Any]]] = {
     "business_opening_notice": _build_business_opening_notice,
     "bank_balance_certificate": _build_bank_balance_certificate,
     "funding_evidence": _build_funding_evidence,
+    "payment_track_record_pledge": _build_payment_track_record_pledge,
 }
 
 

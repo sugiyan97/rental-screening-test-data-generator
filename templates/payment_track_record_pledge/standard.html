@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
+
+@page { size: A4; margin: 20mm 22mm; }
+* { box-sizing: border-box; font-family: 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif; }
+body { font-size: 10pt; line-height: 1.8; color: #222; margin: 0; }
+
+.sample-notice { background: #fff3cd; border: 2px solid #ffc107; padding: 4px 12px; margin-bottom: 8px; font-size: 8.5pt; font-weight: bold; text-align: center; color: #856404; }
+.doc-badge { background: #eaf2f8; border: 1px solid #2874a6; padding: 4px 14px; margin-bottom: 12px; font-size: 9.5pt; font-weight: bold; text-align: center; color: #1a5276; }
+
+h1 { font-size: 17pt; text-align: center; margin: 8px 0 4px; letter-spacing: 0.2em; }
+.h1-sub { text-align: center; font-size: 9pt; color: #555; margin-bottom: 16px; }
+
+.doc-meta { text-align: right; font-size: 9.5pt; color: #444; margin-bottom: 14px; }
+.addressed-to { font-size: 11pt; font-weight: bold; margin-bottom: 14px; }
+
+.preamble { margin-bottom: 14px; text-indent: 1em; }
+
+table { width: 100%; border-collapse: collapse; font-size: 10pt; margin: 12px 0; }
+th, td { border: 1px solid #777; padding: 6px 10px; vertical-align: middle; }
+th { background: #f4f6f7; font-weight: bold; width: 32%; text-align: left; white-space: nowrap; }
+.highlight-cell { background: #eafaf1; font-weight: bold; color: #196f3d; }
+
+.pledge-box { border: 2px solid #2874a6; background: #eaf2f8; padding: 10px 14px; margin: 16px 0; font-size: 10pt; }
+
+.signature-area { margin-top: 28px; text-align: right; font-size: 10.5pt; }
+.signature-area .company-line { font-weight: bold; font-size: 11pt; margin-bottom: 4px; }
+.signature-area .stamp-circle { display: inline-block; width: 56px; height: 56px; border: 1.5px solid #c0392b; border-radius: 50%; text-align: center; line-height: 56px; font-size: 7pt; color: #c0392b; margin-left: 10px; vertical-align: middle; }
+
+.footer-note { font-size: 8pt; color: #666; margin-top: 22px; border-top: 1px solid #ccc; padding-top: 6px; }
+</style>
+</head>
+<body>
+<div class="sample-notice">【テスト用サンプル書類 ― 実在の法人情報ではありません / 支払実績確約書ではありません】</div>
+<div class="doc-badge">■ 支払実績確約書 — 既存事業者の賃料支払実績・継続支払の確約</div>
+
+<p class="doc-meta">作成日：{{ case.payment_track_record_pledge.pledge_date if case.payment_track_record_pledge else '' }}</p>
+
+<h1>支 払 実 績 確 約 書</h1>
+<p class="h1-sub">賃貸借契約申込時提出書類／賃料支払実績の証明</p>
+
+<p class="addressed-to">賃貸人 御中</p>
+
+<p class="preamble">
+  当社は、下記物件の賃貸借契約申込みにあたり、これまでの賃料その他金銭債務の支払実績および今後の支払いについて、以下のとおり確約いたします。
+</p>
+
+<h2 style="font-size:10.5pt; margin:12px 0 4px; background:#eaf2f8; padding:4px 10px; border-left:4px solid #2874a6;">■ 確約者（賃借人）</h2>
+<table>
+  <tr><th>商号</th><td>{{ case.payment_track_record_pledge.pledger_name if case.payment_track_record_pledge else (case.company.company_name if case.company else '') }}</td></tr>
+  <tr><th>代表者</th><td>{{ case.payment_track_record_pledge.representative_name if case.payment_track_record_pledge else (case.company.representative_name if case.company else '') }}</td></tr>
+  <tr><th>本店所在地</th><td>{{ case.company.head_office_address if case.company else '' }}</td></tr>
+  <tr><th>設立年月日</th><td>{{ case.company.established_date if case.company else '' }}</td></tr>
+</table>
+
+<h2 style="font-size:10.5pt; margin:12px 0 4px; background:#eaf2f8; padding:4px 10px; border-left:4px solid #2874a6;">■ これまでの賃料支払実績</h2>
+<table>
+  <tr><th>現在賃借中の物件</th><td>{{ case.payment_track_record_pledge.current_lease_property if case.payment_track_record_pledge else '' }}</td></tr>
+  <tr><th>現在の月額賃料</th><td>{{ case.payment_track_record_pledge.current_lease_rent if case.payment_track_record_pledge else '' }}</td></tr>
+  <tr><th>支払実績期間</th><td>{{ case.payment_track_record_pledge.payment_period if case.payment_track_record_pledge else '' }}</td></tr>
+  <tr><th>延滞履歴</th><td class="highlight-cell">{{ case.payment_track_record_pledge.delinquency_record if case.payment_track_record_pledge else '' }}</td></tr>
+  <tr><th>支払方法</th><td>{{ case.payment_track_record_pledge.payment_method if case.payment_track_record_pledge else '' }}</td></tr>
+  <tr><th>照会先</th><td>{{ case.payment_track_record_pledge.references if case.payment_track_record_pledge else '' }}</td></tr>
+</table>
+
+<div class="pledge-box">
+  {{ case.payment_track_record_pledge.pledge_statement if case.payment_track_record_pledge else '' }}
+  <br>
+  本物件（{{ case.property.property_name if case.property else '' }}、月額賃料 {{ case.property.rent if case.property else '' }}）についても、賃料その他の債務を遅滞なく支払うことを確約いたします。
+</div>
+
+<div class="signature-area">
+  <div class="company-line">{{ case.company.company_name if case.company else '' }}</div>
+  <div>代表者：{{ case.company.representative_name if case.company else '' }}　印<span class="stamp-circle">法人印<br>（ダミー）</span></div>
+</div>
+
+<p class="footer-note">
+  ※ 本書類はOCR・LLM・Document AIシステムの検証を目的として作成されたテスト用サンプルです。
+  実在する企業の支払実績ではありません。
+</p>
+</body>
+</html>

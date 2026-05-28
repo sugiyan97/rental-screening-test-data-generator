@@ -233,6 +233,18 @@ CORPORATE_EXTENDED_CASE_DATA: dict = {
         "expected_issue_date": "2026年12月10日",
         "status_note": "申請中につき許可書未交付",
     },
+    "payment_track_record_pledge": {
+        "pledger_name": "テスト商事株式会社",
+        "representative_name": "テスト 太郎",
+        "pledge_date": "2026年08月10日",
+        "current_lease_property": "テスト現賃借物件",
+        "current_lease_rent": "300,000円/月",
+        "payment_period": "2014年04月〜2026年08月",
+        "delinquency_record": "延滞なし",
+        "payment_method": "口座振替",
+        "references": "テスト不動産／テスト銀行",
+        "pledge_statement": "延滞なく支払ってまいりました。",
+    },
     "funding_evidence": {
         "as_of_date": "2026年07月31日",
         "own_capital": "20,000,000円",
