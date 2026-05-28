@@ -362,6 +362,29 @@ def test_build_answer_business_use_pledge(corporate_extended_case):
     assert answer["fields"]["license_required"] == "不要"
 
 
+def test_build_answer_financial_statement_multi_period(corporate_extended_case):
+    answer = build_answer(
+        corporate_extended_case, "financial_statement", "multi_period"
+    )
+    assert answer["fields"]["company_name"] == "テスト商事株式会社"
+    periods = answer["fields"]["periods"]
+    assert len(periods) == 3
+    assert periods[0]["fiscal_year"] == "2023年度"
+    assert periods[2]["fiscal_year"] == "2025年度"
+    assert periods[2]["sales"] == "50,000,000円"
+
+
+def test_build_answer_income_certificate_multi_year(individual_extended_case):
+    answer = build_answer(
+        individual_extended_case, "income_certificate", "tax_return_multi_year"
+    )
+    assert answer["fields"]["name"] == "テスト 花子"
+    periods = answer["fields"]["periods"]
+    assert len(periods) == 2
+    assert periods[0]["income_year"] == "2023年"
+    assert periods[1]["annual_income"] == "4,000,000円"
+
+
 def test_build_answer_financial_statement_prior(corporate_extended_case):
     answer = build_answer(
         corporate_extended_case, "financial_statement", "financial_summary_prior"

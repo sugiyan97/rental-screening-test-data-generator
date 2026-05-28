@@ -463,6 +463,9 @@ class Case(BaseModel):
     previous_financials: Financials | None = None
     previous_income: Income | None = None
     trial_balance: TrialBalance | None = None
+    # 複数期を1ファイルにまとめる書類用
+    financials_multi: list[Financials] | None = None
+    income_multi: list[Income] | None = None
     # 用途別フィールド
     soho_usage: SohoUsage | None = None
     corporate_housing_usage: CorporateHousingUsage | None = None

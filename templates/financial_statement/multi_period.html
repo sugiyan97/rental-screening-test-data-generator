@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
+
+@page { size: A4; margin: 15mm 18mm; }
+* { box-sizing: border-box; font-family: 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif; }
+body { font-size: 10pt; line-height: 1.5; color: #222; margin: 0; }
+
+h1 { font-size: 15pt; text-align: center; margin: 0 0 4px; }
+.company-info { text-align: center; font-size: 10pt; margin-bottom: 6px; color: #333; }
+.h1-sub { text-align: center; font-size: 9pt; color: #555; margin-bottom: 12px; }
+
+.sample-notice { background: #fff3cd; border: 2px solid #ffc107; padding: 4px 12px; margin-bottom: 8px; font-size: 8.5pt; font-weight: bold; text-align: center; color: #856404; }
+.multi-badge { background: #e8f0fb; border: 1px solid #3b6fb0; padding: 3px 12px; margin-bottom: 10px; font-size: 9pt; font-weight: bold; text-align: center; color: #24496f; }
+
+h2 { font-size: 11pt; margin: 14px 0 5px; border-bottom: 1px solid #555; padding-bottom: 2px; }
+
+table { width: 100%; border-collapse: collapse; font-size: 9.5pt; margin-bottom: 14px; }
+th, td { border: 1px solid #777; padding: 4px 8px; vertical-align: middle; }
+th { background-color: #f0f0f0; font-weight: 700; }
+th.item { width: 34%; text-align: left; }
+th.period { text-align: center; }
+td { text-align: right; }
+td.label { text-align: left; background: #fafafa; font-weight: 600; }
+
+.total-row td, .total-row th { background-color: #e4eaf4; font-weight: bold; }
+.section-row th { background: #dce0e8; text-align: left; }
+
+.footer-note { font-size: 8pt; color: #666; margin-top: 12px; border-top: 1px solid #ccc; padding-top: 5px; }
+</style>
+</head>
+<body>
+<div class="sample-notice">【テスト用サンプル書類 ― 実在の財務情報ではありません】</div>
+<div class="multi-badge">■ 複数期 一括版 — {{ case.financials_multi | length if case.financials_multi else 0 }} 期分の決算を 1 ファイルに集約</div>
+<h1>決 算 書（複数期比較）</h1>
+<p class="company-info">{{ case.company.company_name if case.company else '' }}</p>
+<p class="h1-sub">過去 {{ case.financials_multi | length if case.financials_multi else 0 }} 期分の損益計算書・貸借対照表（主要科目）を一覧化</p>
+
+<h2>損益計算書（主要科目）</h2>
+<table>
+  <tr>
+    <th class="item">科目</th>
+    {% for f in case.financials_multi %}<th class="period">{{ f.fiscal_year or '' }}</th>{% endfor %}
+  </tr>
+  <tr>
+    <td class="label">売上高</td>
+    {% for f in case.financials_multi %}<td>{{ f.sales or '' }}</td>{% endfor %}
+  </tr>
+  <tr>
+    <td class="label">営業利益</td>
+    {% for f in case.financials_multi %}<td>{{ f.operating_income or '' }}</td>{% endfor %}
+  </tr>
+  <tr>
+    <td class="label">経常利益</td>
+    {% for f in case.financials_multi %}<td>{{ f.ordinary_income or '' }}</td>{% endfor %}
+  </tr>
+  <tr class="total-row">
+    <td class="label">当期純利益</td>
+    {% for f in case.financials_multi %}<td>{{ f.net_income or '' }}</td>{% endfor %}
+  </tr>
+</table>
+
+<h2>貸借対照表（主要科目）</h2>
+<table>
+  <tr>
+    <th class="item">科目</th>
+    {% for f in case.financials_multi %}<th class="period">{{ f.fiscal_year or '' }}</th>{% endfor %}
+  </tr>
+  <tr class="total-row">
+    <td class="label">資産合計</td>
+    {% for f in case.financials_multi %}<td>{{ f.total_assets or '' }}</td>{% endfor %}
+  </tr>
+  <tr class="total-row">
+    <td class="label">負債合計</td>
+    {% for f in case.financials_multi %}<td>{{ f.total_liabilities or '' }}</td>{% endfor %}
+  </tr>
+  <tr class="total-row">
+    <td class="label">純資産合計</td>
+    {% for f in case.financials_multi %}<td>{{ f.net_assets or '' }}</td>{% endfor %}
+  </tr>
+</table>
+
+<p class="footer-note">
+  ※ 本書類はOCR・LLM・Document AIシステムの検証を目的として作成されたテスト用サンプルです。
+  複数の決算期を1ファイルに集約したフォーマットの検証用であり、実在する企業の財務情報ではありません。
+</p>
+</body>
+</html>

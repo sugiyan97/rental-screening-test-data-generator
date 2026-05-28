@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
+
+@page { size: A4; margin: 15mm 20mm; }
+* { box-sizing: border-box; font-family: 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif; }
+body { font-size: 10pt; line-height: 1.6; color: #222; margin: 0; }
+
+h1 { font-size: 14pt; text-align: center; margin: 0 0 4px; letter-spacing: 0.08em; }
+.h1-sub { text-align: center; font-size: 9pt; color: #555; margin-bottom: 12px; }
+
+.sample-notice { background: #fff3cd; border: 2px solid #ffc107; padding: 4px 12px; margin-bottom: 8px; font-size: 8.5pt; font-weight: bold; text-align: center; color: #856404; }
+.multi-badge { background: #eafaf1; border: 1px solid #229954; padding: 3px 12px; margin-bottom: 10px; font-size: 9pt; font-weight: bold; text-align: center; color: #196f3d; }
+
+.cert-meta { display: flex; justify-content: space-between; font-size: 8.5pt; color: #555; margin-bottom: 8px; }
+
+h2 { font-size: 10.5pt; margin: 12px 0 5px; background: #eee; padding: 3px 8px; border-left: 4px solid #555; }
+
+table { width: 100%; border-collapse: collapse; font-size: 9.5pt; margin-bottom: 10px; }
+th, td { border: 1px solid #666; padding: 4px 9px; vertical-align: middle; }
+th { background-color: #f5f5f5; font-weight: 700; }
+th.item { width: 34%; text-align: left; }
+th.year { text-align: center; }
+td { text-align: right; }
+td.label { text-align: left; background: #fafafa; font-weight: 600; }
+.calc-row-deduct td { color: #c0392b; }
+.income-row td { background: #eafaf1; font-weight: bold; color: #196f3d; }
+
+.footer-note { font-size: 8pt; color: #666; border-top: 1px solid #ccc; padding-top: 6px; margin-top: 12px; }
+</style>
+</head>
+<body>
+<div class="sample-notice">【テスト用サンプル書類 ― 実在の個人情報ではありません / 確定申告書ではありません】</div>
+<div class="multi-badge">■ 複数年 一括版 — {{ case.income_multi | length if case.income_multi else 0 }} 年分の確定申告を 1 ファイルに集約</div>
+<h1>確定申告書（事業所得・複数年比較）風サンプル</h1>
+<p class="h1-sub">所得税及び復興特別所得税の申告内容（過去 {{ case.income_multi | length if case.income_multi else 0 }} 年分）</p>
+
+<div class="cert-meta">
+  <span>申告書ID：{{ case.case_id }}-TAX-MULTI</span>
+  <span>申告者：{{ case.applicant.name if case.applicant else '' }}</span>
+</div>
+
+<h2>■ 申告者情報</h2>
+<table>
+  <tr><th class="item">氏名</th><td class="label" colspan="{{ case.income_multi | length if case.income_multi else 1 }}">{{ case.applicant.name if case.applicant else '' }}</td></tr>
+  <tr><th class="item">住所</th><td class="label" colspan="{{ case.income_multi | length if case.income_multi else 1 }}">{{ case.applicant.current_address if case.applicant else '' }}</td></tr>
+</table>
+
+<h2>■ 事業所得の推移（年次比較）</h2>
+<table>
+  <tr>
+    <th class="item">項目</th>
+    {% for i in case.income_multi %}<th class="year">{{ i.income_year or '' }}</th>{% endfor %}
+  </tr>
+  <tr>
+    <td class="label">事業収入（売上高）</td>
+    {% for i in case.income_multi %}<td>{{ i.business_income or '' }}</td>{% endfor %}
+  </tr>
+  <tr class="calc-row-deduct">
+    <td class="label">　必要経費</td>
+    {% for i in case.income_multi %}<td>△ {{ i.deductible_expenses or '' }}</td>{% endfor %}
+  </tr>
+  <tr class="income-row">
+    <td class="label">事業所得</td>
+    {% for i in case.income_multi %}<td>{{ i.annual_income or '' }}</td>{% endfor %}
+  </tr>
+  <tr>
+    <td class="label">課税所得金額</td>
+    {% for i in case.income_multi %}<td>{{ i.taxable_income or '' }}</td>{% endfor %}
+  </tr>
+  <tr>
+    <td class="label">提出先・提出日</td>
+    {% for i in case.income_multi %}<td style="text-align:left; font-size:8pt;">{{ i.issuer_name or '' }}<br>{{ i.issue_date or '' }}</td>{% endfor %}
+  </tr>
+</table>
+
+<p class="footer-note">
+  ※ 本書類はOCR・LLM・Document AIシステムの検証を目的として作成されたテスト用サンプルです。
+  複数年の確定申告を1ファイルに集約したフォーマットの検証用であり、実在する個人の納税情報ではありません。
+</p>
+</body>
+</html>

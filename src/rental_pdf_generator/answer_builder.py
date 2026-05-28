@@ -94,11 +94,8 @@ def _build_registry_certificate(case: Case, variant: str = "") -> dict[str, Any]
     }
 
 
-def _build_financial_statement(case: Case, variant: str = "") -> dict[str, Any]:
-    c = case.company
-    f = case.previous_financials if variant.endswith("_prior") else case.financials
+def _financials_fields(f: Any) -> dict[str, Any]:
     return {
-        "company_name": _get(c, "company_name"),
         "fiscal_year": _get(f, "fiscal_year"),
         "sales": _get(f, "sales"),
         "operating_income": _get(f, "operating_income"),
@@ -107,6 +104,21 @@ def _build_financial_statement(case: Case, variant: str = "") -> dict[str, Any]:
         "total_assets": _get(f, "total_assets"),
         "total_liabilities": _get(f, "total_liabilities"),
         "net_assets": _get(f, "net_assets"),
+    }
+
+
+def _build_financial_statement(case: Case, variant: str = "") -> dict[str, Any]:
+    c = case.company
+    if variant.startswith("multi"):
+        periods = case.financials_multi or []
+        return {
+            "company_name": _get(c, "company_name"),
+            "periods": [_financials_fields(f) for f in periods],
+        }
+    f = case.previous_financials if variant.endswith("_prior") else case.financials
+    return {
+        "company_name": _get(c, "company_name"),
+        **_financials_fields(f),
     }
 
 
@@ -210,8 +222,28 @@ def _build_rental_application_individual(case: Case, variant: str = "") -> dict[
     }
 
 
+def _tax_return_fields(i: Any) -> dict[str, Any]:
+    return {
+        "income_year": _get(i, "income_year"),
+        "income_type": _get(i, "income_type"),
+        "business_income": _get(i, "business_income"),
+        "deductible_expenses": _get(i, "deductible_expenses"),
+        "annual_income": _get(i, "annual_income"),
+        "taxable_income": _get(i, "taxable_income"),
+        "issuer_name": _get(i, "issuer_name"),
+        "issue_date": _get(i, "issue_date"),
+    }
+
+
 def _build_income_certificate(case: Case, variant: str = "") -> dict[str, Any]:
     a = case.applicant
+    if variant.startswith("tax_return_multi") or variant.startswith("multi"):
+        periods = case.income_multi or []
+        return {
+            "name": _get(a, "name"),
+            "current_address": _get(a, "current_address"),
+            "periods": [_tax_return_fields(i) for i in periods],
+        }
     i = case.previous_income if variant.endswith("_prior") else case.income
     pe = case.previous_employment
     return {
