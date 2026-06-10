@@ -1,4 +1,4 @@
-# cosoji-rental-screening-test-data-generator
+# rental-screening-test-data-generator
 
 不動産入居審査で提出される書類（入居申込書・収入証明書・登記簿謄本風書類など）を模した PDF テストデータを生成するツール。
 
