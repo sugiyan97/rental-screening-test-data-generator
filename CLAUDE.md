@@ -1,4 +1,4 @@
-# cosoji-rental-screening-test-data-generator
+# rental-screening-test-data-generator
 
 不動産入居審査向けPDFテストデータ生成ツール。
 
