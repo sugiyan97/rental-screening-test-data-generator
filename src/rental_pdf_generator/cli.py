@@ -5,6 +5,7 @@ from pathlib import Path
 
 from .generator import CasePdfGenerator
 from .models import Case
+from .renderers import OUTPUT_FORMATS
 
 
 def main() -> None:
@@ -12,6 +13,12 @@ def main() -> None:
     parser.add_argument("--input", required=True, type=Path, help="入力JSONLファイルパス")
     parser.add_argument("--output", required=True, type=Path, help="出力ディレクトリ")
     parser.add_argument("--case-id", default=None, help="特定ケースのみ生成")
+    parser.add_argument(
+        "--output-format",
+        default=None,
+        choices=OUTPUT_FORMATS,
+        help="全書類の出力形式を上書き（既定は各書類の output_format、未指定なら pdf）",
+    )
     args = parser.parse_args()
 
     if not args.input.exists():
@@ -24,7 +31,7 @@ def main() -> None:
         print(f"エラー: 処理対象のケースがありません{target}", file=sys.stderr)
         sys.exit(1)
 
-    generator = CasePdfGenerator(output_dir=args.output)
+    generator = CasePdfGenerator(output_dir=args.output, output_format=args.output_format)
     for case in cases:
         print(f"生成中: {case.case_id} ({len(case.documents)}書類)")
         generator.generate(case)

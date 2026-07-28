@@ -2,10 +2,14 @@ from typing import Literal
 
 from pydantic import BaseModel
 
+OutputFormat = Literal["pdf", "png", "jpg", "xlsx", "docx", "csv", "pptx"]
+
 
 class DocumentSpec(BaseModel):
     document_type: str
     variant: str
+    # 出力ファイル形式。省略時は pdf。
+    output_format: OutputFormat = "pdf"
 
 
 class Company(BaseModel):
