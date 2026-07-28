@@ -25,6 +25,7 @@ class Company(BaseModel):
     email: str | None = None
     established_date: str | None = None
     capital: str | None = None
+    business_type: str | None = None
     business_description: str | None = None
     employee_count: str | None = None
     fiscal_year_end: str | None = None

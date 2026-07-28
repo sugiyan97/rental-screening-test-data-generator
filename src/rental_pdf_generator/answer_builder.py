@@ -36,6 +36,7 @@ def _build_rental_application_corporate(case: Case, variant: str = "") -> dict[s
         "email": _get(c, "email"),
         "established_date": _get(c, "established_date"),
         "capital": _get(c, "capital"),
+        "business_type": _get(c, "business_type"),
         "business_description": _get(c, "business_description"),
         "employee_count": _get(c, "employee_count"),
         "property_name": _get(p, "property_name"),

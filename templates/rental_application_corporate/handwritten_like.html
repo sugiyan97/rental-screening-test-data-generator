@@ -214,7 +214,11 @@ th {
     <th>従業員数</th>
     <td><span class="hw">{{ case.company.employee_count or '' }}</span></td>
   </tr>
-  <tr>
+{% if case.company and case.company.business_type %}  <tr>
+    <th>業種</th>
+    <td colspan="3"><span class="hw">{{ case.company.business_type }}</span></td>
+  </tr>
+{% endif %}  <tr>
     <th>事業内容</th>
     <td colspan="3"><span class="hw">{{ case.company.business_description or '' }}</span></td>
   </tr>

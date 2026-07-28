@@ -89,7 +89,7 @@ td.wide { width: 72%; }
   <tr><th>営業時間</th><td>平日 9:00〜19:00（土日祝休）</td></tr>
   <tr><th>来客頻度</th><td>週1〜2回程度（事前アポイント制）</td></tr>
   <tr><th>看板掲示</th><td>□ 希望（建物規約に従う）　☑ 不要</td></tr>
-  <tr><th>業種カテゴリ</th><td>IT・サービス業（来客少・騒音なし）</td></tr>
+  <tr><th>業種カテゴリ</th><td>{{ (case.company.business_type if case.company else '') or 'IT・サービス業（来客少・騒音なし）' }}</td></tr>
   <tr><th>夜間使用</th><td>□ あり　☑ 原則なし（深夜帯は不使用）</td></tr>
   <tr><th>連絡先窓口担当者</th><td>—部　—（{{ case.company.phone if case.company else '' }}　{{ case.company.email if case.company else '' }}）</td></tr>
 </table>

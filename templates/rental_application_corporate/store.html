@@ -46,7 +46,8 @@ th { background-color: #f2f2f2; font-weight: 700; white-space: nowrap; width: 28
   <tr><th>商号</th><td>{{ case.company.company_name if case.company else '' }}</td></tr>
   <tr><th>会社法人等番号</th><td>{{ case.company.corporate_number if case.company else '' }}</td></tr>
   <tr><th>本店所在地</th><td>〒{{ case.company.postal_code if case.company else '' }}　{{ case.company.head_office_address if case.company else '' }}</td></tr>
-  <tr><th>事業内容</th><td>{{ case.company.business_description if case.company else '' }}</td></tr>
+{% if case.company and case.company.business_type %}  <tr><th>業種</th><td>{{ case.company.business_type }}</td></tr>
+{% endif %}  <tr><th>事業内容</th><td>{{ case.company.business_description if case.company else '' }}</td></tr>
 </table>
 
 <h2>■ 代表者情報</h2>
