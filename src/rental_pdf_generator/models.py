@@ -425,6 +425,23 @@ class Student(BaseModel):
     relationship_to_applicant: str | None = None
 
 
+class Shareholder(BaseModel):
+    """株主名簿の1行。VC・ファンド等の機関投資家や創業者・従業員持株会を表す。
+
+    実在の登記事項証明書に株主は記載されないため、株主名簿はあくまで別書類。
+    テスト用に謄本テンプレートへ参考添付する目的で保持する。
+    """
+
+    name: str | None = None
+    # 種別（例: VC（投資事業有限責任組合）／CVC／創業者・代表取締役／従業員持株会）
+    shareholder_type: str | None = None
+    share_class: str | None = None        # 株式の種類（例: 普通株式／A種優先株式）
+    shares: str | None = None             # 持株数（例: 3,200株）
+    voting_ratio: str | None = None       # 議決権比率（例: 32.0%）
+    acquired_date: str | None = None      # 取得日
+    note: str | None = None               # 備考
+
+
 class Case(BaseModel):
     case_id: str
     description: str | None = None
@@ -433,6 +450,8 @@ class Case(BaseModel):
     company: Company | None = None
     financials: Financials | None = None
     business_plan: BusinessPlan | None = None
+    # 株主名簿（謄本に参考添付する別書類。VC・ファンド等の株主構成検証用）
+    shareholders: list[Shareholder] | None = None
     applicant: Applicant | None = None
     employment: Employment | None = None
     emergency_contact: EmergencyContact | None = None
