@@ -207,7 +207,7 @@ td.wide {
     <th>本人確認書類</th>
     <td>{{ case.applicant.id_document_type or '' }}</td>
     <th>国籍</th>
-    <td>日本</td>
+    <td>{{ case.identity_document.nationality if case.identity_document and case.identity_document.nationality else '日本' }}</td>
   </tr>
 </table>
 
