@@ -22,6 +22,7 @@ CORPORATE_CASE_DATA: dict = {
         "email": "test@example.test",
         "established_date": "2020年01月01日",
         "capital": "5,000,000円",
+        "business_type": "IT・サービス業",
         "business_description": "テスト用事業の運営",
         "employee_count": "5名",
         "fiscal_year_end": "12月31日",

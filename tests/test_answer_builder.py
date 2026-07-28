@@ -10,6 +10,7 @@ def test_build_answer_corporate(corporate_case):
     assert answer["variant"] == "standard"
     assert answer["fields"]["company_name"] == "テスト商事株式会社"
     assert answer["fields"]["corporate_number"] == "9999999999999"
+    assert answer["fields"]["business_type"] == "IT・サービス業"
     assert "property_name" in answer["fields"]
     assert answer["fields"]["representative_name"] == "テスト 太郎"
     assert answer["fields"]["representative_kana"] == "テスト タロウ"

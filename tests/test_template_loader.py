@@ -32,6 +32,7 @@ def test_load_all_initial_templates():
         ("business_plan", "narrative"),
         ("rental_application_individual", "standard"),
         ("income_certificate", "salary_certificate"),
+        ("business_license", "entertainment_business"),
     ]
     for document_type, variant in templates:
         template = loader.load(case_id="CASE-TEST", document_type=document_type, variant=variant)
