@@ -2,15 +2,16 @@
 
 不動産入居審査で提出される書類（入居申込書・収入証明書・登記簿謄本風書類など）を模した PDF テストデータを生成するツール。
 
-OCR・LLM・Document AI などの抽出システムを検証するため、**架空データ**を使った PDF と正解 JSON を自動生成する。
+OCR・LLM・Document AI などの抽出システムを検証するため、**架空データ**を使った書類ファイルと正解 JSON を自動生成する。
+出力形式は PDF に加えて **PNG / JPG / XLSX / DOCX / CSV / PPTX** に対応しており、抽出システムの対応ファイル形式の検証にも使える。
 
 ---
 
 ## 収録ケース一覧
 
-`input/cases.jsonl` に以下の 46 ケースが収録されている。申込時点で「既存会社」か「新規（新設）会社」かが審査内容を大きく左右するため、**法人ケースは既存／新規で表を分け**、個人ケース（自営業／給与所得者）も別表で整理した。会社名・個人名は実在しないサンプル名で、新規／既存の区別が一目で分かるよう命名している。
+`input/cases.jsonl` に以下の 47 ケースが収録されている。申込時点で「既存会社」か「新規（新設）会社」かが審査内容を大きく左右するため、**法人ケースは既存／新規で表を分け**、個人ケース（自営業／給与所得者）も別表で整理した。会社名・個人名は実在しないサンプル名で、新規／既存の区別が一目で分かるよう命名している。
 
-### A. 既存会社（法人・業歴あり） — 23 ケース
+### A. 既存会社（法人・業歴あり） — 24 ケース
 
 業歴があり決算書で財務を裏付けるパターン。多年度決算書・支払実績確約書・連帯保証人など、既存事業者ならではの書類組合せを検証。
 
@@ -39,6 +40,7 @@ OCR・LLM・Document AI などの抽出システムを検証するため、**架
 | CASE-000044 | 既存・法人（業歴1.5年・決算書1期分のみ）＋個人連帯保証人2名 | 株式会社サンプルフードテックワークス | 業歴1.5年の植物性タンパク質食品 D2C。**決算書は1期分のみ**で、事業計画書および資金エビデンス（資本金＋公庫融資＋シードVC＋助成金）を併せて提出 | 申込書office＋登記簿＋**当期決算書（1期分のみ）**＋事業計画書＋資金エビデンス＋代表者ID＋連帯保証契約書＋保証人1の4書類＋保証人2の4書類（15書類） |
 | CASE-000045 | 既存・法人（業歴3年・決算書2期1ファイル）＋個人連帯保証人2名 | 株式会社サンプルエコソリューションズ | 業歴3年の脱炭素コンサル。**過去2期分の決算書を1ファイルにまとめた複数期決算書**で財務を提示。事業計画書および資金エビデンスを併せて提出 | 申込書office＋登記簿＋**複数期決算書（2期・1ファイル）**＋事業計画書＋資金エビデンス＋代表者ID＋連帯保証契約書＋保証人1の4書類＋保証人2の4書類（15書類） |
 | CASE-000046 | 既存・法人（業歴7年・**風俗業**＝接待飲食等営業） | 株式会社サンプルナイトエンターテイメント | **禁止業種の否決判定用**。財務は健全（2期連続黒字・純資産プラス）だが、業種が「風俗業」であるため業種要件で否決になる対比ケース。**店舗用途申込書（store variant）に業種「風俗業」を明記**し、風俗営業許可証を添付 | 申込書store＋登記簿＋当期決算＋前期決算＋**風俗営業許可証**＋代表者ID（6書類） |
+| CASE-000047 | 既存・法人（業歴8年・**対応形式バリエーション**） | 株式会社サンプルマルチフォーマット商会 | **対応ファイル形式の検証用**。同一ケースの書類を PDF / PNG / JPG / XLSX / CSV / DOCX / PPTX の7形式で出力する。財務・与信内容は健全な既存法人なので、形式差以外の要因が判定に影響しない | 申込書standard（pdf/png/jpg の3形式）＋登記簿（xlsx）＋決算書（csv）＋事業計画書（docx/pptx）＋代表者ID（8書類） |
 
 ### B. 新規（新設）会社（法人・申込時点で新規） — 9 ケース
 
@@ -191,6 +193,34 @@ docker compose run --rm generator
 uv run python scripts/generate_case_pdfs.py --input input/cases.jsonl --output output
 ```
 
+### 出力形式を指定して生成
+
+書類ごとの出力形式は JSONL の `output_format` で指定する（省略時は `pdf`）。
+`--output-format` を付けると、全書類の形式をまとめて上書きできる（同一ケースを画像版で作り直したいときなどに使う）。
+
+```bash
+# Docker
+docker compose run --rm generator --input input/cases.jsonl --output output --output-format jpg
+
+# uv
+uv run python scripts/generate_case_pdfs.py --input input/cases.jsonl --output output --output-format jpg
+```
+
+対応形式は `pdf` / `png` / `jpg` / `xlsx` / `docx` / `csv` / `pptx` の7種。
+
+| 出力形式 | 生成方法 | 用途 |
+|---|---|---|
+| `pdf` | Playwright の PDF 出力（A4） | 標準。帳票レイアウトをそのまま保持 |
+| `png` | Playwright のフルページスクリーンショット | 画像入力・スキャン相当の検証 |
+| `jpg` | 同上（JPEG・quality 90） | 画像入力・スキャン相当の検証（圧縮あり） |
+| `xlsx` | DOM から見出し・段落・表を抽出し openpyxl で再構成 | 表計算ファイル入力の検証 |
+| `docx` | 同抽出結果を python-docx で再構成 | Word ファイル入力の検証 |
+| `csv` | 同抽出結果をフラットな行に展開 | テキスト/表形式入力の検証 |
+| `pptx` | 同抽出結果を python-pptx でスライド化 | PowerPoint ファイル入力の検証 |
+
+> PDF・PNG・JPG はテンプレートの見た目を保持する。XLSX / DOCX / CSV / PPTX は
+> 「同じ内容を別形式で持つ」ことの検証用で、レイアウトは簡略化される（正解 JSON は形式に関わらず同一）。
+
 ### PDF 生成（特定ケースのみ）
 
 ```bash
@@ -208,12 +238,14 @@ uv run python scripts/generate_case_pdfs.py --input input/cases.jsonl --output o
 | `--input` | yes | 入力 JSONL ファイルパス |
 | `--output` | yes | 出力ディレクトリ |
 | `--case-id` | no | 指定ケースのみ生成 |
+| `--output-format` | no | 全書類の出力形式を上書き（`pdf` / `png` / `jpg` / `xlsx` / `docx` / `csv` / `pptx`） |
 
 ---
 
 ## 出力構成
 
 1 ケースあたり以下が生成される。ファイル名は `{document_type}_{variant}` 形式なので、同一書類タイプの複数 variant を同一ケースに含めても衝突しない。
+書類ファイルは**出力形式ごとのサブディレクトリ**（`pdf/` `png/` `jpg/` `xlsx/` `docx/` `csv/` `pptx/`）に出力され、正解 JSON は形式に関わらず `answers/` にまとめられる。
 
 ```
 output/
@@ -239,6 +271,24 @@ output/
       identity_document_passport.pdf
     answers/
       ...
+  CASE-000047/                  # 非 PDF 形式を含むケース
+    case_meta.json
+    pdf/
+      rental_application_corporate_standard.pdf
+    png/
+      rental_application_corporate_standard.png
+    jpg/
+      rental_application_corporate_standard.jpg
+    xlsx/
+      registry_certificate_registry_table.xlsx
+    csv/
+      financial_statement_financial_summary.csv
+    docx/
+      business_plan_narrative.docx
+    pptx/
+      business_plan_narrative.pptx
+    answers/
+      ...
 ```
 
 #### case_meta.json の構造
@@ -251,12 +301,24 @@ output/
     {
       "document_type": "rental_application_corporate",
       "variant": "standard",
+      "output_format": "pdf",
+      "file": "pdf/rental_application_corporate_standard.pdf",
       "pdf": "pdf/rental_application_corporate_standard.pdf",
       "answer": "answers/rental_application_corporate_standard.json"
+    },
+    {
+      "document_type": "business_plan",
+      "variant": "narrative",
+      "output_format": "docx",
+      "file": "docx/business_plan_narrative.docx",
+      "answer": "answers/business_plan_narrative.json"
     }
   ]
 }
 ```
+
+生成ファイルのパスは `file`、形式は `output_format` で取得する。
+`pdf` キーは既存の利用側との互換のため、`output_format` が `pdf` の書類にのみ `file` と同じ値で残している。
 
 #### 正解 JSON の構造
 
@@ -287,6 +349,20 @@ output/
 ```
 
 `applicant_type` は `"corporate"` / `"individual"` / `"sole_proprietor"` の3種。
+
+`documents` の各要素は以下。
+
+| 項目 | 必須 | 説明 |
+|---|---|---|
+| `document_type` | yes | 書類タイプ（`templates/{document_type}/` に対応） |
+| `variant` | yes | テンプレート variant（`{variant}.html` に対応） |
+| `output_format` | no | 出力形式。省略時は `pdf` |
+
+```jsonl
+{"document_type":"business_plan","variant":"narrative","output_format":"docx"}
+```
+
+同一の `document_type` / `variant` を形式だけ変えて複数指定すれば、同じ内容を複数形式で出力できる（CASE-000047 参照）。
 `input/cases.jsonl` に6ケースの例が収録されている（上記「収録ケース一覧」参照）。
 
 ---
@@ -338,7 +414,8 @@ src/
     template_loader.py  テンプレート選択・読み込み
     answer_builder.py   正解 JSON 構築
     file_writer.py      ファイル書き込みユーティリティ
-    generator.py        PDF 生成オーケストレーション（Playwright）
+    generator.py        書類生成オーケストレーション（Playwright）
+    renderers.py        出力形式ごとのレンダラー（pdf/png/jpg/xlsx/docx/csv/pptx）
     cli.py              CLI（argparse）
 templates/
   rental_application_individual/
