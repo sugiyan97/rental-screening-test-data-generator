@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
+
+@page {
+  size: A4;
+  margin: 15mm 20mm;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif;
+}
+
+body {
+  font-size: 9.5pt;
+  line-height: 1.6;
+  color: #111;
+  margin: 0;
+}
+
+h1 {
+  font-size: 14pt;
+  text-align: center;
+  margin: 0 0 4px;
+  letter-spacing: 0.15em;
+}
+
+.cert-subtitle {
+  text-align: center;
+  font-size: 9pt;
+  color: #444;
+  margin-bottom: 10px;
+}
+
+.sample-notice {
+  background: #fff3cd;
+  border: 2px solid #e6a817;
+  padding: 4px 12px;
+  margin-bottom: 12px;
+  font-size: 8.5pt;
+  font-weight: bold;
+  text-align: center;
+  color: #856404;
+}
+
+.section-header {
+  background-color: #d0d0d0;
+  font-weight: bold;
+  font-size: 9.5pt;
+  padding: 3px 8px;
+  border: 1px solid #555;
+  border-bottom: none;
+}
+
+table.registry {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 9pt;
+  margin-bottom: 12px;
+}
+
+table.registry th,
+table.registry td {
+  border: 1px solid #555;
+  padding: 3px 8px;
+  vertical-align: top;
+}
+
+table.registry th {
+  background-color: #efefef;
+  font-weight: 700;
+  width: 28%;
+  white-space: nowrap;
+}
+
+table.registry td.cause {
+  width: 20%;
+  color: #333;
+  font-size: 8.5pt;
+}
+
+table.registry td.date {
+  width: 20%;
+  font-size: 8.5pt;
+}
+
+table.registry td.content {
+  width: 32%;
+}
+
+.issue-info {
+  font-size: 8.5pt;
+  text-align: right;
+  margin-top: 10px;
+  color: #444;
+  border-top: 1px solid #ccc;
+  padding-top: 6px;
+}
+
+.footer-note {
+  font-size: 8pt;
+  color: #666;
+  border-top: 1px solid #ccc;
+  padding-top: 5px;
+  margin-top: 8px;
+}
+
+/* ===== 株主名簿（参考添付）セクション ===== */
+.shareholder-section {
+  page-break-before: always;
+  break-before: page;
+}
+
+.attachment-badge {
+  background: #e8f0fe;
+  border: 1px solid #3367d6;
+  padding: 4px 12px;
+  margin-bottom: 8px;
+  font-size: 9pt;
+  font-weight: bold;
+  text-align: center;
+  color: #1a3e8c;
+}
+
+.attachment-caution {
+  border: 2px solid #c0392b;
+  background: #fdecea;
+  color: #922b21;
+  font-size: 8.5pt;
+  line-height: 1.55;
+  padding: 6px 10px;
+  margin-bottom: 12px;
+}
+
+h2.shareholder-title {
+  font-size: 12.5pt;
+  text-align: center;
+  margin: 2px 0 4px;
+  letter-spacing: 0.1em;
+}
+
+table.shareholders {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 8.5pt;
+  margin-bottom: 10px;
+}
+
+table.shareholders th,
+table.shareholders td {
+  border: 1px solid #555;
+  padding: 4px 6px;
+  vertical-align: top;
+}
+
+table.shareholders thead th {
+  background-color: #efefef;
+  font-weight: 700;
+  text-align: center;
+  white-space: nowrap;
+}
+
+table.shareholders td.num {
+  text-align: right;
+  white-space: nowrap;
+}
+
+table.shareholders td.center {
+  text-align: center;
+  white-space: nowrap;
+}
+
+table.shareholders td.note {
+  font-size: 8pt;
+  color: #333;
+}
+
+table.shareholders tr.total-row td,
+table.shareholders tr.total-row th {
+  background-color: #e5e5e5;
+  font-weight: 700;
+}
+
+.structure-box {
+  border: 2px solid #555;
+  padding: 6px 10px;
+  margin-bottom: 10px;
+  font-size: 9pt;
+}
+
+.structure-box .big {
+  font-size: 11pt;
+  font-weight: bold;
+}
+
+.structure-box table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 9pt;
+  margin-top: 4px;
+}
+
+.structure-box table th,
+.structure-box table td {
+  border: 1px solid #999;
+  padding: 3px 8px;
+}
+
+.structure-box table th {
+  background: #f4f4f4;
+  text-align: left;
+  white-space: nowrap;
+  width: 40%;
+}
+
+.structure-box table td {
+  text-align: right;
+}
+</style>
+</head>
+<body>
+<div class="sample-notice">【テスト用サンプル書類 ― 実在の法人情報ではありません / 履歴事項全部証明書ではありません】</div>
+<h1>履 歴 事 項 全 部 証 明 書</h1>
+<p class="cert-subtitle">商業登記法に基づく全部証明（現在事項＋過去の履歴事項を含む）／テスト用サンプル</p>
+
+<!-- 会社法人等番号・商号・本店 -->
+<div class="section-header">■ 会社法人等番号・商号・本店に関する事項</div>
+<table class="registry">
+  <tr>
+    <th>会社法人等番号</th>
+    <td colspan="3">{{ case.company.corporate_number or '' }}</td>
+  </tr>
+  <tr>
+    <th>商号</th>
+    <td class="content">{{ case.company.company_name or '' }}</td>
+    <td class="cause">原因</td>
+    <td class="date">{{ case.company.established_date or '' }}登記</td>
+  </tr>
+  <tr>
+    <th>本店</th>
+    <td class="content">{{ case.company.head_office_address or '' }}</td>
+    <td class="cause">原因</td>
+    <td class="date">{{ case.company.established_date or '' }}移転</td>
+  </tr>
+  <tr>
+    <th>公告をする方法</th>
+    <td colspan="3">官報に掲載する方法による。</td>
+  </tr>
+  <tr>
+    <th>会社成立年月日</th>
+    <td colspan="3">{{ case.company.established_date or '' }}</td>
+  </tr>
+</table>
+
+{# 株主名簿から発行済株式数を集計（株式の種類ごとの内訳も算出） #}
+{% set shareholders = case.shareholders or [] %}
+{% set issued = namespace(total=0) %}
+{% for s in shareholders %}
+  {% set issued.total = issued.total + ((s.shares or '0')|replace(',', '')|replace('株', '')|int) %}
+{% endfor %}
+{% set classed = shareholders|selectattr('share_class')|list %}
+
+<!-- 目的・資本金等 -->
+<div class="section-header">■ 目的・資本金等に関する事項</div>
+<table class="registry">
+  <tr>
+    <th>目的</th>
+    <td colspan="3">{{ case.company.business_description or '' }}</td>
+  </tr>
+  <tr>
+    <th>資本金の額</th>
+    <td class="content">{{ case.company.capital or '' }}</td>
+    <td class="cause">原因</td>
+    <td class="date">{{ case.company.established_date or '' }}設立（その後増資）</td>
+  </tr>
+  <tr>
+    <th>発行可能株式総数</th>
+    <td colspan="3">{{ '{:,}'.format(issued.total * 4) if issued.total else '40,000' }}株</td>
+  </tr>
+  <tr>
+    <th>発行済株式の総数<br>並びに種類及び数</th>
+    <td colspan="3">
+      発行済株式の総数　{{ '{:,}'.format(issued.total) }}株
+      {%- for share_class, group in classed|groupby('share_class') %}
+        {%- set cls = namespace(total=0) %}
+        {%- for s in group %}
+          {%- set cls.total = cls.total + ((s.shares or '0')|replace(',', '')|replace('株', '')|int) %}
+        {%- endfor %}
+        <br>{{ share_class }}　{{ '{:,}'.format(cls.total) }}株
+      {%- endfor %}
+    </td>
+  </tr>
+  <tr>
+    <th>株券を発行する旨の定め</th>
+    <td colspan="3">当会社の株式については株券を発行しない。</td>
+  </tr>
+</table>
+
+<!-- 役員に関する事項 -->
+<div class="section-header">■ 役員に関する事項</div>
+<table class="registry">
+  <tr>
+    <th>資格</th>
+    <td class="content">代表取締役</td>
+    <td class="cause">原因</td>
+    <td class="date">{{ case.company.established_date or '' }}就任</td>
+  </tr>
+  <tr>
+    <th>氏名</th>
+    <td colspan="3">{{ case.company.representative_name or '' }}</td>
+  </tr>
+  <tr>
+    <th>住所</th>
+    <td colspan="3">{{ case.company.representative_address or '' }}</td>
+  </tr>
+  <tr>
+    <th>任期満了年月日</th>
+    <td colspan="3">就任後2年以内に終了する事業年度のうち最終のものに関する定時株主総会終結時</td>
+  </tr>
+</table>
+
+<!-- 登記記録に関する事項 -->
+<div class="section-header">■ 登記記録に関する事項</div>
+<table class="registry">
+  <tr>
+    <th>設立</th>
+    <td colspan="3">{{ case.company.established_date or '' }}　　{{ case.company.company_name or '' }}設立</td>
+  </tr>
+</table>
+
+<p class="issue-info">
+  証明書発行日：&emsp;&emsp;&emsp;&emsp;年&emsp;&emsp;月&emsp;&emsp;日<br>
+  法務局：サンプル地方法務局（テスト用）&emsp;&emsp;整理番号：SMPL-99999
+</p>
+<p class="footer-note">
+  ※ 本書類はOCR・LLM・Document AIシステムの検証を目的として作成されたサンプルです。
+  実在する法人の登記情報ではありません。公的書類として使用することはできません。<br>
+  ※ 次頁に株主名簿（参考添付）を綴じ込んでいます。株主名簿は登記事項証明書の一部ではありません。
+</p>
+
+<!-- ===== 株主名簿（参考添付） ===== -->
+<div class="shareholder-section">
+  <div class="sample-notice">【テスト用サンプル書類 ― 実在の法人・投資家・ファンドではありません】</div>
+  <div class="attachment-badge">■ 参考添付：株主名簿（登記事項証明書とは別書類）</div>
+  <div class="attachment-caution">
+    ※ 制度上、株式会社の登記事項証明書（履歴事項全部証明書）に<strong>株主は記載されません</strong>。
+    株主名簿は会社が自ら作成・保管する別書類（会社法第121条）であり、法務局が証明するものではありません。<br>
+    本ファイルでは、審査システムのテストを目的として、謄本（前頁）と株主名簿（本頁）を
+    <strong>あえて同一ファイルに参考添付</strong>しています。実物の登記事項証明書がこの形式で交付されることはありません。
+  </div>
+
+  <h2 class="shareholder-title">株 主 名 簿（参考添付）</h2>
+  <p class="cert-subtitle">
+    {{ case.company.company_name or '' }}／基準日：{{ case.funding_evidence.as_of_date if case.funding_evidence else '' }}
+  </p>
+
+  <table class="shareholders">
+    <thead>
+      <tr>
+        <th style="width:26%;">株主名</th>
+        <th style="width:17%;">種別</th>
+        <th style="width:11%;">持株数</th>
+        <th style="width:10%;">議決権比率</th>
+        <th style="width:13%;">取得日</th>
+        <th style="width:23%;">備考</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for s in shareholders %}
+      <tr>
+        <td>{{ s.name or '' }}</td>
+        <td>{{ s.shareholder_type or '' }}</td>
+        <td class="num">{{ s.shares or '' }}</td>
+        <td class="num">{{ s.voting_ratio or '' }}</td>
+        <td class="center">{{ s.acquired_date or '' }}</td>
+        <td class="note">{{ s.note or '' }}{% if s.share_class %}{% if s.note %}／{% endif %}{{ s.share_class }}{% endif %}</td>
+      </tr>
+      {% endfor %}
+      {% set ratio = namespace(total=0.0) %}
+      {% for s in shareholders %}
+        {% set ratio.total = ratio.total + ((s.voting_ratio or '0')|replace('%', '')|float) %}
+      {% endfor %}
+      <tr class="total-row">
+        <td colspan="2">合計（株主数 {{ shareholders|length }} 名）</td>
+        <td class="num">{{ '{:,}'.format(issued.total) }}株</td>
+        <td class="num">{{ '%.1f%%'|format(ratio.total) }}</td>
+        <td class="center">—</td>
+        <td class="note">—</td>
+      </tr>
+    </tbody>
+  </table>
+
+  {# VC・ファンド等（機関投資家）と創業者の集計 #}
+  {% set vc = namespace(shares=0, ratio=0.0, count=0) %}
+  {% set founder = namespace(shares=0, ratio=0.0, count=0) %}
+  {% for s in shareholders %}
+    {% set stype = s.shareholder_type or '' %}
+    {% set shares = (s.shares or '0')|replace(',', '')|replace('株', '')|int %}
+    {% set vratio = (s.voting_ratio or '0')|replace('%', '')|float %}
+    {% if 'VC' in stype or 'ベンチャーキャピタル' in stype or 'ファンド' in stype or '投資事業' in stype or '投資組合' in stype %}
+      {% set vc.shares = vc.shares + shares %}
+      {% set vc.ratio = vc.ratio + vratio %}
+      {% set vc.count = vc.count + 1 %}
+    {% endif %}
+    {% if '創業者' in stype or '創業株主' in stype %}
+      {% set founder.shares = founder.shares + shares %}
+      {% set founder.ratio = founder.ratio + vratio %}
+      {% set founder.count = founder.count + 1 %}
+    {% endif %}
+  {% endfor %}
+
+  <div class="structure-box">
+    <div class="big">■ 株主構成の要約</div>
+    <table>
+      <tr>
+        <th>VC・ファンド等（機関投資家）{{ vc.count }}者の持株数</th>
+        <td>{{ '{:,}'.format(vc.shares) }}株</td>
+      </tr>
+      <tr>
+        <th>VC・ファンド等の議決権比率合計</th>
+        <td><strong>{{ '%.1f%%'|format(vc.ratio) }}</strong></td>
+      </tr>
+      <tr>
+        <th>創業者（創業株主）{{ founder.count }}名の議決権比率合計</th>
+        <td>{{ '%.1f%%'|format(founder.ratio) }}</td>
+      </tr>
+      <tr>
+        <th>その他（個人株主・従業員持株会等）の議決権比率</th>
+        <td>{{ '%.1f%%'|format(ratio.total - vc.ratio - founder.ratio) }}</td>
+      </tr>
+    </table>
+  </div>
+
+  <p class="footer-note">
+    ※ 本株主名簿は会社法第121条に基づく株主名簿を模したテスト用サンプルです。
+    記載の株主・投資事業有限責任組合・ファンド・個人はすべて架空であり、実在の投資家とは一切関係ありません。<br>
+    ※ 登記事項証明書には株主は記載されないため、本頁は謄本の記載事項ではなく、
+    テスト用に参考添付した別書類です。公的書類として使用することはできません。
+  </p>
+</div>
+</body>
+</html>

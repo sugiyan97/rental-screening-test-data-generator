@@ -84,6 +84,63 @@ def test_build_answer_registry(corporate_case):
     assert "annual_income" not in answer["fields"]
 
 
+def test_build_answer_registry_without_shareholders(corporate_case):
+    """shareholders 未指定のケースでは従来の出力（株主情報なし）が維持される。"""
+    answer = build_answer(corporate_case, "registry_certificate", "registry_table")
+    assert set(answer["fields"]) == {
+        "company_name",
+        "corporate_number",
+        "head_office_address",
+        "representative_name",
+        "established_date",
+        "capital",
+        "business_description",
+        "fiscal_year_end",
+    }
+    assert "shareholders" not in answer["fields"]
+    assert "vc_voting_ratio_total" not in answer["fields"]
+
+
+def test_build_answer_registry_with_shareholders(corporate_extended_case):
+    answer = build_answer(
+        corporate_extended_case, "registry_certificate", "registry_table_with_shareholders"
+    )
+    fields = answer["fields"]
+    # 謄本本体の項目は従来どおり
+    assert fields["company_name"] == "テスト商事株式会社"
+    assert fields["corporate_number"] == "9999999999999"
+    # 株主名簿の明細
+    shareholders = fields["shareholders"]
+    assert len(shareholders) == 4
+    assert fields["shareholder_count"] == 4
+    assert shareholders[0]["name"] == "テストベンチャーキャピタル1号投資事業有限責任組合"
+    assert shareholders[0]["shareholder_type"] == "VC（投資事業有限責任組合）"
+    assert shareholders[0]["share_class"] == "A種優先株式"
+    assert shareholders[0]["shares"] == "3,000株"
+    assert shareholders[0]["voting_ratio"] == "30.0%"
+    assert shareholders[0]["acquired_date"] == "2024年06月20日"
+    assert shareholders[0]["note"] == "シリーズA リード投資家"
+    # 株主構成の集計（VC の持株比率合計が検証できる粒度）
+    assert fields["total_shares"] == "10,000株"
+    assert fields["vc_shareholder_count"] == 2
+    assert fields["vc_shareholder_names"] == [
+        "テストベンチャーキャピタル1号投資事業有限責任組合",
+        "テストグロースファンド2号投資事業組合",
+    ]
+    assert fields["vc_shares_total"] == "5,500株"
+    assert fields["vc_voting_ratio_total"] == "55.0%"
+    assert fields["founder_voting_ratio_total"] == "35.0%"
+
+
+def test_build_answer_registry_shareholders_empty_list(corporate_extended_case):
+    """空リストの場合は株主情報を出力しない（None 指定と同じ扱い）。"""
+    corporate_extended_case.shareholders = []
+    answer = build_answer(
+        corporate_extended_case, "registry_certificate", "registry_table_with_shareholders"
+    )
+    assert "shareholders" not in answer["fields"]
+
+
 def test_build_answer_financial(corporate_case):
     answer = build_answer(corporate_case, "financial_statement", "financial_summary")
     assert answer["fields"]["company_name"] == "テスト商事株式会社"

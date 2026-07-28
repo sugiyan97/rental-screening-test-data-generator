@@ -1,7 +1,18 @@
+import re
 from collections.abc import Callable
 from typing import Any
 
 from .models import Case
+
+# 株主の種別（shareholder_type）から機関投資家（VC・ファンド等）／創業者を判定するキーワード
+_VC_SHAREHOLDER_KEYWORDS = (
+    "VC",
+    "ベンチャーキャピタル",
+    "ファンド",
+    "投資事業",
+    "投資組合",
+)
+_FOUNDER_SHAREHOLDER_KEYWORDS = ("創業者", "創業株主")
 
 
 class UnsupportedDocumentTypeError(Exception):
@@ -10,6 +21,61 @@ class UnsupportedDocumentTypeError(Exception):
 
 def _get(obj: Any, attr: str) -> Any:
     return getattr(obj, attr, None) if obj is not None else None
+
+
+def _leading_number(value: Any) -> float:
+    """'3,200株' -> 3200.0 / '32.0%' -> 32.0 / None -> 0.0"""
+    if not isinstance(value, str):
+        return 0.0
+    matched = re.match(r"\s*([\d,]+(?:\.\d+)?)", value)
+    if matched is None:
+        return 0.0
+    return float(matched.group(1).replace(",", ""))
+
+
+def _has_keyword(value: Any, keywords: tuple[str, ...]) -> bool:
+    text = value if isinstance(value, str) else ""
+    return any(keyword in text for keyword in keywords)
+
+
+def _shareholder_fields(s: Any) -> dict[str, Any]:
+    return {
+        "name": _get(s, "name"),
+        "shareholder_type": _get(s, "shareholder_type"),
+        "share_class": _get(s, "share_class"),
+        "shares": _get(s, "shares"),
+        "voting_ratio": _get(s, "voting_ratio"),
+        "acquired_date": _get(s, "acquired_date"),
+        "note": _get(s, "note"),
+    }
+
+
+def _shareholder_summary(shareholders: list[Any]) -> dict[str, Any]:
+    """株主名簿の明細と、株主構成の判定に使う集計値を返す。"""
+    vc = [
+        s
+        for s in shareholders
+        if _has_keyword(_get(s, "shareholder_type"), _VC_SHAREHOLDER_KEYWORDS)
+    ]
+    founders = [
+        s
+        for s in shareholders
+        if _has_keyword(_get(s, "shareholder_type"), _FOUNDER_SHAREHOLDER_KEYWORDS)
+    ]
+    total_shares = sum(_leading_number(_get(s, "shares")) for s in shareholders)
+    vc_shares = sum(_leading_number(_get(s, "shares")) for s in vc)
+    vc_ratio = sum(_leading_number(_get(s, "voting_ratio")) for s in vc)
+    founder_ratio = sum(_leading_number(_get(s, "voting_ratio")) for s in founders)
+    return {
+        "shareholders": [_shareholder_fields(s) for s in shareholders],
+        "shareholder_count": len(shareholders),
+        "total_shares": f"{int(total_shares):,}株",
+        "vc_shareholder_count": len(vc),
+        "vc_shareholder_names": [_get(s, "name") for s in vc],
+        "vc_shares_total": f"{int(vc_shares):,}株",
+        "vc_voting_ratio_total": f"{vc_ratio:.1f}%",
+        "founder_voting_ratio_total": f"{founder_ratio:.1f}%",
+    }
 
 
 def _build_rental_application_corporate(case: Case, variant: str = "") -> dict[str, Any]:
@@ -83,7 +149,7 @@ def _build_rental_application_corporate(case: Case, variant: str = "") -> dict[s
 
 def _build_registry_certificate(case: Case, variant: str = "") -> dict[str, Any]:
     c = case.company
-    return {
+    fields: dict[str, Any] = {
         "company_name": _get(c, "company_name"),
         "corporate_number": _get(c, "corporate_number"),
         "head_office_address": _get(c, "head_office_address"),
@@ -93,6 +159,10 @@ def _build_registry_certificate(case: Case, variant: str = "") -> dict[str, Any]
         "business_description": _get(c, "business_description"),
         "fiscal_year_end": _get(c, "fiscal_year_end"),
     }
+    # 株主名簿を参考添付する variant のみ株主情報を持たせる（未設定ケースの出力は従来どおり）
+    if case.shareholders:
+        fields.update(_shareholder_summary(case.shareholders))
+    return fields
 
 
 def _financials_fields(f: Any) -> dict[str, Any]:

@@ -9,9 +9,9 @@ OCR・LLM・Document AI などの抽出システムを検証するため、**架
 
 ## 収録ケース一覧
 
-`input/cases.jsonl` に以下の 49 ケースが収録されている。申込時点で「既存会社」か「新規（新設）会社」かが審査内容を大きく左右するため、**法人ケースは既存／新規で表を分け**、個人ケース（自営業／給与所得者）も別表で整理した。会社名・個人名は実在しないサンプル名で、新規／既存の区別が一目で分かるよう命名している。
+`input/cases.jsonl` に以下の 50 ケースが収録されている。申込時点で「既存会社」か「新規（新設）会社」かが審査内容を大きく左右するため、**法人ケースは既存／新規で表を分け**、個人ケース（自営業／給与所得者）も別表で整理した。会社名・個人名は実在しないサンプル名で、新規／既存の区別が一目で分かるよう命名している。
 
-### A. 既存会社（法人・業歴あり） — 24 ケース
+### A. 既存会社（法人・業歴あり） — 25 ケース
 
 業歴があり決算書で財務を裏付けるパターン。多年度決算書・支払実績確約書・連帯保証人など、既存事業者ならではの書類組合せを検証。
 
@@ -41,6 +41,7 @@ OCR・LLM・Document AI などの抽出システムを検証するため、**架
 | CASE-000045 | 既存・法人（業歴3年・決算書2期1ファイル）＋個人連帯保証人2名 | 株式会社サンプルエコソリューションズ | 業歴3年の脱炭素コンサル。**過去2期分の決算書を1ファイルにまとめた複数期決算書**で財務を提示。事業計画書および資金エビデンスを併せて提出 | 申込書office＋登記簿＋**複数期決算書（2期・1ファイル）**＋事業計画書＋資金エビデンス＋代表者ID＋連帯保証契約書＋保証人1の4書類＋保証人2の4書類（15書類） |
 | CASE-000046 | 既存・法人（業歴7年・**風俗業**＝接待飲食等営業） | 株式会社サンプルナイトエンターテイメント | **禁止業種の否決判定用**。財務は健全（2期連続黒字・純資産プラス）だが、業種が「風俗業」であるため業種要件で否決になる対比ケース。**店舗用途申込書（store variant）に業種「風俗業」を明記**し、風俗営業許可証を添付 | 申込書store＋登記簿＋当期決算＋前期決算＋**風俗営業許可証**＋代表者ID（6書類） |
 | CASE-000047 | 既存・法人（業歴8年・**対応形式バリエーション**） | 株式会社サンプルマルチフォーマット商会 | **対応ファイル形式の検証用**。同一ケースの書類を PDF / PNG / JPG / XLSX / CSV / DOCX / PPTX の7形式で出力する。財務・与信内容は健全な既存法人なので、形式差以外の要因が判定に影響しない | 申込書standard（pdf/png/jpg の3形式）＋登記簿（xlsx）＋決算書（csv）＋事業計画書（docx/pptx）＋代表者ID（8書類） |
+| CASE-000051 | 既存・法人（業歴3年・研究開発型スタートアップ・**VC株主**） | 株式会社サンプルクオンタムセンシング | **株主構成による減点の検証用**。VC・ファンド等の機関投資家3者が議決権 **55.0%** を保有し、創業者2名は合計 39.0%（代表30.0%＋共同創業者9.0%）と過半を割る。謄本は新 variant **`registry_table_with_shareholders`** を使用し、履歴事項全部証明書風の本体に「株主名簿（参考添付）」を同一ファイルへ綴じ込む（制度上、登記事項証明書に株主は記載されないため参考添付である旨を明記） | 申込書office＋**登記簿（株主名簿付）**＋決算書＋事業計画書＋資金エビデンス＋代表者ID（6書類） |
 
 ### B. 新規（新設）会社（法人・申込時点で新規） — 9 ケース
 
@@ -97,7 +98,7 @@ OCR・LLM・Document AI などの抽出システムを検証するため、**架
 | `rental_application_individual` | 個人用入居申込書 | `standard`, `handwritten_like`, `residential`, `soho` |
 | `rental_application_corporate` | 法人用入居申込書 | `standard`, `handwritten_like`, `office`, `housing`, `store` |
 | `income_certificate` | 収入証明書風 | `salary_certificate`, `tax_return`, `tax_return_prior`, `tax_return_multi_year`, `withholding_slip` |
-| `registry_certificate` | 履歴事項全部証明書風 | `registry_table` |
+| `registry_certificate` | 履歴事項全部証明書風 | `registry_table`, `registry_table_with_shareholders` |
 | `financial_statement` | 決算書風（財務サマリー） | `financial_summary`, `financial_summary_prior`, `multi_period` |
 | `trial_balance` | 合計残高試算表風（月次） | `monthly_summary` |
 | `business_opening_notice` | 個人事業の開業・廃業等届出書（開業届）写し風 | `individual` |
@@ -145,6 +146,7 @@ OCR・LLM・Document AI などの抽出システムを検証するため、**架
 - **収入証明書（確定申告）** — 事業収入・必要経費・事業所得の計算式を含む確定申告書第一表風フォーマット
 - **収入証明書（源泉徴収票）** — 前職源泉徴収票風。支払金額・源泉徴収税額・社会保険料・退職日を表示
 - **登記簿謄本風** — 法務局形式に近い原因・日付・登記事項の列構成
+- **登記簿謄本風（株主名簿付）** — `registry_certificate/registry_table_with_shareholders`。謄本本体（1 ページ目）に加え、2 ページ目に VC・ファンド等を含む「株主名簿（参考添付）」（株主名／種別／持株数／議決権比率／取得日／備考＋株主構成の要約）を綴じ込んだ variant。`case.shareholders`（リスト）を参照し、発行済株式の総数・株式の種類ごとの内訳・議決権比率合計はテンプレート側で自動集計する。正解 JSON には `shareholders` 配列と `total_shares` / `vc_shareholder_names` / `vc_shares_total` / `vc_voting_ratio_total` / `founder_voting_ratio_total` などの集計値が入り、「VC の持株比率合計」を直接検証できる（`shareholders` 未指定のケースでは従来どおり株主情報を出力しない）。**制度上、登記事項証明書に株主は記載されない**ため、株主名簿は別書類をテスト目的で同一ファイルに参考添付したものである旨をテンプレート内に明記している
 - **財務サマリー** — 2期比較列・経営指標欄付き
 - **事業計画書** — 既存 `narrative` に加え、開業時向けの 2 variant を用意：
   - `individual_startup`：個人事業主・フリーランス開業向け。屋号・開業資金・代表者経歴・3 ヵ年売上計画・想定顧客層を含む
@@ -439,7 +441,8 @@ templates/
     tax_return_multi_year.html 複数年確定申告書（複数年を1ファイルに集約）
     withholding_slip.html    前職源泉徴収票風（転職者用）
   registry_certificate/
-    registry_table.html
+    registry_table.html                  登記簿謄本（履歴事項全部証明書風）
+    registry_table_with_shareholders.html 登記簿謄本＋株主名簿（参考添付・VC株主対応）
   financial_statement/
     financial_summary.html       当期決算書
     financial_summary_prior.html 前年度決算書（多年度書類用）
