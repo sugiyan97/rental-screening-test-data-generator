@@ -49,6 +49,14 @@ uv run python scripts/generate_case_pdfs.py --input input/cases.jsonl --output o
 出力先は形式ごとのサブディレクトリ（`output/{case_id}/{形式}/{document_type}_{variant}.{拡張子}`）。
 正解 JSON は形式に関わらず `answers/` に出力される。
 
+### 異常系（開けないPDF・同一種別の複数書類）
+
+`documents[]` には以下も指定できる（詳細は README「入力 JSONL フォーマット」）。
+
+- `pdf_password` … PDF を user/owner 両方のパスワードで暗号化（`pdf` 形式のみ。他形式では例外）
+- `label` … ファイル名・正解JSON名を `{document_type}_{variant}_{label}` にする（同一種別を複数出す場合）
+- `overrides` … その書類だけに適用するケースデータの部分上書き（再帰的 deep merge → 再バリデーション）
+
 ### 特定ケースのみ生成
 
 ```bash

@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel
 
@@ -10,6 +10,15 @@ class DocumentSpec(BaseModel):
     variant: str
     # 出力ファイル形式。省略時は pdf。
     output_format: OutputFormat = "pdf"
+    # 同一の document_type / variant を1ケースに複数含める場合の識別ラベル。
+    # 指定するとファイル名・正解JSON名が {document_type}_{variant}_{label} になる。
+    label: str | None = None
+    # この書類にのみ適用するケースデータの部分上書き（再帰的な deep merge）。
+    # 名義違いの申込書2通など、書類ごとに内容を変えたい場合に使う。
+    overrides: dict[str, Any] | None = None
+    # PDF にパスワード保護をかける場合のパスワード（user / owner 共通）。
+    # output_format が pdf の場合のみ指定できる。
+    pdf_password: str | None = None
 
 
 class Company(BaseModel):
@@ -499,3 +508,25 @@ class Case(BaseModel):
     bank_balance_certificate: BankBalanceCertificate | None = None
     funding_evidence: FundingEvidence | None = None
     payment_track_record_pledge: PaymentTrackRecordPledge | None = None
+
+
+def deep_merge(base: dict[str, Any], overrides: dict[str, Any]) -> dict[str, Any]:
+    """base に overrides を再帰的にマージした新しい dict を返す。
+
+    双方の値が dict の場合のみ再帰的にマージし、それ以外は overrides 側で置き換える。
+    """
+    merged = dict(base)
+    for key, value in overrides.items():
+        current = merged.get(key)
+        if isinstance(current, dict) and isinstance(value, dict):
+            merged[key] = deep_merge(current, value)
+        else:
+            merged[key] = value
+    return merged
+
+
+def apply_case_overrides(case: Case, overrides: dict[str, Any] | None) -> Case:
+    """ケースデータに部分上書きを適用した Case を返す（overrides が空なら元の Case）。"""
+    if not overrides:
+        return case
+    return Case.model_validate(deep_merge(case.model_dump(), overrides))
