@@ -5,33 +5,33 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
 
-@page { size: A4; margin: 20mm 22mm; }
+@page { size: A4; margin: 15mm 20mm; }
 * { box-sizing: border-box; font-family: 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif; }
-body { font-size: 10pt; line-height: 1.8; color: #222; margin: 0; }
+body { font-size: 10pt; line-height: 1.65; color: #222; margin: 0; }
 
-.sample-notice { background: #fff3cd; border: 2px solid #ffc107; padding: 4px 12px; margin-bottom: 8px; font-size: 8.5pt; font-weight: bold; text-align: center; color: #856404; }
-.doc-badge { background: #eaf2f8; border: 1px solid #2874a6; padding: 4px 14px; margin-bottom: 12px; font-size: 9.5pt; font-weight: bold; text-align: center; color: #1a5276; }
+.sample-notice { background: #fff3cd; border: 2px solid #ffc107; padding: 4px 12px; margin-bottom: 6px; font-size: 8.5pt; font-weight: bold; text-align: center; color: #856404; }
+.doc-badge { background: #eaf2f8; border: 1px solid #2874a6; padding: 4px 14px; margin-bottom: 8px; font-size: 9.5pt; font-weight: bold; text-align: center; color: #1a5276; }
 
-h1 { font-size: 17pt; text-align: center; margin: 8px 0 4px; letter-spacing: 0.2em; }
-.h1-sub { text-align: center; font-size: 9pt; color: #555; margin-bottom: 16px; }
+h1 { font-size: 16pt; text-align: center; margin: 2px 0 2px; letter-spacing: 0.2em; }
+.h1-sub { text-align: center; font-size: 9pt; color: #555; margin-bottom: 6px; }
 
-.doc-meta { text-align: right; font-size: 9.5pt; color: #444; margin-bottom: 14px; }
-.addressed-to { font-size: 11pt; font-weight: bold; margin-bottom: 14px; }
+.doc-meta { text-align: right; font-size: 9.5pt; color: #444; margin-bottom: 8px; }
+.addressed-to { font-size: 11pt; font-weight: bold; margin-bottom: 8px; }
 
-.preamble { margin-bottom: 14px; text-indent: 1em; }
+.preamble { margin-bottom: 6px; text-indent: 1em; }
 
-table { width: 100%; border-collapse: collapse; font-size: 10pt; margin: 12px 0; }
-th, td { border: 1px solid #777; padding: 6px 10px; vertical-align: middle; }
+table { width: 100%; border-collapse: collapse; font-size: 10pt; margin: 4px 0 6px; }
+th, td { border: 1px solid #777; padding: 3px 10px; vertical-align: middle; }
 th { background: #f4f6f7; font-weight: bold; width: 32%; text-align: left; white-space: nowrap; }
 .highlight-cell { background: #eafaf1; font-weight: bold; color: #196f3d; }
 
-.pledge-box { border: 2px solid #2874a6; background: #eaf2f8; padding: 10px 14px; margin: 16px 0; font-size: 10pt; }
+.pledge-box { border: 2px solid #2874a6; background: #eaf2f8; padding: 8px 14px; margin: 8px 0; font-size: 10pt; }
 
-.signature-area { margin-top: 28px; text-align: right; font-size: 10.5pt; }
+.signature-area { margin-top: 10px; text-align: right; font-size: 10.5pt; }
 .signature-area .company-line { font-weight: bold; font-size: 11pt; margin-bottom: 4px; }
 .signature-area .stamp-circle { display: inline-block; width: 56px; height: 56px; border: 1.5px solid #c0392b; border-radius: 50%; text-align: center; line-height: 56px; font-size: 7pt; color: #c0392b; margin-left: 10px; vertical-align: middle; }
 
-.footer-note { font-size: 8pt; color: #666; margin-top: 22px; border-top: 1px solid #ccc; padding-top: 6px; }
+.footer-note { font-size: 8pt; color: #666; margin-top: 8px; border-top: 1px solid #ccc; padding-top: 5px; }
 </style>
 </head>
 <body>
@@ -49,7 +49,7 @@ th { background: #f4f6f7; font-weight: bold; width: 32%; text-align: left; white
   当社は、下記物件の賃貸借契約申込みにあたり、これまでの賃料その他金銭債務の支払実績および今後の支払いについて、以下のとおり確約いたします。
 </p>
 
-<h2 style="font-size:10.5pt; margin:12px 0 4px; background:#eaf2f8; padding:4px 10px; border-left:4px solid #2874a6;">■ 確約者（賃借人）</h2>
+<h2 style="font-size:10.5pt; margin:8px 0 3px; background:#eaf2f8; padding:3px 10px; border-left:4px solid #2874a6;">■ 確約者（賃借人）</h2>
 <table>
   <tr><th>商号</th><td>{{ case.payment_track_record_pledge.pledger_name if case.payment_track_record_pledge else (case.company.company_name if case.company else '') }}</td></tr>
   <tr><th>代表者</th><td>{{ case.payment_track_record_pledge.representative_name if case.payment_track_record_pledge else (case.company.representative_name if case.company else '') }}</td></tr>
@@ -57,12 +57,21 @@ th { background: #f4f6f7; font-weight: bold; width: 32%; text-align: left; white
   <tr><th>設立年月日</th><td>{{ case.company.established_date if case.company else '' }}</td></tr>
 </table>
 
-<h2 style="font-size:10.5pt; margin:12px 0 4px; background:#eaf2f8; padding:4px 10px; border-left:4px solid #2874a6;">■ これまでの賃料支払実績</h2>
+<h2 style="font-size:10.5pt; margin:8px 0 3px; background:#eaf2f8; padding:3px 10px; border-left:4px solid #2874a6;">■ これまでの賃料支払実績</h2>
 <table>
   <tr><th>現在賃借中の物件</th><td>{{ case.payment_track_record_pledge.current_lease_property if case.payment_track_record_pledge else '' }}</td></tr>
   <tr><th>現在の月額賃料</th><td>{{ case.payment_track_record_pledge.current_lease_rent if case.payment_track_record_pledge else '' }}</td></tr>
   <tr><th>支払実績期間</th><td>{{ case.payment_track_record_pledge.payment_period if case.payment_track_record_pledge else '' }}</td></tr>
   <tr><th>延滞履歴</th><td class="highlight-cell">{{ case.payment_track_record_pledge.delinquency_record if case.payment_track_record_pledge else '' }}</td></tr>
+{% if case.payment_track_record_pledge and case.payment_track_record_pledge.delinquency_count %}
+  <tr><th>延滞（遅延）回数</th><td class="highlight-cell">{{ case.payment_track_record_pledge.delinquency_count }}</td></tr>
+{% endif %}
+{% if case.payment_track_record_pledge and case.payment_track_record_pledge.total_paid_amount %}
+  <tr><th>賃料支払総額（累計）</th><td>{{ case.payment_track_record_pledge.total_paid_amount }}</td></tr>
+{% endif %}
+{% if case.payment_track_record_pledge and case.payment_track_record_pledge.settlement_status %}
+  <tr><th>完済状況</th><td class="highlight-cell">{{ case.payment_track_record_pledge.settlement_status }}</td></tr>
+{% endif %}
   <tr><th>支払方法</th><td>{{ case.payment_track_record_pledge.payment_method if case.payment_track_record_pledge else '' }}</td></tr>
   <tr><th>照会先</th><td>{{ case.payment_track_record_pledge.references if case.payment_track_record_pledge else '' }}</td></tr>
 </table>

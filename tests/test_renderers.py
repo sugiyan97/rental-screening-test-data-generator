@@ -154,6 +154,44 @@ def test_output_format_override_applies_to_all_documents(individual_case, tmp_pa
         assert (tmp_path / individual_case.case_id / doc["file"]).exists()
 
 
+def test_payment_track_record_pledge_generated_as_pdf_and_docx(
+    corporate_extended_case, tmp_path
+):
+    """同一の支払実績確約書を PDF と Word(.docx) の2形式で出力できる（TC-1-102）。"""
+    case = corporate_extended_case.model_copy(deep=True)
+    case.case_id = "CASE-PLEDGE-MULTI"
+    case.documents = [
+        DocumentSpec(
+            document_type="payment_track_record_pledge",
+            variant="standard",
+            output_format="pdf",
+        ),
+        DocumentSpec(
+            document_type="payment_track_record_pledge",
+            variant="standard",
+            output_format="docx",
+        ),
+    ]
+    meta = CasePdfGenerator(output_dir=tmp_path).generate(case)
+
+    case_dir = tmp_path / case.case_id
+    pdf_path = case_dir / "pdf" / "payment_track_record_pledge_standard.pdf"
+    docx_path = case_dir / "docx" / "payment_track_record_pledge_standard.docx"
+    assert pdf_path.exists()
+    assert docx_path.exists()
+    with pdf_path.open("rb") as f:
+        assert f.read(4) == b"%PDF"
+
+    with zipfile.ZipFile(docx_path) as zf:
+        xml = zf.read("word/document.xml").decode("utf-8")
+    # 確約者・延滞履歴・完済状況が Word 本文（表）に入っている
+    assert "テスト商事株式会社" in xml
+    assert "延滞なし" in xml
+    assert "完済（未払残高 0円）" in xml
+
+    assert [d["output_format"] for d in meta["generated_documents"]] == ["pdf", "docx"]
+
+
 def test_case_meta_json_records_output_format(individual_case, tmp_path):
     case = _single_document_case(individual_case, "jpg")
     CasePdfGenerator(output_dir=tmp_path).generate(case)

@@ -133,6 +133,17 @@ class Income(BaseModel):
     business_income: str | None = None
     deductible_expenses: str | None = None
     taxable_income: str | None = None
+    # 源泉徴収票型（給与所得者・本人の当年分）
+    payment_amount: str | None = None            # 支払金額
+    salary_income_deduction: str | None = None   # 給与所得控除額
+    income_after_deduction: str | None = None    # 給与所得控除後の金額
+    social_insurance: str | None = None          # 社会保険料等の金額
+    basic_deduction: str | None = None           # 基礎控除
+    life_insurance_deduction: str | None = None  # 生命保険料控除
+    total_deductions: str | None = None          # 所得控除の額の合計額
+    withholding_tax: str | None = None           # 源泉徴収税額
+    dependents_count: str | None = None          # 控除対象扶養親族の数
+    spouse_status: str | None = None             # 控除対象配偶者の有無
 
 
 class Guarantor(BaseModel):
@@ -325,6 +336,9 @@ class PaymentTrackRecordPledge(BaseModel):
     current_lease_rent: str | None = None      # 現賃料
     payment_period: str | None = None          # 支払実績期間
     delinquency_record: str | None = None      # 延滞履歴（例: 延滞なし）
+    delinquency_count: str | None = None       # 延滞（遅延）回数
+    total_paid_amount: str | None = None       # 支払実績期間の賃料支払総額
+    settlement_status: str | None = None       # 完済状況（未払残高の有無）
     payment_method: str | None = None          # 支払方法
     references: str | None = None              # 取引先・照会先
     pledge_statement: str | None = None        # 確約文
