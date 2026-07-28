@@ -4,9 +4,27 @@ from playwright.sync_api import sync_playwright
 
 from .answer_builder import build_answer
 from .file_writer import ensure_dir, write_json
-from .models import Case, DocumentSpec
-from .renderers import EXTENSION_BY_FORMAT, SUBDIR_BY_FORMAT, render_document
+from .models import Case, DocumentSpec, apply_case_overrides
+from .renderers import (
+    EXTENSION_BY_FORMAT,
+    SUBDIR_BY_FORMAT,
+    PdfPasswordNotSupportedError,
+    encrypt_pdf,
+    render_document,
+)
 from .template_loader import TemplateLoader
+
+
+def document_stem(doc_spec: DocumentSpec) -> str:
+    """書類ファイル・正解JSON の共通ファイル名（拡張子なし）を返す。
+
+    label が指定された場合は末尾に付けることで、同一 document_type / variant の
+    書類を1ケースに複数含めてもファイル名が衝突しない。
+    """
+    stem = f"{doc_spec.document_type}_{doc_spec.variant}"
+    if doc_spec.label:
+        stem = f"{stem}_{doc_spec.label}"
+    return stem
 
 
 class CasePdfGenerator:
@@ -48,9 +66,14 @@ class CasePdfGenerator:
                     "output_format": output_format,
                     "file": relative_path,
                 }
+                if doc_spec.label:
+                    entry["label"] = doc_spec.label
                 if output_format == "pdf":
                     # 既存の利用側との互換のため pdf 形式では pdf キーも残す
                     entry["pdf"] = relative_path
+                if doc_spec.pdf_password:
+                    # 期待値（パスワード保護されている書類）として利用側が参照できるよう記録する
+                    entry["pdf_password"] = doc_spec.pdf_password
                 entry["answer"] = f"answers/{answer_path.name}"
                 generated_documents.append(entry)
 
@@ -79,18 +102,30 @@ class CasePdfGenerator:
             document_type=doc_spec.document_type,
             variant=doc_spec.variant,
         )
-        html = template.render(case=case)
+        # overrides が指定された書類は、部分上書きしたケースデータで描画・正解JSONを作る
+        doc_case = apply_case_overrides(case, doc_spec.overrides)
+        html = template.render(case=doc_case)
 
         output_format = self._output_format_override or doc_spec.output_format
-        stem = f"{doc_spec.document_type}_{doc_spec.variant}"
+        if doc_spec.pdf_password and output_format != "pdf":
+            raise PdfPasswordNotSupportedError(
+                f"pdf_password は output_format が pdf の書類にのみ指定できます。\n"
+                f"  case_id: {case.case_id}\n"
+                f"  document_type: {doc_spec.document_type}\n"
+                f"  variant: {doc_spec.variant}\n"
+                f"  output_format: {output_format}"
+            )
+        stem = document_stem(doc_spec)
         doc_dir = case_dir / SUBDIR_BY_FORMAT.get(output_format, output_format)
         ensure_dir(doc_dir)
         doc_path = doc_dir / f"{stem}.{EXTENSION_BY_FORMAT.get(output_format, output_format)}"
 
         page.set_content(html, wait_until="networkidle", timeout=30000)
         render_document(page=page, output_format=output_format, path=doc_path, title=stem)
+        if doc_spec.pdf_password:
+            encrypt_pdf(doc_path, doc_spec.pdf_password)
 
-        answer = build_answer(case, doc_spec.document_type, doc_spec.variant)
+        answer = build_answer(doc_case, doc_spec.document_type, doc_spec.variant)
         answer_path = answers_dir / f"{stem}.json"
         write_json(answer_path, answer)
 

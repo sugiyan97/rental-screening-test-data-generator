@@ -24,6 +24,10 @@ class UnsupportedOutputFormatError(Exception):
     pass
 
 
+class PdfPasswordNotSupportedError(Exception):
+    """pdf 以外の出力形式に pdf_password が指定された場合のエラー。"""
+
+
 # DOM から「見出し / 段落 / 表」のブロック列を抽出する。
 # ブロック要素を含まない最小単位のボックスを1段落として扱うため、
 # ラベルと値を横並びにしたレイアウトでも1行にまとまる。
@@ -267,6 +271,21 @@ _RENDERERS: dict[str, Callable[[Any, Path, str], None]] = {
     "csv": _render_csv,
     "pptx": _render_pptx,
 }
+
+
+def encrypt_pdf(path: Path, password: str) -> None:
+    """生成済みの PDF を user / owner 両方のパスワードで暗号化する（上書き保存）。
+
+    「開けない PDF」をテストデータとして作るための処理。パスワードなしでは
+    pikepdf / 一般的な PDF ビューアで開けなくなる。
+    """
+    import pikepdf
+
+    with pikepdf.open(path, allow_overwriting_input=True) as pdf:
+        pdf.save(
+            path,
+            encryption=pikepdf.Encryption(user=password, owner=password, R=6),
+        )
 
 
 def render_document(page, output_format: str, path: Path, title: str = "") -> None:

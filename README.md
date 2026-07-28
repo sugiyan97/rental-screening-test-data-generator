@@ -9,7 +9,7 @@ OCR・LLM・Document AI などの抽出システムを検証するため、**架
 
 ## 収録ケース一覧
 
-`input/cases.jsonl` に以下の 50 ケースが収録されている。申込時点で「既存会社」か「新規（新設）会社」かが審査内容を大きく左右するため、**法人ケースは既存／新規で表を分け**、個人ケース（自営業／給与所得者）も別表で整理した。会社名・個人名は実在しないサンプル名で、新規／既存の区別が一目で分かるよう命名している。
+`input/cases.jsonl` に以下の 53 ケースが収録されている。申込時点で「既存会社」か「新規（新設）会社」かが審査内容を大きく左右するため、**法人ケースは既存／新規で表を分け**、個人ケース（自営業／給与所得者）も別表で整理した。会社名・個人名は実在しないサンプル名で、新規／既存の区別が一目で分かるよう命名している。
 
 ### A. 既存会社（法人・業歴あり） — 25 ケース
 
@@ -72,9 +72,10 @@ OCR・LLM・Document AI などの抽出システムを検証するため、**架
 | CASE-000028 | 新規・個人事業 | 島田 凛 | 業歴1期未満。確定申告書なし、開業届＋事業計画書＋残高証明書で代替 | 申込書soho＋開業届＋事業計画書＋残高証明書＋本人ID |
 | CASE-000035 | 新規・個人事業（成長期） | 桐谷 さくら | 開業3年のフリーランスデザイナー。過去3年分の確定申告書を1ファイルにまとめた「複数年確定申告書」で所得の安定成長を提示 | 申込書soho＋**複数年確定申告書（3年・1ファイル）**＋本人ID |
 
-### D. 個人（給与所得者・その他） — 10 ケース
+### D. 個人（給与所得者・その他） — 13 ケース
 
 給与所得者・外国籍・転職者・学生・高齢者など、給与収入や本人確認バリアントを軸とするパターン。
+末尾3ケース（CASE-000048〜000050）は**意図的な異常ファイル**（開けないPDF・名義違い・判読困難な手書き）で、E2E 異常系の検証用。
 
 | ケースID | 区分 | 個人名 | シナリオ | 提出書類 |
 |---|---|---|---|---|
@@ -88,6 +89,9 @@ OCR・LLM・Document AI などの抽出システムを検証するため、**架
 | CASE-000019 | 個人（給与） | 西村 翔平 | 居住用 variant（世帯構成・転居理由重視） | 申込書residential＋収入証明＋本人ID |
 | CASE-000052 | 個人（外国籍・就労ビザ） | グエン ヴァン ミン | **在留期限が1か月内（残 22 日）**。在留カードの有効期限が 2026年08月20日（基準日 2026年07月29日 時点）で失効前。**期限接近アラートの検証用** | 申込書＋収入証明＋**在留カード** |
 | CASE-000053 | 個人（給与・高齢者） | 篠原 幸雄 | **70歳以上の申込者（74歳）**。生年月日 1952年03月14日（基準日 2026年07月29日 時点で 74歳）。定年後に嘱託社員（技術顧問）として勤務し、長男が連帯保証人。**高齢アラートの検証用** | 申込書＋本人収入＋本人ID（運転免許証）＋保証人収入＋保証人ID |
+| CASE-000048 | 個人（給与）・**異常ファイル** | 桜庭 直人 | **パスワード保護PDF**（開けないファイル）の検証用。申込書PDFのみ user／owner 双方にパスワード `cosoji-test-2026` を設定。「読み取れませんでした／要確認」の記録と、残る2書類が処理継続されることを検証 | **申込書standard（PW保護）**＋収入証明＋本人ID（3書類） |
+| CASE-000049 | 個人（給与）・**異常ファイル** | 新村 誠 / 田村 悠真 | **名義違いの申込書2通**。同一物件・同一種別の申込書の名義が相違（`label` で `applicant_a` / `applicant_b` に分け、2通目は `overrides` で申込者・勤務先・緊急連絡先を別人に差し替え）。「申込者を特定できない（あいまい）」通知・名義を確定しないことを検証 | 申込書standard×2通（名義相違・2書類） |
+| CASE-000050 | 個人（給与）・**異常ファイル** | 岸本 沙耶 | **印刷＋手書き混在**のスキャン画像（jpg）。判読困難にした項目は「携帯電話番号」（にじみ）・「メールアドレス」（インクかすれ）・「年収（税込）」（擦れ＋傾き）・「連帯保証人の電話番号」（インクかすれ）の4項目。読めた項目のみ登録・読めない項目は不足記載となる挙動を検証 | **申込書print_handwriting_mixed（jpg）**＋申込書standard（比較用pdf）＋本人ID（3書類） |
 
 ---
 
@@ -95,7 +99,7 @@ OCR・LLM・Document AI などの抽出システムを検証するため、**架
 
 | document_type | 説明 | 利用可能な variant |
 |---|---|---|
-| `rental_application_individual` | 個人用入居申込書 | `standard`, `handwritten_like`, `residential`, `soho` |
+| `rental_application_individual` | 個人用入居申込書 | `standard`, `handwritten_like`, `residential`, `soho`, `print_handwriting_mixed` |
 | `rental_application_corporate` | 法人用入居申込書 | `standard`, `handwritten_like`, `office`, `housing`, `store` |
 | `income_certificate` | 収入証明書風 | `salary_certificate`, `tax_return`, `tax_return_prior`, `tax_return_multi_year`, `withholding_slip` |
 | `registry_certificate` | 履歴事項全部証明書風 | `registry_table`, `registry_table_with_shareholders` |
@@ -142,6 +146,7 @@ OCR・LLM・Document AI などの抽出システムを検証するため、**架
 - **資金エビデンス（資金調達証明書）** — 自己資金（資本金）・金融機関融資・VC等の出資・補助金の調達内訳を 1 枚にまとめ、月額賃料に対する支払能力を裏付ける書類。資金調達済スタートアップ向け
 - **支払実績確約書** — 既存事業者が現在賃借中の物件における過去の賃料支払実績（延滞なき期間・支払方法・照会先）を示し、今後も遅滞なく支払うことを確約する書類。業歴のある法人向け（新規向けの資金エビデンスと対をなす）
 - **手書き風バリアント** — Klee One フォント（Google Fonts / OFL）で記入欄をレンダリング
+- **印刷＋手書き混在バリアント**（`rental_application_individual/print_handwriting_mixed`）— 印刷された枠・ラベルはそのままで、記入値の一部を手書き風（Klee One・青インク・行ごとの微傾斜）にした様式。ページ全体に軽いスキャン風の質感（用紙の傾き・コントラスト調整）を与えている。さらに一部の記入項目を意図的に**判読困難**（`opacity` によるかすれ／`blur` によるにじみ／`rotate` を伴う擦れ）にしてあり、「読めた項目のみ登録・読めない項目は不足記載」という挙動の検証に使う。判読困難にしているのは **携帯電話番号（にじみ）／メールアドレス（インクかすれ）／年収（税込）（擦れ＋傾きで判読不能）／連帯保証人の電話番号（インクかすれ）** の4項目で、それ以外（氏名・フリガナ・生年月日・現住所・緊急連絡先・勤務先情報など）は判読可能。スキャン相当のため `output_format` は `jpg` を想定（CASE-000050 参照）
 - **収入証明書（給与所得）** — 給与内訳（基本給・残業手当・通勤手当・賞与）・証明有効期限付き
 - **収入証明書（確定申告）** — 事業収入・必要経費・事業所得の計算式を含む確定申告書第一表風フォーマット
 - **収入証明書（源泉徴収票）** — 前職源泉徴収票風。支払金額・源泉徴収税額・社会保険料・退職日を表示
@@ -250,6 +255,7 @@ uv run python scripts/generate_case_pdfs.py --input input/cases.jsonl --output o
 ## 出力構成
 
 1 ケースあたり以下が生成される。ファイル名は `{document_type}_{variant}` 形式なので、同一書類タイプの複数 variant を同一ケースに含めても衝突しない。
+`label` を指定した書類は `{document_type}_{variant}_{label}` になり、**同一 document_type / variant の書類を1ケースに複数含めても**衝突しない（正解 JSON のファイル名にも同じ label が付く）。
 書類ファイルは**出力形式ごとのサブディレクトリ**（`pdf/` `png/` `jpg/` `xlsx/` `docx/` `csv/` `pptx/`）に出力され、正解 JSON は形式に関わらず `answers/` にまとめられる。
 
 ```
@@ -317,6 +323,24 @@ output/
       "output_format": "docx",
       "file": "docx/business_plan_narrative.docx",
       "answer": "answers/business_plan_narrative.json"
+    },
+    {
+      "document_type": "rental_application_individual",
+      "variant": "standard",
+      "output_format": "pdf",
+      "file": "pdf/rental_application_individual_standard_applicant_b.pdf",
+      "label": "applicant_b",
+      "pdf": "pdf/rental_application_individual_standard_applicant_b.pdf",
+      "answer": "answers/rental_application_individual_standard_applicant_b.json"
+    },
+    {
+      "document_type": "rental_application_individual",
+      "variant": "standard",
+      "output_format": "pdf",
+      "file": "pdf/rental_application_individual_standard.pdf",
+      "pdf": "pdf/rental_application_individual_standard.pdf",
+      "pdf_password": "cosoji-test-2026",
+      "answer": "answers/rental_application_individual_standard.json"
     }
   ]
 }
@@ -324,6 +348,8 @@ output/
 
 生成ファイルのパスは `file`、形式は `output_format` で取得する。
 `pdf` キーは既存の利用側との互換のため、`output_format` が `pdf` の書類にのみ `file` と同じ値で残している。
+`label` / `pdf_password` は JSONL で指定した書類にのみ出力される。`pdf_password` は
+「パスワード保護されていて開けない書類」の期待値として利用側が参照できるようにするためのもの。
 
 #### 正解 JSON の構造
 
@@ -362,6 +388,9 @@ output/
 | `document_type` | yes | 書類タイプ（`templates/{document_type}/` に対応） |
 | `variant` | yes | テンプレート variant（`{variant}.html` に対応） |
 | `output_format` | no | 出力形式。省略時は `pdf` |
+| `label` | no | 同一 `document_type` / `variant` を1ケースに複数含めるときの識別ラベル |
+| `overrides` | no | この書類にのみ適用するケースデータの部分上書き（再帰的な deep merge） |
+| `pdf_password` | no | PDF にパスワード保護をかける（`output_format` が `pdf` の場合のみ） |
 
 ```jsonl
 {"document_type":"business_plan","variant":"narrative","output_format":"docx"}
@@ -369,6 +398,31 @@ output/
 
 同一の `document_type` / `variant` を形式だけ変えて複数指定すれば、同じ内容を複数形式で出力できる（CASE-000047 参照）。
 `input/cases.jsonl` に6ケースの例が収録されている（上記「収録ケース一覧」参照）。
+
+#### `pdf_password` — 開けないPDFを作る（異常系）
+
+指定すると、PDF を生成した後に **user / owner 両方のパスワード**で暗号化する（`pikepdf`・AES-256 / R=6）。
+パスワードなしでは開けないため、「読み取れませんでした／要確認」と記録されるかの検証に使う。
+`output_format` が `pdf` 以外の書類に指定した場合（`--output-format` での上書きを含む）は
+`PdfPasswordNotSupportedError` を送出する。指定値は `case_meta.json` の該当エントリに `pdf_password` として記録される。
+
+```jsonl
+{"document_type":"rental_application_individual","variant":"standard","pdf_password":"cosoji-test-2026"}
+```
+
+#### `label` / `overrides` — 名義違いなど同一種別の書類を複数出す
+
+`label` を付けるとファイル名・正解 JSON 名が `{document_type}_{variant}_{label}` になるため、
+**同じ書類タイプ・同じ variant の書類を1ケースに複数含めても上書きされない**。
+`overrides` はその書類だけに適用するケースデータの部分上書きで、`Case` を dict 化したものに対して
+再帰的な deep merge を行い、再バリデーションしたうえでレンダリングと正解 JSON 生成に使う
+（指定しなかった項目は元のケースデータのまま）。両者を組み合わせると、
+「同一種別の申込書2通が名義違い」といった異常データを1ケースで表現できる（CASE-000049 参照）。
+
+```jsonl
+{"document_type":"rental_application_individual","variant":"standard","label":"applicant_a"}
+{"document_type":"rental_application_individual","variant":"standard","label":"applicant_b","overrides":{"applicant":{"name":"田村 悠真","kana":"タムラ ユウマ"}}}
+```
 
 ---
 
@@ -428,6 +482,7 @@ templates/
     handwritten_like.html  個人申込書（手書き風）
     residential.html       個人申込書（居住用）
     soho.html              個人申込書（居住SOHO兼用）
+    print_handwriting_mixed.html 個人申込書（印刷＋手書き混在・一部判読困難）
   rental_application_corporate/
     standard.html          法人申込書（標準）
     handwritten_like.html  法人申込書（手書き風）
@@ -513,3 +568,4 @@ docs/           要件定義書
 - 本ツールが生成する書類はすべて架空のテスト用サンプルです。実在する個人・法人の情報は使用していません。
 - メールアドレスは `example.test` ドメインを使用しています。
 - 登記簿謄本風書類には「テスト用サンプル」の旨を明記しており、公的書類として使用することはできません。
+- CASE-000048〜000050 は E2E 異常系検証のための**意図的な異常データ**です（開けないPDF・名義違いの申込書2通・判読困難な手書き項目）。パスワード保護PDFのパスワードは固定値 `cosoji-test-2026` です。

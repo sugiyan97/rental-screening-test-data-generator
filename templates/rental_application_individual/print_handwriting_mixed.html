@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Klee+One&display=swap');
+
+@page {
+  size: A4;
+  margin: 10mm 14mm;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif;
+}
+
+body {
+  font-size: 9.5pt;
+  line-height: 1.5;
+  color: #1a1a1a;
+  margin: 0;
+  /* スキャン取り込みを想定した用紙外の下地 */
+  background: #efece4;
+  padding: 5mm 5mm 7mm;
+}
+
+/* スキャン風：わずかな傾き・コントラスト調整をページ全体に与える */
+.scan-sheet {
+  background: #fdfcf8;
+  padding: 7mm 9mm 9mm;
+  transform: rotate(-0.4deg);
+  filter: contrast(1.05) saturate(0.9);
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.25);
+}
+
+h1 {
+  font-size: 14pt;
+  text-align: center;
+  margin: 0 0 8px;
+  border-bottom: 2px solid #333;
+  padding-bottom: 5px;
+  letter-spacing: 0.12em;
+}
+
+h2 {
+  font-size: 9.5pt;
+  margin: 10px 0 4px;
+  background: #e8e8e8;
+  padding: 2px 8px;
+  border-left: 4px solid #444;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 8px;
+  font-size: 9pt;
+}
+
+th, td {
+  border: 1px solid #666;
+  padding: 3px 7px;
+  vertical-align: middle;
+}
+
+th {
+  background-color: #f2f2f2;
+  font-weight: 700;
+  white-space: nowrap;
+  width: 26%;
+}
+
+/* 手書き記入：Klee One ＋ 青インク。行ごとにわずかに傾ける */
+.hw {
+  font-family: 'Klee One', 'Hiragino Maru Gothic Pro', 'Yu Mincho', cursive;
+  font-size: 10.5pt;
+  color: #1f3a93;
+  display: inline-block;
+  transform: rotate(-0.5deg);
+}
+
+.hw.tilt-a { transform: rotate(0.8deg); }
+.hw.tilt-b { transform: rotate(-1.1deg); }
+
+/* 手書きの走り書き（枠内に大きめに書かれた文字） */
+.hw-sign {
+  font-family: 'Klee One', cursive;
+  font-size: 12pt;
+  color: #1f3a93;
+  display: inline-block;
+  transform: rotate(-1.6deg);
+}
+
+/* --- 判読困難な記入（意図的な異常表現） ---
+   ill-faded : インクかすれで薄い
+   ill-blur  : にじみ・ピンぼけ
+   ill-smudge: 擦れ＋傾きで判読不能 */
+.ill-faded {
+  opacity: 0.13;
+  filter: blur(1.3px);
+  letter-spacing: 0.05em;
+}
+
+.ill-blur {
+  filter: blur(2.8px);
+  opacity: 0.55;
+}
+
+.ill-smudge {
+  filter: blur(2.1px) contrast(0.5);
+  opacity: 0.26;
+  transform: rotate(-3.2deg);
+}
+
+.sample-notice {
+  background: #fff3cd;
+  border: 2px solid #ffc107;
+  padding: 3px 10px;
+  margin-bottom: 8px;
+  font-size: 8pt;
+  font-weight: bold;
+  text-align: center;
+  color: #856404;
+}
+
+.meta-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 8.5pt;
+  margin-bottom: 6px;
+}
+
+.sign-area {
+  display: flex;
+  gap: 16px;
+  margin-top: 10px;
+}
+
+.sign-box {
+  border: 1px solid #666;
+  height: 48px;
+  flex: 1;
+  padding: 3px 7px;
+  font-size: 8.5pt;
+}
+
+.sign-box .label {
+  font-weight: bold;
+  display: block;
+  margin-bottom: 2px;
+  font-size: 8pt;
+}
+
+.stamp-box {
+  border: 1px solid #666;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8pt;
+  color: #888;
+  flex-shrink: 0;
+}
+
+.consent-box {
+  border: 1px solid #aaa;
+  padding: 6px 10px;
+  margin-bottom: 8px;
+  font-size: 8.5pt;
+  background: #fafafa;
+}
+
+.consent-box p {
+  margin: 2px 0;
+}
+
+.footer-note {
+  font-size: 7.5pt;
+  color: #555;
+  margin-top: 8px;
+  line-height: 1.4;
+}
+</style>
+</head>
+<body>
+<div class="scan-sheet">
+<div class="sample-notice">【テスト用サンプル書類 ― 実在の個人情報ではありません / 印刷＋手書き混在バリアント】</div>
+<h1>入 居 申 込 書（個人用）</h1>
+
+<div class="meta-row">
+  <span>申込ID：{{ case.case_id }}</span>
+  <span>申込日：<span class="hw tilt-a">2026</span>年<span class="hw">08</span>月<span class="hw tilt-b">03</span>日</span>
+  <span>受付番号：</span>
+</div>
+
+<h2>■ 申込物件情報（印刷）</h2>
+<table>
+  <tr>
+    <th>物件名</th>
+    <td>{{ case.property.property_name or '' }}</td>
+    <th>号室</th>
+    <td>{{ case.property.room_number or '' }}</td>
+  </tr>
+  <tr>
+    <th>物件所在地</th>
+    <td colspan="3">〒{{ case.property.postal_code or '' }}　{{ case.property.property_address or '' }}</td>
+  </tr>
+  <tr>
+    <th>賃料（月額）</th>
+    <td>{{ case.property.rent or '' }}</td>
+    <th>管理費・共益費</th>
+    <td>{{ case.property.management_fee or '' }}</td>
+  </tr>
+  <tr>
+    <th>入居希望日</th>
+    <td>{{ case.property.desired_move_in_date or '' }}</td>
+    <th>利用目的</th>
+    <td>{{ case.property.usage_purpose or '' }}</td>
+  </tr>
+</table>
+
+<h2>■ 申込者情報（手書き記入欄）</h2>
+<table>
+  <tr>
+    <th>氏名</th>
+    <td><span class="hw">{{ case.applicant.name or '' }}</span></td>
+    <th>フリガナ</th>
+    <td><span class="hw tilt-a">{{ case.applicant.kana or '' }}</span></td>
+  </tr>
+  <tr>
+    <th>生年月日</th>
+    <td><span class="hw tilt-b">{{ case.applicant.birth_date or '' }}</span></td>
+    <th>年齢 / 性別</th>
+    <td><span class="hw">{{ case.applicant.age or '' }}歳　{{ case.applicant.gender or '' }}</span></td>
+  </tr>
+  <tr>
+    <th>現住所</th>
+    <td colspan="3"><span class="hw">〒{{ case.applicant.postal_code or '' }}　{{ case.applicant.current_address or '' }}</span></td>
+  </tr>
+  <tr>
+    <th>携帯電話番号</th>
+    <td><span class="hw ill-blur">{{ case.applicant.phone or '' }}</span></td>
+    <th>メールアドレス</th>
+    <td><span class="hw ill-faded">{{ case.applicant.email or '' }}</span></td>
+  </tr>
+  <tr>
+    <th>現在の家賃</th>
+    <td><span class="hw tilt-a">78,000円</span></td>
+    <th>転居理由</th>
+    <td><span class="hw">転勤にともなう住替え</span></td>
+  </tr>
+  <tr>
+    <th>本人確認書類</th>
+    <td>{{ case.applicant.id_document_type or '' }}</td>
+    <th>国籍</th>
+    <td>日本</td>
+  </tr>
+</table>
+
+<h2>■ 世帯構成（入居予定者）</h2>
+<table>
+  <tr>
+    <th>入居人数</th>
+    <td><span class="hw">1</span>　名</td>
+    <th>ペット</th>
+    <td>☑ なし　□ あり（種類：&emsp;&emsp;&emsp;&emsp;）</td>
+  </tr>
+  <tr>
+    <th>同居者①</th>
+    <td colspan="3">氏名：<span class="hw">―</span>　続柄：<span class="hw">―</span>　年齢：<span class="hw">―</span></td>
+  </tr>
+</table>
+
+<h2>■ 勤務先情報（印刷＋手書き混在）</h2>
+<table>
+  <tr>
+    <th>勤務先名</th>
+    <td colspan="3">{{ case.employment.employer_name or '' }}</td>
+  </tr>
+  <tr>
+    <th>部署名</th>
+    <td>{{ case.employment.department or '' }}</td>
+    <th>役職</th>
+    <td>{{ case.employment.job_title or '' }}</td>
+  </tr>
+  <tr>
+    <th>勤続年数</th>
+    <td><span class="hw tilt-b">{{ case.employment.years_employed or '' }}</span></td>
+    <th>年収（税込）</th>
+    <td><span class="hw ill-smudge">{{ case.employment.annual_income or '' }}</span></td>
+  </tr>
+  <tr>
+    <th>勤務先電話番号</th>
+    <td>{{ case.employment.employer_phone or '' }}</td>
+    <th>雇用形態</th>
+    <td>☑ 正社員　□ 契約社員　□ 派遣　□ その他</td>
+  </tr>
+  <tr>
+    <th>勤務先所在地</th>
+    <td colspan="3">{{ case.employment.employer_address or '' }}</td>
+  </tr>
+</table>
+
+<h2>■ 緊急連絡先（手書き記入欄）</h2>
+<table>
+  <tr>
+    <th>氏名</th>
+    <td><span class="hw">{{ case.emergency_contact.name or '' }}</span></td>
+    <th>続柄</th>
+    <td><span class="hw tilt-a">{{ case.emergency_contact.relation or '' }}</span></td>
+  </tr>
+  <tr>
+    <th>電話番号</th>
+    <td><span class="hw tilt-b">{{ case.emergency_contact.phone or '' }}</span></td>
+    <th>住所</th>
+    <td><span class="hw">〒{{ case.emergency_contact.postal_code or '' }}　{{ case.emergency_contact.address or '' }}</span></td>
+  </tr>
+</table>
+
+<h2>■ 連帯保証人</h2>
+<table>
+  {% if case.guarantor %}
+  <tr>
+    <th>氏名</th>
+    <td><span class="hw">{{ case.guarantor.name or '' }}</span></td>
+    <th>フリガナ</th>
+    <td><span class="hw tilt-a">{{ case.guarantor.kana or '' }}</span></td>
+  </tr>
+  <tr>
+    <th>生年月日</th>
+    <td><span class="hw tilt-b">{{ case.guarantor.birth_date or '' }}</span></td>
+    <th>続柄</th>
+    <td><span class="hw">{{ case.guarantor.relationship or '' }}</span></td>
+  </tr>
+  <tr>
+    <th>現住所</th>
+    <td colspan="3"><span class="hw">〒{{ case.guarantor.postal_code or '' }}　{{ case.guarantor.current_address or '' }}</span></td>
+  </tr>
+  <tr>
+    <th>電話番号</th>
+    <td><span class="hw ill-faded">{{ case.guarantor.phone or '' }}</span></td>
+    <th>勤務先</th>
+    <td><span class="hw tilt-a">{{ case.guarantor.employer_name or '' }}</span></td>
+  </tr>
+  <tr>
+    <th>年収（税込）</th>
+    <td colspan="3"><span class="hw">{{ case.guarantor.annual_income or '' }}</span></td>
+  </tr>
+  {% else %}
+  <tr>
+    <th>氏名</th>
+    <td></td>
+    <th>フリガナ</th>
+    <td></td>
+  </tr>
+  <tr>
+    <th>生年月日</th>
+    <td></td>
+    <th>続柄</th>
+    <td></td>
+  </tr>
+  <tr>
+    <th>現住所</th>
+    <td colspan="3"></td>
+  </tr>
+  <tr>
+    <th>電話番号</th>
+    <td></td>
+    <th>勤務先</th>
+    <td></td>
+  </tr>
+  {% endif %}
+</table>
+
+<h2>■ 確認・同意事項</h2>
+<div class="consent-box">
+  <p>☑ 賃貸借契約の内容を十分に理解し、契約条件に同意します。</p>
+  <p>☑ 保証会社の審査・利用に同意します（保証会社：　　　　　　　　　　　　　）。</p>
+  <p>☑ 個人情報の取扱い（収集・利用・第三者提供）に関する同意書の内容に同意します。</p>
+  <p>☑ 申込書に記載した内容はすべて事実であることを誓約します。</p>
+</div>
+
+<h2>■ 署名・捺印</h2>
+<div class="sign-area">
+  <div class="sign-box" style="flex:2">
+    <span class="label">申込者署名</span>
+    <span class="hw-sign">{{ case.applicant.name or '' }}</span>
+  </div>
+  <div class="stamp-box">捺印</div>
+</div>
+
+<p class="footer-note">
+  ※ 本書類は印刷様式に手書き記入が混在した申込書を想定したテスト用サンプルです（スキャン取り込み想定）。
+</p>
+</div>
+</body>
+</html>
