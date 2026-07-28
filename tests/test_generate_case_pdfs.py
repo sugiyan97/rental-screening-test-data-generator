@@ -84,6 +84,30 @@ def test_answer_json_encoding(corporate_case, tmp_path):
     assert "テスト商事株式会社".encode() in raw
 
 
+def test_generate_withholding_slip_current(individual_case, tmp_path):
+    """申込者本人の当年分源泉徴収票が生成でき、正解JSONに支払金額が入る。"""
+    individual_case.documents = [
+        DocumentSpec(
+            document_type="income_certificate", variant="withholding_slip_current"
+        )
+    ]
+    CasePdfGenerator(output_dir=tmp_path).generate(individual_case)
+
+    case_dir = tmp_path / individual_case.case_id
+    pdf_path = case_dir / "pdf" / "income_certificate_withholding_slip_current.pdf"
+    assert pdf_path.exists()
+    assert pdf_path.stat().st_size > 0
+
+    answer = json.loads(
+        (
+            case_dir / "answers" / "income_certificate_withholding_slip_current.json"
+        ).read_text(encoding="utf-8")
+    )
+    assert answer["variant"] == "withholding_slip_current"
+    assert answer["fields"]["payment_amount"] == "4,000,000円"
+    assert answer["fields"]["withholding_tax"] == "85,900円"
+
+
 def test_invalid_template_raises_error(corporate_case, tmp_path):
     corporate_case.documents.append(
         DocumentSpec(document_type="nonexistent_type", variant="standard")

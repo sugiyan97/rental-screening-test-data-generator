@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
+
+@page {
+  size: A4;
+  margin: 15mm 18mm;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif;
+}
+
+body {
+  font-size: 10pt;
+  line-height: 1.6;
+  color: #222;
+  margin: 0;
+}
+
+.sample-notice {
+  background: #fff3cd;
+  border: 2px solid #ffc107;
+  padding: 4px 12px;
+  margin-bottom: 8px;
+  font-size: 8.5pt;
+  font-weight: bold;
+  text-align: center;
+  color: #856404;
+}
+
+.doc-badge {
+  background: #eaf2f8;
+  border: 1px solid #2874a6;
+  padding: 4px 14px;
+  margin-bottom: 10px;
+  font-size: 9.5pt;
+  font-weight: bold;
+  text-align: center;
+  color: #1a5276;
+}
+
+h1 {
+  font-size: 15pt;
+  text-align: center;
+  margin: 0 0 4px;
+  letter-spacing: 0.12em;
+}
+
+.h1-sub {
+  text-align: center;
+  font-size: 9pt;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+.doc-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 8.5pt;
+  color: #555;
+  margin-bottom: 8px;
+}
+
+h2 {
+  font-size: 10.5pt;
+  margin: 8px 0 3px;
+  background: #eaf2f8;
+  padding: 3px 10px;
+  border-left: 4px solid #2874a6;
+}
+
+.payee-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 9.5pt;
+  margin-bottom: 6px;
+}
+
+.payee-table th,
+.payee-table td {
+  border: 1px solid #666;
+  padding: 4px 9px;
+  vertical-align: middle;
+}
+
+.payee-table th {
+  background: #f5f5f5;
+  font-weight: bold;
+  text-align: left;
+  white-space: nowrap;
+  width: 24%;
+}
+
+table.amount-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 10pt;
+  margin: 6px 0 10px;
+}
+
+table.amount-table th,
+table.amount-table td {
+  border: 1px solid #555;
+  padding: 4px 10px;
+  vertical-align: middle;
+}
+
+table.amount-table th {
+  background: #efefef;
+  font-weight: bold;
+  text-align: left;
+  width: 46%;
+}
+
+table.amount-table td {
+  text-align: right;
+}
+
+.amount-highlight {
+  font-size: 13pt;
+  font-weight: bold;
+  color: #1a3c6e;
+}
+
+.primary-row th,
+.primary-row td {
+  background: #eaf2f8;
+}
+
+.total-row th,
+.total-row td {
+  background: #e8f0f8;
+  font-weight: bold;
+}
+
+.sub-row th {
+  padding-left: 24px;
+  font-weight: normal;
+  background: #fafafa;
+}
+
+.calc-note {
+  font-size: 8.5pt;
+  color: #555;
+  border: 1px dashed #aaa;
+  background: #f9f9ff;
+  padding: 5px 10px;
+  margin-bottom: 10px;
+}
+
+.issuer-section {
+  margin-top: 12px;
+  border: 1px solid #aaa;
+  padding: 8px 12px;
+  background: #fafafa;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.issuer-section .stamp-square {
+  display: inline-block;
+  width: 52px;
+  height: 52px;
+  border: 1.5px solid #c0392b;
+  text-align: center;
+  line-height: 50px;
+  font-size: 7pt;
+  color: #c0392b;
+  margin-left: 8px;
+}
+
+.footer-note {
+  font-size: 8pt;
+  color: #666;
+  border-top: 1px solid #ccc;
+  padding-top: 5px;
+  margin-top: 6px;
+}
+</style>
+</head>
+<body>
+<div class="sample-notice">【テスト用サンプル書類 ― 実在の個人情報ではありません / 源泉徴収票ではありません】</div>
+<div class="doc-badge">■ 申込者本人（給与所得者）の当年分 源泉徴収票</div>
+
+<h1>給与所得の源泉徴収票</h1>
+<p class="h1-sub">所得税法第226条第1項に基づく（申込者本人・当年分）</p>
+
+<div class="doc-meta">
+  <span>源泉徴収票ID：{{ case.case_id }}-WHSC</span>
+  <span>対象年分：{{ case.income.income_year if case.income else '' }}分</span>
+  <span>交付日：{{ case.income.issue_date if case.income else '' }}</span>
+</div>
+
+<h2>■ 受給者（申込者本人）</h2>
+<table class="payee-table">
+  <tr>
+    <th>氏名</th>
+    <td>{{ case.applicant.name if case.applicant else '' }}</td>
+    <th>フリガナ</th>
+    <td>{{ case.applicant.kana if case.applicant else '' }}</td>
+  </tr>
+  <tr>
+    <th>生年月日</th>
+    <td>{{ case.applicant.birth_date if case.applicant else '' }}</td>
+    <th>受給者番号</th>
+    <td>{{ case.case_id }}-EMP</td>
+  </tr>
+  <tr>
+    <th>住所</th>
+    <td colspan="3">{{ case.applicant.current_address if case.applicant else '' }}</td>
+  </tr>
+  <tr>
+    <th>種別</th>
+    <td>{{ case.income.income_type if case.income else '' }}（給料・賞与）</td>
+    <th>在籍部署・役職</th>
+    <td>{{ case.employment.department if case.employment else '' }}　{{ case.employment.job_title if case.employment else '' }}</td>
+  </tr>
+</table>
+
+<h2>■ 支払金額および源泉徴収税額</h2>
+<table class="amount-table">
+  <tr class="primary-row">
+    <th>支払金額（年間給与・賞与の総額）</th>
+    <td><span class="amount-highlight">{{ case.income.payment_amount or case.income.annual_income or '' if case.income else '' }}</span></td>
+  </tr>
+  <tr class="sub-row">
+    <th>（内訳）給与所得控除額</th>
+    <td>{{ case.income.salary_income_deduction if case.income else '' }}</td>
+  </tr>
+  <tr>
+    <th>給与所得控除後の金額</th>
+    <td>{{ case.income.income_after_deduction if case.income else '' }}</td>
+  </tr>
+  <tr class="sub-row">
+    <th>（内訳）社会保険料等の金額</th>
+    <td>{{ case.income.social_insurance if case.income else '' }}</td>
+  </tr>
+  <tr class="sub-row">
+    <th>（内訳）生命保険料の控除額</th>
+    <td>{{ case.income.life_insurance_deduction if case.income else '' }}</td>
+  </tr>
+  <tr class="sub-row">
+    <th>（内訳）基礎控除</th>
+    <td>{{ case.income.basic_deduction if case.income else '' }}</td>
+  </tr>
+  <tr>
+    <th>所得控除の額の合計額</th>
+    <td>{{ case.income.total_deductions if case.income else '' }}</td>
+  </tr>
+  <tr>
+    <th>課税給与所得金額</th>
+    <td>{{ case.income.taxable_income if case.income else '' }}</td>
+  </tr>
+  <tr class="total-row">
+    <th>源泉徴収税額</th>
+    <td>{{ case.income.withholding_tax if case.income else '' }}</td>
+  </tr>
+</table>
+
+<div class="calc-note">
+  支払金額 {{ case.income.payment_amount or case.income.annual_income or '' if case.income else '' }}
+  − 給与所得控除額 {{ case.income.salary_income_deduction if case.income else '' }}
+  ＝ 給与所得控除後の金額 {{ case.income.income_after_deduction if case.income else '' }}<br>
+  給与所得控除後の金額 − 所得控除の額の合計額 {{ case.income.total_deductions if case.income else '' }}
+  ＝ 課税給与所得金額 {{ case.income.taxable_income if case.income else '' }}
+</div>
+
+<h2>■ 控除対象扶養親族等・摘要</h2>
+<table class="payee-table">
+  <tr>
+    <th>控除対象配偶者</th>
+    <td>{{ case.income.spouse_status if case.income else '' }}</td>
+    <th>控除対象扶養親族の数</th>
+    <td>{{ case.income.dependents_count if case.income else '' }}</td>
+  </tr>
+  <tr>
+    <th>勤続年数</th>
+    <td>{{ case.employment.years_employed if case.employment else '' }}</td>
+    <th>摘要</th>
+    <td>年末調整済</td>
+  </tr>
+</table>
+
+<div class="issuer-section">
+  <div>
+    <div><strong>支払者（勤務先）</strong></div>
+    <div>名称：{{ case.income.issuer_name if case.income else (case.employment.employer_name if case.employment else '') }}</div>
+    <div>所在地：{{ case.employment.employer_address if case.employment else '' }}</div>
+    <div>電話番号：{{ case.employment.employer_phone if case.employment else '' }}</div>
+  </div>
+  <div class="stamp-square">事業所印<br>（ダミー）</div>
+</div>
+
+<p class="footer-note">
+  ※ 本書類はOCR・LLM・Document AIシステムの検証を目的として作成されたテスト用サンプルです。
+  実在する個人の納税情報ではありません。公的書類として使用することはできません。
+</p>
+</body>
+</html>

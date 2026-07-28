@@ -1,6 +1,23 @@
+import json
+from pathlib import Path
+
 import pytest
 
 from rental_pdf_generator.answer_builder import UnsupportedDocumentTypeError, build_answer
+from rental_pdf_generator.models import Case
+
+CASES_JSONL = Path(__file__).parent.parent / "input" / "cases.jsonl"
+
+
+def load_case_from_jsonl(case_id: str) -> Case:
+    """input/cases.jsonl から指定ケースを読み込む。"""
+    for line in CASES_JSONL.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        data = json.loads(line)
+        if data["case_id"] == case_id:
+            return Case.model_validate(data)
+    raise AssertionError(f"{case_id} が cases.jsonl に存在しない")
 
 
 def test_build_answer_corporate(corporate_case):
@@ -376,6 +393,56 @@ def test_build_answer_income_with_previous_employment(individual_extended_case):
     assert answer["fields"]["previous_end_date"] == "2026年08月31日"
 
 
+def test_build_answer_income_withholding_slip_current(individual_case):
+    """申込者本人の当年分源泉徴収票の正解JSONに支払金額と各控除額が含まれる。"""
+    answer = build_answer(
+        individual_case, "income_certificate", "withholding_slip_current"
+    )
+    assert answer["variant"] == "withholding_slip_current"
+    fields = answer["fields"]
+    assert fields["name"] == "テスト 花子"
+    assert fields["payment_amount"] == "4,000,000円"
+    assert fields["salary_income_deduction"] == "1,240,000円"
+    assert fields["income_after_deduction"] == "2,760,000円"
+    assert fields["social_insurance"] == "596,000円"
+    assert fields["total_deductions"] == "1,076,000円"
+    assert fields["taxable_income"] == "1,684,000円"
+    assert fields["withholding_tax"] == "85,900円"
+    assert fields["dependents_count"] == "0人"
+    assert fields["spouse_status"] == "無"
+    # 支払金額は申込書・在職証明の年収と一致する
+    assert fields["payment_amount"] == fields["annual_income"]
+    # 支払者（勤務先）情報も抽出できる
+    assert fields["employer_name"] == "テスト株式会社"
+    assert fields["employer_address"] == "東京都渋谷区テスト2-2-2"
+    # 前職源泉徴収票（既存 variant）のフィールドは本人版では未設定
+    assert fields["previous_employer_name"] is None
+
+
+def test_build_answer_income_withholding_slip_current_amount_consistency():
+    """CASE-000054 の源泉徴収票の金額が計算式どおり整合している。"""
+    target = load_case_from_jsonl("CASE-000054")
+    answer = build_answer(target, "income_certificate", "withholding_slip_current")
+    fields = answer["fields"]
+
+    def yen(value: str) -> int:
+        return int(value.replace(",", "").replace("円", ""))
+
+    assert yen(fields["payment_amount"]) - yen(fields["salary_income_deduction"]) == yen(
+        fields["income_after_deduction"]
+    )
+    assert yen(fields["income_after_deduction"]) - yen(fields["total_deductions"]) == yen(
+        fields["taxable_income"]
+    )
+    assert (
+        yen(fields["social_insurance"])
+        + yen(fields["basic_deduction"])
+        + yen(fields["life_insurance_deduction"])
+        == yen(fields["total_deductions"])
+    )
+    assert fields["payment_amount"] == fields["annual_income"]
+
+
 def test_build_answer_business_license_application(corporate_extended_case):
     answer = build_answer(
         corporate_extended_case, "business_license_application", "restaurant"
@@ -396,6 +463,65 @@ def test_build_answer_payment_track_record_pledge(corporate_extended_case):
     assert answer["fields"]["delinquency_record"] == "延滞なし"
     assert answer["fields"]["payment_period"] == "2014年04月〜2026年08月"
     assert answer["fields"]["current_lease_rent"] == "300,000円/月"
+    assert answer["fields"]["delinquency_count"] == "0回"
+    assert answer["fields"]["total_paid_amount"] == "44,400,000円"
+    assert answer["fields"]["settlement_status"] == "完済（未払残高 0円）"
+
+
+def test_build_answer_payment_track_record_pledge_same_applicant():
+    """CASE-000056 の確約者・代表者が申込法人・代表者と一致する（同一申込者版）。"""
+    case = load_case_from_jsonl("CASE-000056")
+    answer = build_answer(case, "payment_track_record_pledge", "standard")
+    fields = answer["fields"]
+    assert fields["pledger_name"] == fields["company_name"]
+    assert fields["pledger_name"] == case.company.company_name
+    assert fields["representative_name"] == case.company.representative_name
+    # 契約物件 / 期間 / 月額 / 遅延 / 完済 がすべて抽出できる
+    for key in (
+        "current_lease_property",
+        "payment_period",
+        "current_lease_rent",
+        "delinquency_record",
+        "delinquency_count",
+        "settlement_status",
+    ):
+        assert fields[key], f"{key} が空"
+
+
+def test_case_000056_outputs_pledge_in_pdf_and_docx():
+    """支払実績確約書を PDF と Word の2形式で出力するよう定義されている。"""
+    case = load_case_from_jsonl("CASE-000056")
+    formats = {
+        doc.output_format
+        for doc in case.documents
+        if doc.document_type == "payment_track_record_pledge"
+    }
+    assert formats == {"pdf", "docx"}
+
+
+def test_case_000055_financials_are_consistent():
+    """CASE-000055 は売上約10億円で、総資産 = 負債 + 純資産 が成立する。"""
+    case = load_case_from_jsonl("CASE-000055")
+    answer = build_answer(case, "financial_statement", "financial_summary")
+    fields = answer["fields"]
+
+    def yen(value: str) -> int:
+        return int(value.replace(",", "").replace("円", ""))
+
+    assert fields["sales"] == "1,024,000,000円"
+    assert 900_000_000 <= yen(fields["sales"]) <= 1_100_000_000
+    assert yen(fields["total_assets"]) == yen(fields["total_liabilities"]) + yen(
+        fields["net_assets"]
+    )
+    assert yen(fields["operating_income"]) > yen(fields["ordinary_income"])
+    assert yen(fields["ordinary_income"]) > yen(fields["net_income"])
+
+    prior = build_answer(case, "financial_statement", "financial_summary_prior")["fields"]
+    assert yen(prior["total_assets"]) == yen(prior["total_liabilities"]) + yen(
+        prior["net_assets"]
+    )
+    # 前期純資産 + 当期純利益 = 当期純資産（配当なし）
+    assert yen(prior["net_assets"]) + yen(fields["net_income"]) == yen(fields["net_assets"])
 
 
 def test_build_answer_funding_evidence(corporate_extended_case):

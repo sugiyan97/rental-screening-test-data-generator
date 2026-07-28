@@ -317,6 +317,7 @@ def _build_income_certificate(case: Case, variant: str = "") -> dict[str, Any]:
         }
     i = case.previous_income if variant.endswith("_prior") else case.income
     pe = case.previous_employment
+    e = case.employment
     return {
         "name": _get(a, "name"),
         "current_address": _get(a, "current_address"),
@@ -331,6 +332,21 @@ def _build_income_certificate(case: Case, variant: str = "") -> dict[str, Any]:
         "issuer_name": _get(i, "issuer_name"),
         "issue_date": _get(i, "issue_date"),
         "certificate_expiry": _get(i, "certificate_expiry"),
+        # 源泉徴収票（本人・当年分）用
+        "payment_amount": _get(i, "payment_amount"),
+        "salary_income_deduction": _get(i, "salary_income_deduction"),
+        "income_after_deduction": _get(i, "income_after_deduction"),
+        "social_insurance": _get(i, "social_insurance"),
+        "basic_deduction": _get(i, "basic_deduction"),
+        "life_insurance_deduction": _get(i, "life_insurance_deduction"),
+        "total_deductions": _get(i, "total_deductions"),
+        "taxable_income": _get(i, "taxable_income"),
+        "withholding_tax": _get(i, "withholding_tax"),
+        "dependents_count": _get(i, "dependents_count"),
+        "spouse_status": _get(i, "spouse_status"),
+        "employer_name": _get(e, "employer_name"),
+        "employer_address": _get(e, "employer_address"),
+        "employer_phone": _get(e, "employer_phone"),
         "previous_employer_name": _get(pe, "employer_name"),
         "previous_employment_period": _get(pe, "employment_period"),
         "previous_gross_income": _get(pe, "gross_income"),
@@ -600,6 +616,9 @@ def _build_payment_track_record_pledge(case: Case, variant: str = "") -> dict[st
         "current_lease_rent": _get(pt, "current_lease_rent"),
         "payment_period": _get(pt, "payment_period"),
         "delinquency_record": _get(pt, "delinquency_record"),
+        "delinquency_count": _get(pt, "delinquency_count"),
+        "total_paid_amount": _get(pt, "total_paid_amount"),
+        "settlement_status": _get(pt, "settlement_status"),
         "payment_method": _get(pt, "payment_method"),
         "references": _get(pt, "references"),
         "pledge_statement": _get(pt, "pledge_statement"),

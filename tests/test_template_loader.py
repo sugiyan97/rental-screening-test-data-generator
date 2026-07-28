@@ -32,6 +32,9 @@ def test_load_all_initial_templates():
         ("business_plan", "narrative"),
         ("rental_application_individual", "standard"),
         ("income_certificate", "salary_certificate"),
+        ("income_certificate", "withholding_slip"),
+        ("income_certificate", "withholding_slip_current"),
+        ("payment_track_record_pledge", "standard"),
         ("business_license", "entertainment_business"),
         ("registry_certificate", "registry_table_with_shareholders"),
     ]
@@ -75,6 +78,19 @@ def test_registry_table_without_shareholders_still_renders(corporate_case):
     html = template.render(case=corporate_case)
     assert "テスト商事株式会社" in html
     assert "株 主 名 簿" not in html
+
+def test_load_withholding_slip_current_template():
+    """申込者本人の当年分源泉徴収票 variant が既存 variant と別に存在する。"""
+    loader = TemplateLoader()
+    template = loader.load(
+        case_id="CASE-TEST",
+        document_type="income_certificate",
+        variant="withholding_slip_current",
+    )
+    assert template is not None
+    available = loader._list_available("income_certificate")
+    assert "withholding_slip" in available
+    assert "withholding_slip_current" in available
 
 
 def test_load_invalid_document_type_raises():
