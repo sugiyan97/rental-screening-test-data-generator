@@ -84,9 +84,10 @@ td.wide { width: 72%; }
   <tr><th>現住居</th><td>□ 自己所有　□ 家族所有　☑ 賃貸　□ 社宅</td></tr>
   <tr><th>電話（携帯） / メール</th><td>{{ case.applicant.phone if case.applicant else '' }} / {{ case.applicant.email if case.applicant else '' }}</td></tr>
   <tr><th>職業</th><td>□ 会社員　□ 公務員　☑ 自営業　□ パート・アルバイト　□ その他</td></tr>
-  <tr><th>年間所得（税込）</th><td>{{ case.income.annual_income if case.income else '' }}</td></tr>
+  <tr><th>年収（年間所得・税込）</th><td>{{ case.income.annual_income if case.income else '' }}</td></tr>
   <tr><th>勤務先名称（屋号）</th><td>{{ case.employment.employer_name if case.employment else '' }}</td></tr>
   <tr><th>勤務先所在地</th><td>{{ case.employment.employer_address if case.employment else '' }}</td></tr>
+  <tr><th>勤務先電話番号</th><td>{{ case.employment.employer_phone if case.employment else '' }}</td></tr>
   <tr><th>勤続年数（業歴）</th><td>{{ case.employment.years_employed if case.employment else '' }}</td></tr>
   <tr><th>入居理由</th><td>☑ 新規開業　□ 移転　□ 増店</td></tr>
   <tr><th>申込物件事業内容</th><td>{{ case.company.business_description if case.company else '' }}</td></tr>
@@ -96,7 +97,7 @@ td.wide { width: 72%; }
 <h2>■ 緊急連絡先</h2>
 <table>
   <tr><th>氏名 / 続柄</th><td class="wide">{{ case.emergency_contact.name if case.emergency_contact else '' }} / {{ case.emergency_contact.relation if case.emergency_contact else '' }}</td></tr>
-  <tr><th>電話番号</th><td>{{ case.emergency_contact.phone if case.emergency_contact else '' }}</td></tr>
+  <tr><th>電話番号（携帯）</th><td>{{ case.emergency_contact.phone if case.emergency_contact else '' }}</td></tr>
   <tr><th>住所</th><td>〒{{ case.emergency_contact.postal_code if case.emergency_contact else '' }}　{{ case.emergency_contact.address if case.emergency_contact else '' }}</td></tr>
 </table>
 
