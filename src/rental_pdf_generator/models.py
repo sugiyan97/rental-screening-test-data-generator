@@ -27,6 +27,9 @@ class Company(BaseModel):
     corporate_number: str | None = None
     postal_code: str | None = None
     head_office_address: str | None = None
+    # 本店移転の登記年月日。謄本の「本店」欄の原因日付に使う（未指定なら established_date）。
+    # 再アップロード（冪等更新）検証で本店所在地だけを変えた謄本を出す場合に指定する。
+    head_office_transfer_date: str | None = None
     representative_name: str | None = None
     representative_kana: str | None = None
     representative_birth_date: str | None = None

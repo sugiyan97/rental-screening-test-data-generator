@@ -78,6 +78,24 @@ def test_registry_table_without_shareholders_still_renders(corporate_case):
     html = template.render(case=corporate_case)
     assert "テスト商事株式会社" in html
     assert "株 主 名 簿" not in html
+    # 本店移転していない謄本は「本店」欄の原因日付が設立日
+    assert "2020年01月01日移転" in html
+
+
+def test_registry_table_uses_head_office_transfer_date(corporate_case):
+    """head_office_transfer_date を指定すると「本店」欄の原因日付が移転日になる。"""
+    corporate_case.company.head_office_transfer_date = "2026年07月10日"
+    loader = TemplateLoader()
+    template = loader.load(
+        case_id=corporate_case.case_id,
+        document_type="registry_certificate",
+        variant="registry_table",
+    )
+    html = template.render(case=corporate_case)
+    assert "2026年07月10日移転" in html
+    assert "2020年01月01日移転" not in html
+    # 商号・会社成立年月日は設立日のまま（移転で変わらない）
+    assert "2020年01月01日登記" in html
 
 def test_load_withholding_slip_current_template():
     """申込者本人の当年分源泉徴収票 variant が既存 variant と別に存在する。"""

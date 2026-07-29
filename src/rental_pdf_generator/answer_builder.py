@@ -166,6 +166,9 @@ def _build_registry_certificate(case: Case, variant: str = "") -> dict[str, Any]
         "business_description": _get(c, "business_description"),
         "fiscal_year_end": _get(c, "fiscal_year_end"),
     }
+    # 本店移転を登記した謄本のみ移転日を持たせる（未設定ケースの出力は従来どおり）
+    if _get(c, "head_office_transfer_date"):
+        fields["head_office_transfer_date"] = _get(c, "head_office_transfer_date")
     # 株主名簿を参考添付する variant のみ株主情報を持たせる（未設定ケースの出力は従来どおり）
     if case.shareholders:
         fields.update(_shareholder_summary(case.shareholders))

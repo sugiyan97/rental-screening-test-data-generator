@@ -12,6 +12,7 @@ import pytest
 
 from rental_pdf_generator.answer_builder import build_answer
 from rental_pdf_generator.cli import _load_cases
+from rental_pdf_generator.models import apply_case_overrides
 
 CASES_PATH = Path(__file__).resolve().parents[1] / "input" / "cases.jsonl"
 
@@ -198,3 +199,138 @@ def test_case_000060_guarantor_is_same_as_applicant(cases_by_id):
     assert a.birth_date == g.birth_date
     assert a.current_address == g.current_address
     assert g.relationship == "本人（申込者と同一）"
+
+
+# --- Issue #40: 再アップロード（冪等更新）検証用 value-variant CASE-000032-V2 -------
+
+
+def _document(case, document_type: str):
+    return next(d for d in case.documents if d.document_type == document_type)
+
+
+def _answer_of(case, document_type: str) -> dict:
+    """その書類の overrides を適用した状態の正解 JSON の fields を返す。"""
+    doc = _document(case, document_type)
+    answer = build_answer(apply_case_overrides(case, doc.overrides), doc.document_type, doc.variant)
+    return answer["fields"]
+
+
+def _yen(value: str) -> int:
+    """'△27,400,000円' -> -27400000"""
+    amount = int(re.sub(r"[^\d]", "", value))
+    return -amount if value.startswith(("△", "-", "▲")) else amount
+
+
+@pytest.fixture(scope="module")
+def reupload_pair(cases_by_id) -> tuple:
+    return cases_by_id["CASE-000032"], cases_by_id["CASE-000032-V2"]
+
+
+def test_case_000032_v2_case_data_is_identical_to_round1(reupload_pair):
+    """ケースデータ本体（申込者特定キーを含む全項目）は round1 と完全に同一。
+
+    round2 で変わるのは原本書類の overrides だけ。ここが崩れると
+    「同一案件への2回目アップロード」にならず冪等更新を検証できない。
+    """
+    round1, round2 = reupload_pair
+    exclude = {"case_id", "description", "documents"}
+    assert round2.model_dump(exclude=exclude) == round1.model_dump(exclude=exclude)
+
+
+def test_case_000032_v2_document_set_is_identical_to_round1(reupload_pair):
+    """提出書類の構成（種別・様式・形式・ラベル）は round1 と同一。"""
+    round1, round2 = reupload_pair
+
+    def spec(doc):
+        return (doc.document_type, doc.variant, doc.output_format, doc.label)
+
+    assert [spec(d) for d in round2.documents] == [spec(d) for d in round1.documents]
+    assert len(round2.documents) == 15
+
+
+def test_case_000032_v2_overrides_only_on_original_documents(reupload_pair):
+    """値を変えるのは原本（謄本・決算書）だけ。他の書類は round1 と同一内容。"""
+    _, round2 = reupload_pair
+    overridden = {d.document_type for d in round2.documents if d.overrides}
+    assert overridden == {"registry_certificate", "financial_statement"}
+
+
+def test_case_000032_v2_registry_head_office_is_overwritten(reupload_pair):
+    """謄本の本店所在地だけが round1 と異なり、他の謄本項目は不変。"""
+    round1, round2 = reupload_pair
+    before, after = _answer_of(round1, "registry_certificate"), _answer_of(
+        round2, "registry_certificate"
+    )
+    assert after["head_office_address"] == "東京都千代田区神田駿河台2-9-9 サンプル駿河台ビル8階"
+    assert after["head_office_address"] != before["head_office_address"]
+    # 同一案件と判定させるキー（商号・会社法人等番号）は不変
+    assert after["company_name"] == before["company_name"]
+    assert after["corporate_number"] == before["corporate_number"]
+    changed = {k for k in before if before[k] != after.get(k)}
+    assert changed == {"head_office_address"}
+
+
+def test_case_000032_v2_registry_records_transfer_date(reupload_pair):
+    """本店移転の登記日が原本に記録され、設立日より後になっている。"""
+    round1, round2 = reupload_pair
+    after = _answer_of(round2, "registry_certificate")
+    assert after["head_office_transfer_date"] == "2026年07月10日"
+    assert _parse_jp_date(after["head_office_transfer_date"]) > _parse_jp_date(
+        after["established_date"]
+    )
+    assert _parse_jp_date(after["head_office_transfer_date"]) <= BASE_DATE
+    # round1 の謄本は本店移転していないため移転日を持たない
+    assert "head_office_transfer_date" not in _answer_of(round1, "registry_certificate")
+
+
+def test_case_000032_v2_application_keeps_round1_head_office(reupload_pair):
+    """申込書は round1 と同一（旧本店所在地のまま）。
+
+    謄本の新住所で上書きされ、申込書由来の値は保護される——という
+    原本優先上書きの検証は、申込書側が旧値のままでなければ成立しない。
+    """
+    round1, round2 = reupload_pair
+    before = _answer_of(round1, "rental_application_corporate")
+    after = _answer_of(round2, "rental_application_corporate")
+    assert after == before
+    assert after["head_office_address"] == "東京都文京区本郷7-3-1"
+    assert after["head_office_address"] != _answer_of(round2, "registry_certificate")[
+        "head_office_address"
+    ]
+
+
+def test_case_000032_v2_financial_amounts_are_overwritten(reupload_pair):
+    """決算書は同一決算期のまま主要科目の金額だけが round1 と異なる。"""
+    round1, round2 = reupload_pair
+    before = _answer_of(round1, "financial_statement")
+    after = _answer_of(round2, "financial_statement")
+    assert after["fiscal_year"] == before["fiscal_year"] == "2026年度（第1期）"
+    assert after["company_name"] == before["company_name"]
+    changed = {k for k in before if before[k] != after.get(k)}
+    assert changed == {
+        "sales",
+        "operating_income",
+        "ordinary_income",
+        "net_income",
+        "total_assets",
+        "net_assets",
+    }
+    assert after["sales"] == "12,600,000円"
+    assert after["net_income"] == "△26,900,000円"
+    assert after["total_assets"] == "168,100,000円"
+
+
+def test_case_000032_v2_financials_stay_consistent(reupload_pair):
+    """変更後の決算数値も 資産合計 = 負債合計 + 純資産合計 が成立する。"""
+    round1, round2 = reupload_pair
+    after = _answer_of(round2, "financial_statement")
+    assert _yen(after["total_assets"]) == _yen(after["total_liabilities"]) + _yen(
+        after["net_assets"]
+    )
+    # 損失が縮小した分だけ純資産が増える（払込資本は round1 と同額）
+    before = _answer_of(round1, "financial_statement")
+    loss_improvement = _yen(after["net_income"]) - _yen(before["net_income"])
+    assert loss_improvement == 3_600_000
+    assert _yen(after["net_assets"]) - _yen(before["net_assets"]) == loss_improvement
+    # 第1期の新設スタートアップなので当期純損失であること自体は変わらない
+    assert _yen(after["net_income"]) < 0
