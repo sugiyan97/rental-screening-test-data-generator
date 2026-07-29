@@ -58,7 +58,7 @@ OCR・LLM・Document AI などの抽出システムを検証するため、**架
 | CASE-000030 | 新規・法人 | 株式会社サンプルロボティクスラボ | 資金調達済スタートアップ。資金エビデンス（自己資金＋融資＋VC出資＋補助金）と事業計画書で支払能力を裏付け | 申込書office＋登記簿＋事業計画書＋資金エビデンス＋代表者ID |
 | CASE-000031 | 新規・法人＋個人連帯保証人 | 株式会社サンプルロボティクスラボ | CASE-000030 と同様の資金調達済スタートアップに代表者の配偶者が個人連帯保証人として参加。第1期決算書＋連帯保証人の個人証明書一式 | 申込書office＋登記簿＋決算書＋事業計画書＋資金エビデンス＋代表者ID＋連帯保証契約書＋保証人収入＋保証人ID＋保証人印鑑証明＋保証人住民票（11書類） |
 | CASE-000032 | 新規・法人＋個人連帯保証人2名 | 株式会社サンプルネクストロボティクス | 設立6ヶ月以内の新設スタートアップ。代表者の配偶者＋実父が連帯保証人。両保証人とも個人証明書一式を提出 | 申込書office＋登記簿＋決算書＋事業計画書＋資金エビデンス＋代表者ID＋連帯保証契約書＋保証人1の4書類＋保証人2の4書類（15書類） |
-| CASE-000034 | 新規・法人（成長期） | 株式会社サンプルグロースワークス | 設立3年の新興 SaaS 企業。過去3期分の決算書を1ファイルにまとめた「複数期決算書」で売上成長を提示 | 申込書office＋登記簿＋**複数期決算書（3期・1ファイル）**＋代表者ID |
+| CASE-000034 | 新規・法人（成長期） | 株式会社サンプルグロースワークス | 設立3年の新興 SaaS 企業。過去3期分の決算書を1ファイルにまとめた「複数期決算書」で売上成長を提示。E2E 様式頑健性検証用に、同一内容の決算書を**報告式BS（縦並び）**レイアウトでも出力 | 申込書office＋登記簿＋**複数期決算書（3期・1ファイル）**＋**複数期決算書・報告式BS（同一内容・様式違い）**＋代表者ID |
 | CASE-000036 | 新規・法人＋個人連帯保証人2名 | 株式会社サンプルメドテックラボ | CASE-000033（既存企業版）の新規企業版。設立4ヶ月の新設法人が事業計画書・資金エビデンスを提出。連帯保証人2名は個人証明書一式を提出 | 申込書office＋登記簿＋事業計画書＋資金エビデンス＋代表者ID＋連帯保証契約書＋保証人1の4書類＋保証人2の4書類（14書類） |
 
 ### C. 個人事業（自営業者・フリーランス） — 6 ケース
@@ -106,7 +106,7 @@ OCR・LLM・Document AI などの抽出システムを検証するため、**架
 | `rental_application_corporate` | 法人用入居申込書 | `standard`, `handwritten_like`, `office`, `housing`, `store` |
 | `income_certificate` | 収入証明書風 | `salary_certificate`, `tax_return`, `tax_return_prior`, `tax_return_multi_year`, `withholding_slip`, `withholding_slip_current` |
 | `registry_certificate` | 履歴事項全部証明書風 | `registry_table`, `registry_table_with_shareholders` |
-| `financial_statement` | 決算書風（財務サマリー） | `financial_summary`, `financial_summary_prior`, `multi_period` |
+| `financial_statement` | 決算書風（財務サマリー） | `financial_summary`, `financial_summary_prior`, `multi_period`, `multi_period_report_form` |
 | `trial_balance` | 合計残高試算表風（月次） | `monthly_summary` |
 | `business_opening_notice` | 個人事業の開業・廃業等届出書（開業届）写し風 | `individual` |
 | `bank_balance_certificate` | 預貯金残高証明書風（金融機関発行） | `standard` |
@@ -507,6 +507,7 @@ templates/
     financial_summary.html       当期決算書
     financial_summary_prior.html 前年度決算書（多年度書類用）
     multi_period.html            複数期決算書（複数期を1ファイルに集約）
+    multi_period_report_form.html 複数期決算書・報告式BS（貸借対照表を資産→負債→純資産の縦並びで表示）
   trial_balance/
     monthly_summary.html         月次合計残高試算表
   business_opening_notice/
