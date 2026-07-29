@@ -724,3 +724,80 @@ def test_build_answer_guarantor_equals_applicant():
     assert fields["birth_date"] == fields["guarantor_birth_date"]
     assert fields["current_address"] == fields["guarantor_current_address"]
     assert fields["guarantor_relationship"] == "本人（申込者と同一）"
+
+
+SOLE_PROPRIETOR_CORPORATE_FORM_CASE: dict = {
+    "case_id": "CASE-TEST-SP-001",
+    "applicant_type": "sole_proprietor",
+    "applicant": {
+        "name": "テスト 事業",
+        "kana": "テスト ジギョウ",
+        "birth_date": "1983年03月22日",
+        "age": "43",
+        "gender": "男性",
+        "postal_code": "166-0003",
+        "current_address": "東京都杉並区テスト南5-6-7",
+        "phone": "090-0000-0001",
+        "email": "sp@example.test",
+        "id_document_type": "運転免許証",
+    },
+    "employment": {
+        "employer_name": "テスト木工デザイン",
+        "employer_address": "東京都杉並区テスト南5-6-7",
+        "years_employed": "8年",
+        "annual_income": "6,200,000円",
+    },
+    "company": {
+        "company_name": "テスト木工デザイン",
+        "company_kana": "テストモッコウデザイン",
+        "business_description": "オーダー家具の設計・製作",
+        "employee_count": "1名",
+    },
+    "income": {"annual_income": "6,200,000円", "income_type": "事業所得（個人事業主）"},
+    "emergency_contact": {
+        "name": "テスト 花子",
+        "relation": "姉",
+        "phone": "090-0000-0002",
+        "postal_code": "166-0004",
+        "address": "東京都杉並区テスト北1-2-3",
+    },
+    "documents": [{"document_type": "rental_application_corporate", "variant": "sole_proprietor"}],
+}
+
+
+def test_build_answer_corporate_sole_proprietor_has_applicant_block():
+    """TC-1-092 個人が法人様式で申込。
+
+    商号は屋号（法人格なし）で、《申込者》欄の本人情報が answer に出る。
+    """
+    case = Case.model_validate(SOLE_PROPRIETOR_CORPORATE_FORM_CASE)
+    fields = build_answer(case, "rental_application_corporate", "sole_proprietor")["fields"]
+    # 商号＝屋号。法人格（株式会社等）を含まず、法人固有項目は空（個人事業のため存在しない）
+    assert fields["company_name"] == "テスト木工デザイン"
+    assert "株式会社" not in fields["company_name"]
+    assert fields["corporate_number"] is None
+    assert fields["established_date"] is None
+    assert fields["capital"] is None
+    assert fields["representative_name"] is None
+    # 《申込者（賃借人）》欄＝実態は個人
+    assert fields["applicant_name"] == "テスト 事業"
+    assert fields["applicant_birth_date"] == "1983年03月22日"
+    assert fields["applicant_current_address"] == "東京都杉並区テスト南5-6-7"
+    assert fields["applicant_occupation"] == "自営業"
+    assert fields["applicant_residence_type"] == "賃貸"
+    assert fields["applicant_annual_income"] == "6,200,000円"
+    assert fields["trade_name"] == "テスト木工デザイン"
+    assert fields["years_in_business"] == "8年"
+    assert fields["move_in_reason"] == "新規開業"
+    assert fields["application_category"] == "新規申込者"
+    assert fields["application_kind"] == "事務所"
+    assert fields["emergency_contact_name"] == "テスト 花子"
+
+
+def test_build_answer_corporate_other_variants_have_no_applicant_block():
+    """他の法人様式（standard/office）の正解 JSON は従来どおり《申込者》欄を持たない。"""
+    case = Case.model_validate(SOLE_PROPRIETOR_CORPORATE_FORM_CASE)
+    for variant in ("standard", "office"):
+        fields = build_answer(case, "rental_application_corporate", variant)["fields"]
+        assert "applicant_name" not in fields
+        assert "trade_name" not in fields
