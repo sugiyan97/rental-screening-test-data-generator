@@ -244,7 +244,7 @@ table.shareholders tr.total-row th {
     <th>本店</th>
     <td class="content">{{ case.company.head_office_address or '' }}</td>
     <td class="cause">原因</td>
-    <td class="date">{{ case.company.established_date or '' }}移転</td>
+    <td class="date">{{ case.company.head_office_transfer_date or case.company.established_date or '' }}移転</td>
   </tr>
   <tr>
     <th>公告をする方法</th>

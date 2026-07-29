@@ -118,6 +118,15 @@ def test_build_answer_registry_without_shareholders(corporate_case):
     assert "vc_voting_ratio_total" not in answer["fields"]
 
 
+def test_build_answer_registry_with_head_office_transfer_date(corporate_case):
+    """本店移転を登記した謄本では移転日が正解 JSON に載る（再アップロード検証用）。"""
+    corporate_case.company.head_office_address = "東京都中央区テスト銀座3-3-3"
+    corporate_case.company.head_office_transfer_date = "2026年07月10日"
+    answer = build_answer(corporate_case, "registry_certificate", "registry_table")
+    assert answer["fields"]["head_office_address"] == "東京都中央区テスト銀座3-3-3"
+    assert answer["fields"]["head_office_transfer_date"] == "2026年07月10日"
+
+
 def test_build_answer_registry_with_shareholders(corporate_extended_case):
     answer = build_answer(
         corporate_extended_case, "registry_certificate", "registry_table_with_shareholders"
