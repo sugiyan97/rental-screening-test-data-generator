@@ -9,7 +9,7 @@ OCR・LLM・Document AI などの抽出システムを検証するため、**架
 
 ## 収録ケース一覧
 
-`input/cases.jsonl` に以下の 62 ケースが収録されている。申込時点で「既存会社」か「新規（新設）会社」かが審査内容を大きく左右するため、**法人ケースは既存／新規で表を分け**、個人ケース（自営業／給与所得者）も別表で整理した。会社名・個人名は実在しないサンプル名で、新規／既存の区別が一目で分かるよう命名している。
+`input/cases.jsonl` に以下の 63 ケースが収録されている。申込時点で「既存会社」か「新規（新設）会社」かが審査内容を大きく左右するため、**法人ケースは既存／新規で表を分け**、個人ケース（自営業／給与所得者）も別表で整理した。会社名・個人名は実在しないサンプル名で、新規／既存の区別が一目で分かるよう命名している。
 
 ### A. 既存会社（法人・業歴あり） — 27 ケース
 
@@ -144,6 +144,23 @@ E2E `e2e_038_corporate_number_not_found`（**TC-2-012**「①条件付NG｜法�
 |---|---|---|---|---|
 | CASE-000063 | 既存・法人（業歴15年・内装リノベーション業） | 株式会社サンプルアーバンリノベーション | **TC-2-012**。法人番号 API で「不見当」を発火させる完全架空社名。財務は健全（当期売上 862,000,000円・純資産 288,000,000円／前期も黒字・純資産プラス）で、主要科目サマリのみのため流動比率は非算出。**法人実在性が確認できない場合の要確認フラグ**の検証用 | 申込書office＋登記簿＋当期決算＋前期決算＋代表者ID（5書類） |
 
+### H. E2E 閉鎖（解散）法人検出検証 — 1 ケース
+
+E2E `e2e_028_corporate_number`（**TC-4-019** 閉鎖法人の検出 ／ **TC-2-037** ③妥当性の実在性裏取り）の検証用。
+法人番号 API のレスポンスに `closeCause` が含まれることで初めて「閉鎖」判定に到達するため、
+架空社名では（0 件ヒット＝「不見当」にしかならず）この分岐を踏めない。
+そのため**商号・会社法人等番号・本店所在地のみ**、国税庁法人番号公表サイトの**公表情報**
+（登記記録の閉鎖等／処理区分21・closeDate 2026-07-27）を用いる。
+**代表者・資本金・事業目的・株式・財務・物件・申込者はすべて架空**で、謄本は注記を差し替えた
+専用 variant（`registry_certificate/registry_table_public_company_name`）で描画する。
+
+財務は G と同じ理由で健全側に振ってある（否決になると後段フェーズがスキップされて TC-2-037 が
+観測できず、流動比率の条件に当たると別の条件付きNGが混ざるため）。
+
+| ケースID | 区分 | 会社名 | シナリオ | 提出書類 |
+|---|---|---|---|---|
+| CASE-000061 | 既存・法人（**閉鎖（解散）法人**・IT・ソフトウェア／業歴15年） | 黒中隊株式会社 | **TC-4-019 / TC-2-037**。法人番号 API で「登記記録の閉鎖等」を発火させるため商号・会社法人等番号（0105-01-048676）・本店所在地のみ公表情報を流用。財務は健全（当期売上 1,180,000,000円・純資産 432,000,000円／自己資本比率60%）で、実在性以外の否決要因を混ぜない。**閉鎖法人の検出とフェーズ3での実在性裏取り**の検証用 | 申込書office＋登記簿（**registry_table_public_company_name**）＋当期決算＋前期決算＋代表者ID（5書類） |
+
 ---
 
 ## 生成できる書類
@@ -153,7 +170,7 @@ E2E `e2e_038_corporate_number_not_found`（**TC-2-012**「①条件付NG｜法�
 | `rental_application_individual` | 個人用入居申込書 | `standard`, `handwritten_like`, `residential`, `soho`, `print_handwriting_mixed`, `joint_application` |
 | `rental_application_corporate` | 法人用入居申込書 | `standard`, `handwritten_like`, `office`, `housing`, `store`, `joint_representative` |
 | `income_certificate` | 収入証明書風 | `salary_certificate`, `tax_return`, `tax_return_prior`, `tax_return_multi_year`, `withholding_slip`, `withholding_slip_current` |
-| `registry_certificate` | 履歴事項全部証明書風 | `registry_table`, `registry_table_with_shareholders` |
+| `registry_certificate` | 履歴事項全部証明書風 | `registry_table`, `registry_table_with_shareholders`, `registry_table_public_company_name` |
 | `financial_statement` | 決算書風（財務サマリー） | `financial_summary`, `financial_summary_prior`, `multi_period`, `multi_period_report_form` |
 | `trial_balance` | 合計残高試算表風（月次） | `monthly_summary` |
 | `business_opening_notice` | 個人事業の開業・廃業等届出書（開業届）写し風 | `individual` |
@@ -205,6 +222,7 @@ E2E `e2e_038_corporate_number_not_found`（**TC-2-012**「①条件付NG｜法�
 - **収入証明書（源泉徴収票・本人当年分）** — `withholding_slip_current`。申込者本人（給与所得者）の当年分源泉徴収票風で `case.income` を参照。支払金額・給与所得控除額・給与所得控除後の金額・社会保険料等の金額・所得控除の額の合計額・課税給与所得金額・源泉徴収税額を表示し、金額の計算式も併記するため「支払金額」の抽出検証に使える
 - **登記簿謄本風** — 法務局形式に近い原因・日付・登記事項の列構成
 - **登記簿謄本風（株主名簿付）** — `registry_certificate/registry_table_with_shareholders`。謄本本体（1 ページ目）に加え、2 ページ目に VC・ファンド等を含む「株主名簿（参考添付）」（株主名／種別／持株数／議決権比率／取得日／備考＋株主構成の要約）を綴じ込んだ variant。`case.shareholders`（リスト）を参照し、発行済株式の総数・株式の種類ごとの内訳・議決権比率合計はテンプレート側で自動集計する。正解 JSON には `shareholders` 配列と `total_shares` / `vc_shareholder_names` / `vc_shares_total` / `vc_voting_ratio_total` / `founder_voting_ratio_total` などの集計値が入り、「VC の持株比率合計」を直接検証できる（`shareholders` 未指定のケースでは従来どおり株主情報を出力しない）。**制度上、登記事項証明書に株主は記載されない**ため、株主名簿は別書類をテスト目的で同一ファイルに参考添付したものである旨をテンプレート内に明記している
+- **登記簿謄本風（公表商号）** — `registry_certificate/registry_table_public_company_name`。`registry_table` と同一レイアウトで、注記のみ「商号・会社法人等番号・本店所在地は国税庁法人番号公表サイトの公表情報／代表者・財務・物件・申込者は架空」に差し替えた variant。法人番号 API の応答（閉鎖法人の検出など）を実際に発火させるために公表情報の商号を載せるケース（CASE-000061）で使う
 - **財務サマリー** — 2期比較列・経営指標欄付き
 - **事業計画書** — 既存 `narrative` に加え、開業時向けの 2 variant を用意：
   - `individual_startup`：個人事業主・フリーランス開業向け。屋号・開業資金・代表者経歴・3 ヵ年売上計画・想定顧客層を含む
