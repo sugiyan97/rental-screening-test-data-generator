@@ -9,7 +9,7 @@ OCR・LLM・Document AI などの抽出システムを検証するため、**架
 
 ## 収録ケース一覧
 
-`input/cases.jsonl` に以下の 56 ケースが収録されている。申込時点で「既存会社」か「新規（新設）会社」かが審査内容を大きく左右するため、**法人ケースは既存／新規で表を分け**、個人ケース（自営業／給与所得者）も別表で整理した。会社名・個人名は実在しないサンプル名で、新規／既存の区別が一目で分かるよう命名している。
+`input/cases.jsonl` に以下の 60 ケースが収録されている。申込時点で「既存会社」か「新規（新設）会社」かが審査内容を大きく左右するため、**法人ケースは既存／新規で表を分け**、個人ケース（自営業／給与所得者）も別表で整理した。会社名・個人名は実在しないサンプル名で、新規／既存の区別が一目で分かるよう命名している。
 
 ### A. 既存会社（法人・業歴あり） — 27 ケース
 
@@ -96,14 +96,25 @@ OCR・LLM・Document AI などの抽出システムを検証するため、**架
 | CASE-000050 | 個人（給与）・**異常ファイル** | 岸本 沙耶 | **印刷＋手書き混在**のスキャン画像（jpg）。判読困難にした項目は「携帯電話番号」（にじみ）・「メールアドレス」（インクかすれ）・「年収（税込）」（擦れ＋傾き）・「連帯保証人の電話番号」（インクかすれ）の4項目。読めた項目のみ登録・読めない項目は不足記載となる挙動を検証 | **申込書print_handwriting_mixed（jpg）**＋申込書standard（比較用pdf）＋本人ID（3書類） |
 | CASE-000054 | 個人（給与） | 大久保 亮介 | **申込者本人の当年分源泉徴収票**で「支払金額」の抽出を検証。支払金額 6,480,000円 − 給与所得控除 1,748,000円 ＝ 給与所得控除後の金額 4,732,000円、所得控除の額の合計額 1,483,000円、課税給与所得金額 3,249,000円、源泉徴収税額 232,100円 と計算が成立し、申込書の年収とも一致 | 申込書＋**本人源泉徴収票（withholding_slip_current）**＋本人ID（3書類） |
 
+### E. E2E 申込者特定 異常系（合成データ） — 4 ケース
+
+E2E `e2e_022_applicant_identification`（申込者特定の異常系）の検証用。同一内容を「器」だけ変えるのではなく、**申込者・代表者・保証人の特定が難しくなる異常パターン**を意図的に作り込む。値はダミーで、labels は `answers/*.json` を根拠とする。
+
+| ケースID | 区分 | 会社名／個人名 | シナリオ | 提出書類 |
+|---|---|---|---|---|
+| CASE-000057 | 個人（**共同申込**） | 田中 良太・田中 美咲 | **TC-1-070**。申込者2名（申込者①②）を明記した連名申込書。「共同申込は範囲外＝申込者1名＋アラート」の検証用（`applicant_2` を追加し `joint_application` variant で描画） | **共同申込書（joint_application）**＋本人ID（2書類） |
+| CASE-000058 | 既存・法人（**共同代表**） | 株式会社サンプルデュアルリードワークス | **TC-1-071**。代表取締役2名の共同代表制。代表者①②を明記した申込書。「共同代表は代表者1名＋アラート」の検証用（`representative_2_*` を追加し `joint_representative` variant で描画） | **共同代表申込書（joint_representative）**＋登記簿＋代表者ID（3書類） |
+| CASE-000059 | 既存・法人（子会社／**親会社代表が外国籍**） | 株式会社サンプルグローバルロジワークス | **TC-1-094**。CASE-000008 派生。親会社（法人保証人）の代表者が外国籍のため**在留カード**を1点添付（`parent_company_identity_document/residence_card`）。法人保証人代表の外国籍検知の検証用 | 申込書＋子会社登記簿＋親会社登記簿＋親会社決算書＋親会社保証書＋**親会社代表 在留カード**＋代表者ID（7書類） |
+| CASE-000060 | 個人（**保証人＝本人**） | 山本 大輔 | **TC-1-095**。申込者と連帯保証人が同一人物として記載された申込書（続柄「本人（申込者と同一）」）。「保証人が本人と同一＝要アラート」の検証用 | 申込書standard＋本人ID（2書類） |
+
 ---
 
 ## 生成できる書類
 
 | document_type | 説明 | 利用可能な variant |
 |---|---|---|
-| `rental_application_individual` | 個人用入居申込書 | `standard`, `handwritten_like`, `residential`, `soho`, `print_handwriting_mixed` |
-| `rental_application_corporate` | 法人用入居申込書 | `standard`, `handwritten_like`, `office`, `housing`, `store` |
+| `rental_application_individual` | 個人用入居申込書 | `standard`, `handwritten_like`, `residential`, `soho`, `print_handwriting_mixed`, `joint_application` |
+| `rental_application_corporate` | 法人用入居申込書 | `standard`, `handwritten_like`, `office`, `housing`, `store`, `joint_representative` |
 | `income_certificate` | 収入証明書風 | `salary_certificate`, `tax_return`, `tax_return_prior`, `tax_return_multi_year`, `withholding_slip`, `withholding_slip_current` |
 | `registry_certificate` | 履歴事項全部証明書風 | `registry_table`, `registry_table_with_shareholders` |
 | `financial_statement` | 決算書風（財務サマリー） | `financial_summary`, `financial_summary_prior`, `multi_period`, `multi_period_report_form` |
@@ -126,6 +137,7 @@ OCR・LLM・Document AI などの抽出システムを検証するため、**架
 | `parent_company_guarantee_letter` | 親会社保証書（グループ保証） | `standard` |
 | `parent_company_registry_certificate` | 親会社登記簿謄本風 | `registry_table` |
 | `parent_company_financial_statement` | 親会社財務サマリー | `financial_summary` |
+| `parent_company_identity_document` | 親会社（法人保証人）代表者の本人確認書類 | `residence_card` |
 | `business_license` | 営業許可証風 | `restaurant`, `entertainment_business` |
 | `business_license_application` | 営業許可申請書（受付済証明）風 | `restaurant` |
 | `business_use_pledge` | 業態変更誓約書（許可不要宣言） | `no_license_required` |
@@ -487,12 +499,14 @@ templates/
     residential.html       個人申込書（居住用）
     soho.html              個人申込書（居住SOHO兼用）
     print_handwriting_mixed.html 個人申込書（印刷＋手書き混在・一部判読困難）
+    joint_application.html 個人申込書（共同申込・申込者2名）
   rental_application_corporate/
     standard.html          法人申込書（標準）
     handwritten_like.html  法人申込書（手書き風）
     office.html            法人申込書（事務所用）
     housing.html           法人申込書（社宅用）
     store.html             法人申込書（店舗用）
+    joint_representative.html 法人申込書（共同代表・代表者2名）
   income_certificate/
     salary_certificate.html  給与所得者向け在職証明兼年収証明書
     tax_return.html          自営業者向け確定申告書第一表風
@@ -551,6 +565,8 @@ templates/
     registry_table.html      親会社登記簿謄本
   parent_company_financial_statement/
     financial_summary.html   親会社決算書
+  parent_company_identity_document/
+    residence_card.html      親会社（法人保証人）代表者の在留カード風（外国籍代表）
   business_license/
     restaurant.html          飲食店営業許可証
   business_license_application/

@@ -143,3 +143,58 @@ def test_case_000053_guarantor_is_child_and_younger(cases_by_id):
     variants = {(d.document_type, d.variant) for d in case.documents}
     assert ("guarantor_income_certificate", "salary_certificate") in variants
     assert ("guarantor_identity_document", "drivers_license") in variants
+
+
+# --- Issue #37: 申込者特定 異常系ケース（CASE-000057〜060）の整合性 ---
+
+
+def test_case_000057_is_joint_application(cases_by_id):
+    """共同申込: 申込者2名（applicant と applicant_2）が別人で存在する。"""
+    case = cases_by_id["CASE-000057"]
+    assert case.applicant_type == "individual"
+    assert case.applicant is not None and case.applicant_2 is not None
+    assert case.applicant.name != case.applicant_2.name
+    assert case.applicant.age == str(_age_on(case.applicant.birth_date, BASE_DATE))
+    assert case.applicant_2.age == str(_age_on(case.applicant_2.birth_date, BASE_DATE))
+    variants = {(d.document_type, d.variant) for d in case.documents}
+    assert ("rental_application_individual", "joint_application") in variants
+
+
+def test_case_000058_is_joint_representative(cases_by_id):
+    """共同代表: 代表者2名（representative_ と representative_2_）が別人で存在する。"""
+    case = cases_by_id["CASE-000058"]
+    assert case.applicant_type == "corporate"
+    c = case.company
+    assert c.representative_name and c.representative_2_name
+    assert c.representative_name != c.representative_2_name
+    assert c.representative_age == str(_age_on(c.representative_birth_date, BASE_DATE))
+    assert c.representative_2_age == str(_age_on(c.representative_2_birth_date, BASE_DATE))
+    variants = {(d.document_type, d.variant) for d in case.documents}
+    assert ("rental_application_corporate", "joint_representative") in variants
+
+
+def test_case_000059_parent_company_representative_is_foreign(cases_by_id):
+    """外国籍の親会社（法人保証人）代表: 国籍が日本以外で在留カードを添付する。"""
+    case = cases_by_id["CASE-000059"]
+    pc = case.parent_company
+    assert pc.representative_nationality == "中国"
+    assert pc.representative_name == "リー・ジャンウェイ"
+    assert case.parent_company_identity_document is not None
+    assert case.parent_company_identity_document.residence_card_number == "AB12345678CD"
+    # 在留カードは失効前（期限接近アラートを誤発火させない）
+    assert _parse_jp_date(case.parent_company_identity_document.expiry) > BASE_DATE
+    variants = {(d.document_type, d.variant) for d in case.documents}
+    assert ("parent_company_identity_document", "residence_card") in variants
+    # 申込法人の代表者は日本人のまま（外国籍なのは親会社代表のみ）
+    assert case.company.representative_name != pc.representative_name
+
+
+def test_case_000060_guarantor_is_same_as_applicant(cases_by_id):
+    """保証人=本人: 申込者と連帯保証人が同一人物（氏名・生年月日・住所が一致）。"""
+    case = cases_by_id["CASE-000060"]
+    a, g = case.applicant, case.guarantor
+    assert a is not None and g is not None
+    assert a.name == g.name
+    assert a.birth_date == g.birth_date
+    assert a.current_address == g.current_address
+    assert g.relationship == "本人（申込者と同一）"
