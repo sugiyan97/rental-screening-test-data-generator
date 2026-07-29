@@ -78,6 +78,46 @@ def _shareholder_summary(shareholders: list[Any]) -> dict[str, Any]:
     }
 
 
+def _sole_proprietor_applicant_fields(case: Case) -> dict[str, Any]:
+    """法人様式で申込む個人事業主（sole_proprietor variant）の《申込者（賃借人）》欄の正解値。
+
+    この variant だけが個人本人の欄（氏名・生年月日・現住所・職業・年間所得・勤務先＝屋号）を
+    持つため、他の法人様式（standard/office 等）の正解 JSON は従来どおり変えない。
+    """
+    a = case.applicant
+    e = case.employment
+    i = case.income
+    ec = case.emergency_contact
+    return {
+        "applicant_name": _get(a, "name"),
+        "applicant_kana": _get(a, "kana"),
+        "applicant_birth_date": _get(a, "birth_date"),
+        "applicant_age": _get(a, "age"),
+        "applicant_gender": _get(a, "gender"),
+        "applicant_postal_code": _get(a, "postal_code"),
+        "applicant_current_address": _get(a, "current_address"),
+        "applicant_phone": _get(a, "phone"),
+        "applicant_email": _get(a, "email"),
+        "applicant_id_document_type": _get(a, "id_document_type"),
+        # 様式に固定印字されるチェック欄（本 variant のシナリオ固定値）
+        "applicant_spouse": "無",
+        "applicant_residence_type": "賃貸",
+        "applicant_occupation": "自営業",
+        "application_category": "新規申込者",
+        "application_kind": "事務所",
+        "move_in_reason": "新規開業",
+        "applicant_annual_income": _get(i, "annual_income"),
+        "trade_name": _get(e, "employer_name"),
+        "business_address": _get(e, "employer_address"),
+        "years_in_business": _get(e, "years_employed"),
+        "emergency_contact_name": _get(ec, "name"),
+        "emergency_contact_relation": _get(ec, "relation"),
+        "emergency_contact_phone": _get(ec, "phone"),
+        "emergency_contact_postal_code": _get(ec, "postal_code"),
+        "emergency_contact_address": _get(ec, "address"),
+    }
+
+
 def _build_rental_application_corporate(case: Case, variant: str = "") -> dict[str, Any]:
     c = case.company
     p = case.property
@@ -85,7 +125,9 @@ def _build_rental_application_corporate(case: Case, variant: str = "") -> dict[s
     csu = case.corporate_store_usage
     g = case.guarantor
     g2 = case.guarantor_2
+    extra = _sole_proprietor_applicant_fields(case) if variant == "sole_proprietor" else {}
     return {
+        **extra,
         "company_name": _get(c, "company_name"),
         "company_kana": _get(c, "company_kana"),
         "corporate_number": _get(c, "corporate_number"),
