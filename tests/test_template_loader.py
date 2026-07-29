@@ -93,6 +93,29 @@ def test_load_withholding_slip_current_template():
     assert "withholding_slip_current" in available
 
 
+def test_load_multi_period_report_form_template(corporate_extended_case):
+    """報告式BS（縦並び）の様式バリアントがロード＆レンダリングできる。"""
+    loader = TemplateLoader()
+    template = loader.load(
+        case_id=corporate_extended_case.case_id,
+        document_type="financial_statement",
+        variant="multi_period_report_form",
+    )
+    assert template is not None
+    available = loader._list_available("financial_statement")
+    assert "multi_period" in available
+    assert "multi_period_report_form" in available
+
+    html = template.render(case=corporate_extended_case)
+    # 報告式＝資産の部→負債の部→純資産の部を縦に並べる section 見出し
+    assert "【資産の部】" in html
+    assert "【負債の部】" in html
+    assert "【純資産の部】" in html
+    # 各期の数値（既存 multi_period と同じ器違いなので値は一致）
+    assert "15,000,000円" in html  # 第1期 資産合計
+    assert "テスト商事株式会社" in html
+
+
 def test_load_invalid_document_type_raises():
     loader = TemplateLoader()
     with pytest.raises(TemplateNotFoundError) as exc_info:

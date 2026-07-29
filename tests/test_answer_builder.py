@@ -558,6 +558,19 @@ def test_build_answer_financial_statement_multi_period(corporate_extended_case):
     assert periods[2]["sales"] == "50,000,000円"
 
 
+def test_build_answer_financial_statement_report_form_matches_multi_period(
+    corporate_extended_case,
+):
+    """報告式BS は器（レイアウト）違いなので answer は multi_period と完全一致（labels 不変）。"""
+    report_form = build_answer(
+        corporate_extended_case, "financial_statement", "multi_period_report_form"
+    )
+    multi_period = build_answer(
+        corporate_extended_case, "financial_statement", "multi_period"
+    )
+    assert report_form["fields"] == multi_period["fields"]
+
+
 def test_build_answer_income_certificate_multi_year(individual_extended_case):
     answer = build_answer(
         individual_extended_case, "income_certificate", "tax_return_multi_year"
