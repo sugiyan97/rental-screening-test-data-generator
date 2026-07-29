@@ -98,6 +98,13 @@ def _build_rental_application_corporate(case: Case, variant: str = "") -> dict[s
         "representative_gender": _get(c, "representative_gender"),
         "representative_postal_code": _get(c, "representative_postal_code"),
         "representative_address": _get(c, "representative_address"),
+        "representative_2_name": _get(c, "representative_2_name"),
+        "representative_2_kana": _get(c, "representative_2_kana"),
+        "representative_2_birth_date": _get(c, "representative_2_birth_date"),
+        "representative_2_age": _get(c, "representative_2_age"),
+        "representative_2_gender": _get(c, "representative_2_gender"),
+        "representative_2_postal_code": _get(c, "representative_2_postal_code"),
+        "representative_2_address": _get(c, "representative_2_address"),
         "phone": _get(c, "phone"),
         "email": _get(c, "email"),
         "established_date": _get(c, "established_date"),
@@ -223,6 +230,7 @@ def _build_business_plan(case: Case, variant: str = "") -> dict[str, Any]:
 
 def _build_rental_application_individual(case: Case, variant: str = "") -> dict[str, Any]:
     a = case.applicant
+    a2 = case.applicant_2
     e = case.employment
     p = case.property
     ec = case.emergency_contact
@@ -240,6 +248,16 @@ def _build_rental_application_individual(case: Case, variant: str = "") -> dict[
         "phone": _get(a, "phone"),
         "email": _get(a, "email"),
         "id_document_type": _get(a, "id_document_type"),
+        "applicant_2_name": _get(a2, "name"),
+        "applicant_2_kana": _get(a2, "kana"),
+        "applicant_2_birth_date": _get(a2, "birth_date"),
+        "applicant_2_age": _get(a2, "age"),
+        "applicant_2_gender": _get(a2, "gender"),
+        "applicant_2_postal_code": _get(a2, "postal_code"),
+        "applicant_2_current_address": _get(a2, "current_address"),
+        "applicant_2_phone": _get(a2, "phone"),
+        "applicant_2_email": _get(a2, "email"),
+        "applicant_2_id_document_type": _get(a2, "id_document_type"),
         "employer_name": _get(e, "employer_name"),
         "department": _get(e, "department"),
         "job_title": _get(e, "job_title"),
@@ -424,6 +442,28 @@ def _build_parent_company_financial_statement(case: Case, variant: str = "") -> 
         "total_assets": _get(f, "total_assets"),
         "total_liabilities": _get(f, "total_liabilities"),
         "net_assets": _get(f, "net_assets"),
+    }
+
+
+def _build_parent_company_identity_document(case: Case, variant: str = "") -> dict[str, Any]:
+    pc = case.parent_company
+    idoc = case.parent_company_identity_document
+    return {
+        # 名義人＝親会社（法人保証人）の代表者
+        "company_name": _get(pc, "company_name"),
+        "name": _get(pc, "representative_name"),
+        "kana": _get(pc, "representative_kana"),
+        "birth_date": _get(pc, "representative_birth_date"),
+        "gender": _get(pc, "representative_gender"),
+        "nationality": _get(pc, "representative_nationality"),
+        # 在留カードの記載項目
+        "name_en": _get(idoc, "name_en"),
+        "residence_card_number": _get(idoc, "residence_card_number"),
+        "visa_type": _get(idoc, "visa_type"),
+        "period_of_stay": _get(idoc, "period_of_stay"),
+        "expiry": _get(idoc, "expiry"),
+        "issue_date": _get(idoc, "issue_date"),
+        "issue_place": _get(idoc, "issue_place"),
     }
 
 
@@ -829,6 +869,7 @@ _BUILDERS: dict[str, Callable[[Case, str], dict[str, Any]]] = {
     "parent_company_guarantee_letter": _build_parent_company_guarantee_letter,
     "parent_company_registry_certificate": _build_parent_company_registry_certificate,
     "parent_company_financial_statement": _build_parent_company_financial_statement,
+    "parent_company_identity_document": _build_parent_company_identity_document,
     "business_license": _build_business_license,
     "guarantor_2_income_certificate": _build_guarantor_2_income_certificate,
     "guarantor_2_identity_document": _build_guarantor_2_identity_document,

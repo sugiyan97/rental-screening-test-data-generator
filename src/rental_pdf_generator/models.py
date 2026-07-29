@@ -34,6 +34,14 @@ class Company(BaseModel):
     representative_gender: str | None = None
     representative_postal_code: str | None = None
     representative_address: str | None = None
+    # 共同代表（代表取締役が2名）を出す場合の2人目。TC 共同代表の検証用。
+    representative_2_name: str | None = None
+    representative_2_kana: str | None = None
+    representative_2_birth_date: str | None = None
+    representative_2_age: str | None = None
+    representative_2_gender: str | None = None
+    representative_2_postal_code: str | None = None
+    representative_2_address: str | None = None
     phone: str | None = None
     email: str | None = None
     established_date: str | None = None
@@ -211,6 +219,11 @@ class ParentCompany(BaseModel):
     corporate_number: str | None = None
     head_office_address: str | None = None
     representative_name: str | None = None
+    # 親会社（法人保証人）代表者の本人属性。外国籍代表の在留カード添付検証用。
+    representative_kana: str | None = None
+    representative_birth_date: str | None = None
+    representative_gender: str | None = None
+    representative_nationality: str | None = None
     capital: str | None = None
     established_date: str | None = None
     business_description: str | None = None
@@ -476,6 +489,8 @@ class Case(BaseModel):
     # 株主名簿（謄本に参考添付する別書類。VC・ファンド等の株主構成検証用）
     shareholders: list[Shareholder] | None = None
     applicant: Applicant | None = None
+    # 共同申込（申込者が2名）を出す場合の2人目。TC 共同申込の検証用。
+    applicant_2: Applicant | None = None
     employment: Employment | None = None
     emergency_contact: EmergencyContact | None = None
     income: Income | None = None
@@ -487,6 +502,8 @@ class Case(BaseModel):
     # グループ1: 法人系拡充
     parent_company: ParentCompany | None = None
     parent_company_financials: Financials | None = None
+    # 親会社（法人保証人）代表者の本人確認書類（外国籍代表の在留カード等）
+    parent_company_identity_document: IdentityDocument | None = None
     business_license: BusinessLicense | None = None
     corporate_guarantee: CorporateGuarantee | None = None
     # グループ2: 保証人複数 / 保証会社

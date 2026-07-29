@@ -662,3 +662,56 @@ def test_build_answer_bank_balance_certificate(individual_extended_case):
     assert answer["fields"]["bank_name"] == "テストメガバンク"
     assert answer["fields"]["branch_name"] == "テスト支店"
     assert answer["fields"]["balance_amount"] == "3,500,000円"
+
+
+# --- Issue #37: 申込者特定 異常系（共同申込 / 共同代表 / 外国籍親会社代表 / 保証人=本人） ---
+
+
+def test_build_answer_joint_application_has_applicant_2():
+    """TC-1-070 共同申込: 申込者②のキーが answer に出る。"""
+    case = load_case_from_jsonl("CASE-000057")
+    fields = build_answer(case, "rental_application_individual", "joint_application")[
+        "fields"
+    ]
+    assert fields["name"] == "田中 良太"
+    assert fields["applicant_2_name"] == "田中 美咲"
+    assert fields["applicant_2_kana"] == "タナカ ミサキ"
+    assert fields["applicant_2_birth_date"] == "1990年03月20日"
+    # 申込者①と②は別人（共同申込であることが labels から判定できる）
+    assert fields["name"] != fields["applicant_2_name"]
+
+
+def test_build_answer_joint_representative_has_representative_2():
+    """TC-1-071 共同代表: 代表者②のキーが answer に出る。"""
+    case = load_case_from_jsonl("CASE-000058")
+    fields = build_answer(
+        case, "rental_application_corporate", "joint_representative"
+    )["fields"]
+    assert fields["representative_name"] == "大崎 剛"
+    assert fields["representative_2_name"] == "五反田 舞"
+    assert fields["representative_2_gender"] == "女性"
+    assert fields["representative_name"] != fields["representative_2_name"]
+
+
+def test_build_answer_parent_company_identity_document_residence_card():
+    """TC-1-094 外国籍の親会社代表: 在留カードの名義人・国籍・カード番号が answer に出る。"""
+    case = load_case_from_jsonl("CASE-000059")
+    fields = build_answer(
+        case, "parent_company_identity_document", "residence_card"
+    )["fields"]
+    assert fields["name"] == "リー・ジャンウェイ"
+    assert fields["nationality"] == "中国"
+    assert fields["residence_card_number"] == "AB12345678CD"
+    assert fields["visa_type"] == "経営・管理"
+    # 名義人は親会社（法人保証人）代表であり、申込法人の代表者とは別人
+    assert fields["name"] != case.company.representative_name
+
+
+def test_build_answer_guarantor_equals_applicant():
+    """TC-1-095 保証人=本人: 申込者と連帯保証人が同一人物として answer に出る。"""
+    case = load_case_from_jsonl("CASE-000060")
+    fields = build_answer(case, "rental_application_individual", "standard")["fields"]
+    assert fields["name"] == fields["guarantor_name"] == "山本 大輔"
+    assert fields["birth_date"] == fields["guarantor_birth_date"]
+    assert fields["current_address"] == fields["guarantor_current_address"]
+    assert fields["guarantor_relationship"] == "本人（申込者と同一）"

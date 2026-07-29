@@ -154,3 +154,67 @@ def test_list_available_unknown_type_returns_empty():
     loader = TemplateLoader()
     available = loader._list_available("totally_unknown_type")
     assert available == []
+
+
+# --- Issue #37: 申込者特定 異常系の様式（共同申込 / 共同代表 / 親会社代表の在留カード） ---
+
+import json  # noqa: E402
+from pathlib import Path  # noqa: E402
+
+from rental_pdf_generator.models import Case  # noqa: E402
+
+_CASES_JSONL = Path(__file__).parent.parent / "input" / "cases.jsonl"
+
+
+def _load_case(case_id: str) -> Case:
+    for line in _CASES_JSONL.read_text(encoding="utf-8").splitlines():
+        if line.strip() and json.loads(line)["case_id"] == case_id:
+            return Case.model_validate(json.loads(line))
+    raise AssertionError(f"{case_id} が cases.jsonl に存在しない")
+
+
+def test_joint_application_template_renders_both_applicants():
+    case = _load_case("CASE-000057")
+    loader = TemplateLoader()
+    template = loader.load(
+        case_id=case.case_id,
+        document_type="rental_application_individual",
+        variant="joint_application",
+    )
+    html = template.render(case=case)
+    assert "共同申込" in html
+    assert "申込者②" in html
+    assert "田中 良太" in html  # 申込者①
+    assert "田中 美咲" in html  # 申込者②
+    assert "joint_application" in loader._list_available("rental_application_individual")
+
+
+def test_joint_representative_template_renders_both_representatives():
+    case = _load_case("CASE-000058")
+    loader = TemplateLoader()
+    template = loader.load(
+        case_id=case.case_id,
+        document_type="rental_application_corporate",
+        variant="joint_representative",
+    )
+    html = template.render(case=case)
+    assert "共同代表" in html
+    assert "代表者②" in html
+    assert "大崎 剛" in html  # 代表者①
+    assert "五反田 舞" in html  # 代表者②
+
+
+def test_parent_company_residence_card_template_renders_foreign_rep():
+    case = _load_case("CASE-000059")
+    loader = TemplateLoader()
+    template = loader.load(
+        case_id=case.case_id,
+        document_type="parent_company_identity_document",
+        variant="residence_card",
+    )
+    html = template.render(case=case)
+    assert "在 留 カ ー ド" in html
+    assert "リー・ジャンウェイ" in html  # 親会社代表（外国籍）
+    assert "中国" in html  # 国籍
+    assert "AB12345678CD" in html  # 在留カード番号
+    assert "法人保証人" in html
