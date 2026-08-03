@@ -127,6 +127,8 @@ def _build_rental_application_corporate(case: Case, variant: str = "") -> dict[s
     g2 = case.guarantor_2
     extra = _sole_proprietor_applicant_fields(case) if variant == "sole_proprietor" else {}
     return {
+        # sole_proprietor variant はシナリオ固定の move_in_reason を持つため extra を優先させる
+        "move_in_reason": _get(p, "move_in_reason"),
         **extra,
         "company_name": _get(c, "company_name"),
         "company_kana": _get(c, "company_kana"),
@@ -154,6 +156,7 @@ def _build_rental_application_corporate(case: Case, variant: str = "") -> dict[s
         "business_type": _get(c, "business_type"),
         "business_description": _get(c, "business_description"),
         "employee_count": _get(c, "employee_count"),
+        "new_business_reason": _get(c, "new_business_reason"),
         "property_name": _get(p, "property_name"),
         "room_number": _get(p, "room_number"),
         "property_postal_code": _get(p, "postal_code"),
