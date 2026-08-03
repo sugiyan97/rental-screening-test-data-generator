@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
+
+@page {
+  size: A4;
+  margin: 14mm 14mm;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif;
+}
+
+body {
+  font-size: 9.5pt;
+  line-height: 1.45;
+  color: #222;
+  margin: 0;
+}
+
+.sample-notice {
+  background: #fff3cd;
+  border: 2px solid #ffc107;
+  padding: 4px 12px;
+  margin-bottom: 8px;
+  font-size: 8.5pt;
+  font-weight: bold;
+  text-align: center;
+  color: #856404;
+}
+
+h1 {
+  font-size: 16pt;
+  text-align: center;
+  margin: 2px 0 6px;
+  letter-spacing: 0.02em;
+}
+
+.meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9pt;
+  color: #444;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 4px;
+  margin-bottom: 8px;
+}
+
+h2 {
+  font-size: 10.5pt;
+  margin: 10px 0 4px;
+  background: #e8eef5;
+  padding: 3px 8px;
+  border-left: 4px solid #2c4470;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 9pt;
+  margin-bottom: 6px;
+}
+
+th, td {
+  border: 1px solid #777;
+  padding: 2px 7px;
+  vertical-align: middle;
+}
+
+thead th {
+  background-color: #dfe6ef;
+  font-weight: 700;
+  text-align: center;
+}
+
+tbody th {
+  background-color: #f7f7f7;
+  font-weight: 400;
+  text-align: left;
+  width: 30%;
+}
+
+td {
+  text-align: right;
+}
+
+tr.subtotal th, tr.subtotal td {
+  background: #f4f7fb;
+  font-weight: bold;
+}
+
+tr.total th, tr.total td {
+  background: #e4eaf4;
+  font-weight: bold;
+}
+
+.indent {
+  padding-left: 22px;
+}
+
+.footer-note {
+  font-size: 8pt;
+  color: #666;
+  margin-top: 8px;
+  border-top: 1px solid #ccc;
+  padding-top: 4px;
+}
+</style>
+</head>
+<body>
+<div class="sample-notice">【テスト用サンプル書類 ― 実在の財務情報ではありません】</div>
+<h1>残高試算表</h1>
+<div class="meta">
+  <span>{{ case.company.company_name if case.company else '' }}</span>
+  <span>会計期間：{{ case.annual_trial_balance.fiscal_period if case.annual_trial_balance else '' }}</span>
+  <span>単位：円（税抜）</span>
+</div>
+
+<h2>貸借対照表</h2>
+<table>
+  <thead>
+    <tr>
+      <th>勘定科目</th>
+      <th>前期残高</th>
+      <th>借方金額</th>
+      <th>貸方金額</th>
+      <th>期末残高</th>
+      <th>構成比</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in (case.annual_trial_balance.balance_sheet_rows if case.annual_trial_balance else []) %}
+    <tr class="{{ row.emphasis or '' }}">
+      <th class="{{ '' if row.emphasis else 'indent' }}">{{ row.label }}</th>
+      <td>{{ row.opening_balance }}</td>
+      <td>{{ row.debit }}</td>
+      <td>{{ row.credit }}</td>
+      <td>{{ row.closing_balance }}</td>
+      <td>{{ row.ratio }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h2>損益計算書</h2>
+<table>
+  <thead>
+    <tr>
+      <th>勘定科目</th>
+      <th>前期残高</th>
+      <th>借方金額</th>
+      <th>貸方金額</th>
+      <th>期末残高</th>
+      <th>構成比</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in (case.annual_trial_balance.profit_loss_rows if case.annual_trial_balance else []) %}
+    <tr class="{{ row.emphasis or '' }}">
+      <th class="{{ '' if row.emphasis else 'indent' }}">{{ row.label }}</th>
+      <td>{{ row.opening_balance }}</td>
+      <td>{{ row.debit }}</td>
+      <td>{{ row.credit }}</td>
+      <td>{{ row.closing_balance }}</td>
+      <td>{{ row.ratio }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<p class="footer-note">
+  ※ 本書類はOCR・LLM・Document AIシステムの検証を目的として作成されたテスト用サンプルです。
+  実在する企業の財務情報ではありません。
+</p>
+</body>
+</html>

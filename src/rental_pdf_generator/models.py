@@ -396,6 +396,31 @@ class TrialBalance(BaseModel):
     operating_profit: str | None = None
 
 
+class AnnualTrialBalanceRow(BaseModel):
+    """通期残高試算表の1行（勘定科目ごとに 前期残高／借方／貸方／期末残高／構成比 を持つ）。"""
+
+    label: str
+    opening_balance: str | None = None
+    debit: str | None = None
+    credit: str | None = None
+    closing_balance: str | None = None
+    ratio: str | None = None
+    # 表示上の強調。"subtotal"=小計行 / "total"=合計行 / None=通常科目
+    emphasis: str | None = None
+
+
+class AnnualTrialBalance(BaseModel):
+    """会計期間が通期（12か月）の残高試算表。
+
+    月次・期中のものは ``TrialBalance`` を使う。通期は正式決算書が未提出の期の
+    財務を審査に取り込む用途があり、勘定科目ごとに残高の増減を列で持つ。
+    """
+
+    fiscal_period: str | None = None
+    balance_sheet_rows: list[AnnualTrialBalanceRow] = []
+    profit_loss_rows: list[AnnualTrialBalanceRow] = []
+
+
 class SohoUsage(BaseModel):
     residential_ratio: str | None = None
     business_ratio: str | None = None
@@ -530,6 +555,7 @@ class Case(BaseModel):
     previous_financials: Financials | None = None
     previous_income: Income | None = None
     trial_balance: TrialBalance | None = None
+    annual_trial_balance: AnnualTrialBalance | None = None
     # 複数期を1ファイルにまとめる書類用
     financials_multi: list[Financials] | None = None
     income_multi: list[Income] | None = None
