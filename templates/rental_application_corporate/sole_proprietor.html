@@ -17,8 +17,11 @@
   3. 《申込者（賃借人）》ブロックを必ず持つ。氏名・生年月日・現住所・職業・年間所得等は
      このブロックに集約し、独立した《代表者情報》ブロックは置かない
      （事業主＝申込者本人。氏名が代表者欄だけにあると個人氏名として抽出されない）。
-  4. 申込区分＝新規申込者／申込種類＝事務所／入居理由＝新規開業 は本 variant 固定
+  4. 申込種類＝事務所／入居理由＝新規開業 は本 variant 固定
      （個人事業主の新規開業＋事務所契約という単一シナリオ専用のため）。
+     申込区分のみ case.property.application_category で新規/既存を切替可能
+     （未設定時は「新規申込者」がデフォルト。answer_builder._sole_proprietor_applicant_fields
+     と同じフォールバック）。
 #}
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
@@ -59,7 +62,10 @@ td.wide { width: 72%; }
   <tr><th>所在地</th><td>〒{{ case.property.postal_code if case.property else '' }}　{{ case.property.property_address if case.property else '' }}</td></tr>
   <tr><th>賃料 / 管理費</th><td>{{ case.property.rent if case.property else '' }} / {{ case.property.management_fee if case.property else '' }}</td></tr>
   <tr><th>利用用途</th><td>{{ case.property.usage_purpose if case.property else '事務所' }}</td></tr>
-  <tr><th>申込区分</th><td>☑ 新規申込者　□ 既存入居者</td></tr>
+  {% set app_category = case.property.application_category if case.property and case.property.application_category else '新規申込者' %}
+  <tr><th>申込区分</th><td>
+    {{ '☑' if app_category == '新規申込者' else '□' }} 新規申込者　{{ '☑' if app_category == '既存入居者' else '□' }} 既存入居者
+  </td></tr>
   <tr><th>申込種類</th><td>☑ 事務所　□ 店舗　□ 倉庫　□ 工場　□ 貸地</td></tr>
   <tr><th>希望入居日</th><td>{{ case.property.desired_move_in_date if case.property else '' }}</td></tr>
 </table>

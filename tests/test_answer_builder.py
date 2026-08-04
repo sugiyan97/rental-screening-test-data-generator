@@ -62,6 +62,20 @@ def test_build_answer_corporate_new_business_reason(corporate_case_data):
     assert answer["fields"]["new_business_reason"] == "独立開業のため。"
 
 
+def test_build_answer_corporate_application_category_defaults_to_none(corporate_case):
+    """application_category 未設定の既存ケースは None のまま（挙動不変）。"""
+    answer = build_answer(corporate_case, "rental_application_corporate", "office")
+    assert answer["fields"]["application_category"] is None
+
+
+def test_build_answer_corporate_application_category_existing_tenant(corporate_case_data):
+    """申込区分=既存入居者が正解JSONに反映される。"""
+    corporate_case_data["property"]["application_category"] = "既存入居者"
+    case = Case.model_validate(corporate_case_data)
+    answer = build_answer(case, "rental_application_corporate", "office")
+    assert answer["fields"]["application_category"] == "既存入居者"
+
+
 def test_build_answer_corporate_with_guarantor(corporate_extended_case):
     answer = build_answer(
         corporate_extended_case, "rental_application_corporate", "office"
@@ -807,6 +821,17 @@ def test_build_answer_corporate_sole_proprietor_has_applicant_block():
     assert fields["years_in_business"] == "8年"
     assert fields["move_in_reason"] == "新規開業"
     assert fields["application_category"] == "新規申込者"
+
+
+def test_build_answer_corporate_sole_proprietor_application_category_overridable():
+    """sole_proprietor variant も case.property.application_category で既存入居者に切替できる。"""
+    data = {
+        **SOLE_PROPRIETOR_CORPORATE_FORM_CASE,
+        "property": {"application_category": "既存入居者"},
+    }
+    case = Case.model_validate(data)
+    fields = build_answer(case, "rental_application_corporate", "sole_proprietor")["fields"]
+    assert fields["application_category"] == "既存入居者"
     assert fields["application_kind"] == "事務所"
     assert fields["emergency_contact_name"] == "テスト 花子"
 
