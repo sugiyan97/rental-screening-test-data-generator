@@ -714,6 +714,14 @@ def _build_payment_track_record_pledge(case: Case, variant: str = "") -> dict[st
 
 def _build_trial_balance(case: Case, variant: str = "") -> dict[str, Any]:
     c = case.company
+    if variant.startswith("annual"):
+        atb = case.annual_trial_balance
+        return {
+            "company_name": _get(c, "company_name"),
+            "fiscal_period": _get(atb, "fiscal_period"),
+            "balance_sheet_rows": [r.model_dump() for r in atb.balance_sheet_rows] if atb else [],
+            "profit_loss_rows": [r.model_dump() for r in atb.profit_loss_rows] if atb else [],
+        }
     tb = case.trial_balance
     return {
         "company_name": _get(c, "company_name"),
