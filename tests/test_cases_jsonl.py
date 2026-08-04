@@ -201,6 +201,36 @@ def test_case_000060_guarantor_is_same_as_applicant(cases_by_id):
     assert g.relationship == "本人（申込者と同一）"
 
 
+# --- Issue #50: 事業新規（設立1年未満）で事業計画書・資金エビデンス必須 CASE-000065 ---
+
+
+def test_case_000065_established_date_is_six_to_ten_months_before_base_date(cases_by_id):
+    """設立日は生成時点から6〜10ヶ月前の範囲（設立1年未満の前提が崩れていないか）。"""
+    case = cases_by_id["CASE-000065"]
+    established = _parse_jp_date(case.company.established_date)
+    days_since = (BASE_DATE - established).days
+    assert 180 <= days_since <= 310, "設立日が6〜10ヶ月前の想定範囲から外れている（要再生成）"
+
+
+def test_case_000065_is_new_business_with_reason_and_no_supporting_docs(cases_by_id):
+    """入居理由=新規開業・開業理由記載ありで、決算書・事業計画書・資金エビデンスは未提出。"""
+    case = cases_by_id["CASE-000065"]
+    assert case.applicant_type == "corporate"
+    assert case.property.move_in_reason == "新規開業"
+    assert case.company.new_business_reason
+    document_types = {d.document_type for d in case.documents}
+    assert document_types.isdisjoint({"financial_statement", "business_plan", "funding_evidence"})
+
+
+def test_case_000065_application_form_reflects_new_business_reason(cases_by_id):
+    """申込書（office）の正解JSONに入居理由・開業理由/背景が反映されている。"""
+    case = cases_by_id["CASE-000065"]
+    answer = build_answer(case, "rental_application_corporate", "office")
+    fields = answer["fields"]
+    assert fields["move_in_reason"] == "新規開業"
+    assert fields["new_business_reason"] == case.company.new_business_reason
+
+
 # --- Issue #40: 再アップロード（冪等更新）検証用 value-variant CASE-000032-V2 -------
 
 

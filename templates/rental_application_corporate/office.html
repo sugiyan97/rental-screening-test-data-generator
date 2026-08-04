@@ -40,6 +40,16 @@ td.wide { width: 72%; }
   <tr><th>賃料 / 管理費</th><td>{{ case.property.rent if case.property else '' }} / {{ case.property.management_fee if case.property else '' }}</td></tr>
   <tr><th>利用用途</th><td>{{ case.property.usage_purpose if case.property else '事務所' }}</td></tr>
   <tr><th>希望入居日</th><td>{{ case.property.desired_move_in_date if case.property else '' }}</td></tr>
+  {% if case.property and case.property.move_in_reason %}
+  <tr><th>入居理由</th><td>
+    {{ '☑' if case.property.move_in_reason == '新規開業' else '□' }} 新規開業
+    {{ '☑' if case.property.move_in_reason == '移転' else '□' }} 移転
+    {{ '☑' if case.property.move_in_reason == '増店' else '□' }} 増店
+  </td></tr>
+  {% endif %}
+  {% if case.company and case.company.new_business_reason %}
+  <tr><th>①開業理由・背景</th><td class="wide">{{ case.company.new_business_reason }}</td></tr>
+  {% endif %}
 </table>
 
 <h2>■ 申込法人</h2>

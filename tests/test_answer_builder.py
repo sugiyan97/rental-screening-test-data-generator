@@ -45,6 +45,23 @@ def test_build_answer_corporate_no_guarantor(corporate_case):
     assert answer["fields"]["guarantor_kana"] is None
 
 
+def test_build_answer_corporate_move_in_reason_defaults_to_none(corporate_case):
+    """move_in_reason / new_business_reason 未設定の既存ケースは None のまま（挙動不変）。"""
+    answer = build_answer(corporate_case, "rental_application_corporate", "office")
+    assert answer["fields"]["move_in_reason"] is None
+    assert answer["fields"]["new_business_reason"] is None
+
+
+def test_build_answer_corporate_new_business_reason(corporate_case_data):
+    """入居理由=新規開業・開業理由/背景欄の設定が正解JSONに反映される。"""
+    corporate_case_data["property"]["move_in_reason"] = "新規開業"
+    corporate_case_data["company"]["new_business_reason"] = "独立開業のため。"
+    case = Case.model_validate(corporate_case_data)
+    answer = build_answer(case, "rental_application_corporate", "office")
+    assert answer["fields"]["move_in_reason"] == "新規開業"
+    assert answer["fields"]["new_business_reason"] == "独立開業のため。"
+
+
 def test_build_answer_corporate_with_guarantor(corporate_extended_case):
     answer = build_answer(
         corporate_extended_case, "rental_application_corporate", "office"

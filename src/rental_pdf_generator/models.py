@@ -53,6 +53,8 @@ class Company(BaseModel):
     business_description: str | None = None
     employee_count: str | None = None
     fiscal_year_end: str | None = None
+    # 開業理由・背景欄の記載内容（新規開業の場合のみ）
+    new_business_reason: str | None = None
 
 
 class Applicant(BaseModel):
@@ -87,6 +89,8 @@ class Property(BaseModel):
     management_fee: str | None = None
     desired_move_in_date: str | None = None
     usage_purpose: str | None = None
+    # 入居理由（例: 「新規開業」「移転」「増店」）
+    move_in_reason: str | None = None
 
 
 class Financials(BaseModel):
