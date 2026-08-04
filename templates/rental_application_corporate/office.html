@@ -39,6 +39,11 @@ td.wide { width: 72%; }
   <tr><th>所在地</th><td>〒{{ case.property.postal_code if case.property else '' }}　{{ case.property.property_address if case.property else '' }}</td></tr>
   <tr><th>賃料 / 管理費</th><td>{{ case.property.rent if case.property else '' }} / {{ case.property.management_fee if case.property else '' }}</td></tr>
   <tr><th>利用用途</th><td>{{ case.property.usage_purpose if case.property else '事務所' }}</td></tr>
+  {% if case.property and case.property.application_category %}
+  <tr><th>申込区分</th><td>
+    {{ '☑' if case.property.application_category == '新規申込者' else '□' }} 新規申込者　{{ '☑' if case.property.application_category == '既存入居者' else '□' }} 既存入居者
+  </td></tr>
+  {% endif %}
   <tr><th>希望入居日</th><td>{{ case.property.desired_move_in_date if case.property else '' }}</td></tr>
   {% if case.property and case.property.move_in_reason %}
   <tr><th>入居理由</th><td>

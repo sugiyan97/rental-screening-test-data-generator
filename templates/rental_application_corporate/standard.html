@@ -167,6 +167,10 @@ th {
     <th>利用目的</th>
     <td>{{ case.property.usage_purpose or '' }}</td>
   </tr>
+  <tr>
+    <th>申込区分</th>
+    <td colspan="3">{{ '☑' if case.property.application_category == '新規申込者' else '□' }} 新規申込者　{{ '☑' if case.property.application_category == '既存入居者' else '□' }} 既存入居者</td>
+  </tr>
 </table>
 
 <h2>■ 申込法人情報</h2>

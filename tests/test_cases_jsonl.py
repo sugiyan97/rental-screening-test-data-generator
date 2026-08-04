@@ -364,3 +364,20 @@ def test_case_000032_v2_financials_stay_consistent(reupload_pair):
     assert _yen(after["net_assets"]) - _yen(before["net_assets"]) == loss_improvement
     # 第1期の新設スタートアップなので当期純損失であること自体は変わらない
     assert _yen(after["net_income"]) < 0
+
+
+# --- Issue #53: 法人向け申込区分（新規申込者／既存入居者）欄 -----------------
+
+
+def test_case_000033_application_category_is_existing_tenant(cases_by_id):
+    """CASE-000033（既存企業版）は申込書officeの正解JSONで申込区分=既存入居者になる。"""
+    case = cases_by_id["CASE-000033"]
+    answer = build_answer(case, "rental_application_corporate", "office")
+    assert answer["fields"]["application_category"] == "既存入居者"
+
+
+def test_case_000036_application_category_is_new_applicant(cases_by_id):
+    """CASE-000036（新規企業版）は申込書officeの正解JSONで申込区分=新規申込者になる。"""
+    case = cases_by_id["CASE-000036"]
+    answer = build_answer(case, "rental_application_corporate", "office")
+    assert answer["fields"]["application_category"] == "新規申込者"

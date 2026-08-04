@@ -88,6 +88,7 @@ def _sole_proprietor_applicant_fields(case: Case) -> dict[str, Any]:
     e = case.employment
     i = case.income
     ec = case.emergency_contact
+    p = case.property
     return {
         "applicant_name": _get(a, "name"),
         "applicant_kana": _get(a, "kana"),
@@ -103,7 +104,9 @@ def _sole_proprietor_applicant_fields(case: Case) -> dict[str, Any]:
         "applicant_spouse": "無",
         "applicant_residence_type": "賃貸",
         "applicant_occupation": "自営業",
-        "application_category": "新規申込者",
+        # ケースデータ側で申込区分が指定されていればそれを優先し、未設定時のみ
+        # 本 variant の既定シナリオ（新規開業＋新規申込者）にフォールバックする
+        "application_category": _get(p, "application_category") or "新規申込者",
         "application_kind": "事務所",
         "move_in_reason": "新規開業",
         "applicant_annual_income": _get(i, "annual_income"),
@@ -127,8 +130,10 @@ def _build_rental_application_corporate(case: Case, variant: str = "") -> dict[s
     g2 = case.guarantor_2
     extra = _sole_proprietor_applicant_fields(case) if variant == "sole_proprietor" else {}
     return {
-        # sole_proprietor variant はシナリオ固定の move_in_reason を持つため extra を優先させる
+        # sole_proprietor variant はシナリオ固定寄りの move_in_reason / application_category を
+        # 持つため extra を優先させる
         "move_in_reason": _get(p, "move_in_reason"),
+        "application_category": _get(p, "application_category"),
         **extra,
         "company_name": _get(c, "company_name"),
         "company_kana": _get(c, "company_kana"),
