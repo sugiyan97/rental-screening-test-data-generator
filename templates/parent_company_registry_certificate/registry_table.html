@@ -188,7 +188,8 @@ table.registry td.content {
 </table>
 
 <p class="issue-info">
-  証明書発行日：&emsp;&emsp;&emsp;&emsp;年&emsp;&emsp;月&emsp;&emsp;日<br>
+  これは登記簿に記録されている事項の全部であることを証明した書面である。<br>
+  証明書発行日：{{ case.parent_company.registry_certificate_issue_date if case.parent_company else '' }}<br>
   法務局：サンプル地方法務局（テスト用）&emsp;&emsp;整理番号：SMPL-PAR-99999
 </p>
 <p class="footer-note">

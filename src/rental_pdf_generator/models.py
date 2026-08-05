@@ -30,6 +30,9 @@ class Company(BaseModel):
     # 本店移転の登記年月日。謄本の「本店」欄の原因日付に使う（未指定なら established_date）。
     # 再アップロード（冪等更新）検証で本店所在地だけを変えた謄本を出す場合に指定する。
     head_office_transfer_date: str | None = None
+    # 謄本末尾の証明文に付す発行年月日。未指定なら謄本テンプレート側で空欄のまま出力される
+    # （= 実書類ではありえない状態。指定を推奨）。
+    registry_certificate_issue_date: str | None = None
     representative_name: str | None = None
     representative_kana: str | None = None
     representative_birth_date: str | None = None
@@ -246,6 +249,8 @@ class ParentCompany(BaseModel):
     business_description: str | None = None
     fiscal_year_end: str | None = None
     relationship: str | None = None
+    # 謄本末尾の証明文に付す発行年月日（Company 側と同義）。
+    registry_certificate_issue_date: str | None = None
 
 
 class BusinessLicense(BaseModel):
