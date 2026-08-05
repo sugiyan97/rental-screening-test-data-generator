@@ -128,6 +128,10 @@ round1＝CASE-000032／round2＝CASE-000032-V2 を同一案件として順に流
 
 > 謄本「本店」欄の原因日付は `company.head_office_transfer_date`（未指定時は `established_date`）を使う。
 > 本店移転を登記した謄本のみ、正解 JSON に `head_office_transfer_date` が入る。
+>
+> 謄本末尾の証明文に付す発行年月日は `company.registry_certificate_issue_date`
+> （親会社謄本は `parent_company.registry_certificate_issue_date`）で指定する。未指定の場合、
+> 謄本には証明文自体は印字されるが発行年月日が空欄になる（実書類ではありえない状態のため指定を推奨）。
 
 ### G. E2E 法人実在性「不見当」検証（合成データ） — 1 ケース
 

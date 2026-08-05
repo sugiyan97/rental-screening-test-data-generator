@@ -225,6 +225,9 @@ def _build_registry_certificate(case: Case, variant: str = "") -> dict[str, Any]
     # 本店移転を登記した謄本のみ移転日を持たせる（未設定ケースの出力は従来どおり）
     if _get(c, "head_office_transfer_date"):
         fields["head_office_transfer_date"] = _get(c, "head_office_transfer_date")
+    # 証明書発行日が指定されたケースのみ正解値を持たせる（未設定ケースの出力は従来どおり）
+    if _get(c, "registry_certificate_issue_date"):
+        fields["registry_certificate_issue_date"] = _get(c, "registry_certificate_issue_date")
     # 株主名簿を参考添付する variant のみ株主情報を持たせる（未設定ケースの出力は従来どおり）
     if case.shareholders:
         fields.update(_shareholder_summary(case.shareholders))
@@ -481,7 +484,7 @@ def _build_parent_company_guarantee_letter(case: Case, variant: str = "") -> dic
 
 def _build_parent_company_registry_certificate(case: Case, variant: str = "") -> dict[str, Any]:
     pc = case.parent_company
-    return {
+    fields: dict[str, Any] = {
         "company_name": _get(pc, "company_name"),
         "corporate_number": _get(pc, "corporate_number"),
         "head_office_address": _get(pc, "head_office_address"),
@@ -491,6 +494,10 @@ def _build_parent_company_registry_certificate(case: Case, variant: str = "") ->
         "business_description": _get(pc, "business_description"),
         "fiscal_year_end": _get(pc, "fiscal_year_end"),
     }
+    # 証明書発行日が指定されたケースのみ正解値を持たせる（未設定ケースの出力は従来どおり）
+    if _get(pc, "registry_certificate_issue_date"):
+        fields["registry_certificate_issue_date"] = _get(pc, "registry_certificate_issue_date")
+    return fields
 
 
 def _build_parent_company_financial_statement(case: Case, variant: str = "") -> dict[str, Any]:
