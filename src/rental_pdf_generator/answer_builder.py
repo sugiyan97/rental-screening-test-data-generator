@@ -88,6 +88,7 @@ def _sole_proprietor_applicant_fields(case: Case) -> dict[str, Any]:
     e = case.employment
     i = case.income
     ec = case.emergency_contact
+    p = case.property
     return {
         "applicant_name": _get(a, "name"),
         "applicant_kana": _get(a, "kana"),
@@ -103,7 +104,9 @@ def _sole_proprietor_applicant_fields(case: Case) -> dict[str, Any]:
         "applicant_spouse": "無",
         "applicant_residence_type": "賃貸",
         "applicant_occupation": "自営業",
-        "application_category": "新規申込者",
+        # ケースデータ側で申込区分が指定されていればそれを優先し、未設定時のみ
+        # 本 variant の既定シナリオ（新規開業＋新規申込者）にフォールバックする
+        "application_category": _get(p, "application_category") or "新規申込者",
         "application_kind": "事務所",
         "move_in_reason": "新規開業",
         "applicant_annual_income": _get(i, "annual_income"),
@@ -127,6 +130,10 @@ def _build_rental_application_corporate(case: Case, variant: str = "") -> dict[s
     g2 = case.guarantor_2
     extra = _sole_proprietor_applicant_fields(case) if variant == "sole_proprietor" else {}
     return {
+        # sole_proprietor variant はシナリオ固定寄りの move_in_reason / application_category を
+        # 持つため extra を優先させる
+        "move_in_reason": _get(p, "move_in_reason"),
+        "application_category": _get(p, "application_category"),
         **extra,
         "company_name": _get(c, "company_name"),
         "company_kana": _get(c, "company_kana"),
@@ -154,6 +161,7 @@ def _build_rental_application_corporate(case: Case, variant: str = "") -> dict[s
         "business_type": _get(c, "business_type"),
         "business_description": _get(c, "business_description"),
         "employee_count": _get(c, "employee_count"),
+        "new_business_reason": _get(c, "new_business_reason"),
         "property_name": _get(p, "property_name"),
         "room_number": _get(p, "room_number"),
         "property_postal_code": _get(p, "postal_code"),
@@ -208,6 +216,12 @@ def _build_registry_certificate(case: Case, variant: str = "") -> dict[str, Any]
         "business_description": _get(c, "business_description"),
         "fiscal_year_end": _get(c, "fiscal_year_end"),
     }
+    # 共同代表 variant のみ2人目の代表取締役を持たせる（他 variant の出力は従来どおり）。
+    # 2人目を役員欄に印字するのは registry_table_co_representative だけなので、
+    # 正解値も同じ条件で揃える（印字されない書類に正解値だけ増やさない）。
+    if variant == "registry_table_co_representative" and _get(c, "representative_2_name"):
+        fields["representative_2_name"] = _get(c, "representative_2_name")
+        fields["representative_2_address"] = _get(c, "representative_2_address")
     # 本店移転を登記した謄本のみ移転日を持たせる（未設定ケースの出力は従来どおり）
     if _get(c, "head_office_transfer_date"):
         fields["head_office_transfer_date"] = _get(c, "head_office_transfer_date")
@@ -293,6 +307,8 @@ def _build_rental_application_individual(case: Case, variant: str = "") -> dict[
         "phone": _get(a, "phone"),
         "email": _get(a, "email"),
         "id_document_type": _get(a, "id_document_type"),
+        "residence_type": _get(a, "residence_type"),
+        "move_in_reason": _get(a, "move_in_reason"),
         "applicant_2_name": _get(a2, "name"),
         "applicant_2_kana": _get(a2, "kana"),
         "applicant_2_birth_date": _get(a2, "birth_date"),
@@ -316,11 +332,14 @@ def _build_rental_application_individual(case: Case, variant: str = "") -> dict[
         "rent": _get(p, "rent"),
         "management_fee": _get(p, "management_fee"),
         "desired_move_in_date": _get(p, "desired_move_in_date"),
+        "application_category": _get(p, "application_category"),
         "emergency_contact_name": _get(ec, "name"),
+        "emergency_contact_kana": _get(ec, "kana"),
         "emergency_contact_relation": _get(ec, "relation"),
         "emergency_contact_phone": _get(ec, "phone"),
         "emergency_contact_postal_code": _get(ec, "postal_code"),
         "emergency_contact_address": _get(ec, "address"),
+        "emergency_contact_birth_date": _get(ec, "birth_date"),
         "guarantor_name": _get(g, "name"),
         "guarantor_kana": _get(g, "kana"),
         "guarantor_birth_date": _get(g, "birth_date"),
@@ -714,6 +733,14 @@ def _build_payment_track_record_pledge(case: Case, variant: str = "") -> dict[st
 
 def _build_trial_balance(case: Case, variant: str = "") -> dict[str, Any]:
     c = case.company
+    if variant.startswith("annual"):
+        atb = case.annual_trial_balance
+        return {
+            "company_name": _get(c, "company_name"),
+            "fiscal_period": _get(atb, "fiscal_period"),
+            "balance_sheet_rows": [r.model_dump() for r in atb.balance_sheet_rows] if atb else [],
+            "profit_loss_rows": [r.model_dump() for r in atb.profit_loss_rows] if atb else [],
+        }
     tb = case.trial_balance
     return {
         "company_name": _get(c, "company_name"),

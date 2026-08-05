@@ -201,6 +201,36 @@ def test_case_000060_guarantor_is_same_as_applicant(cases_by_id):
     assert g.relationship == "本人（申込者と同一）"
 
 
+# --- Issue #50: 事業新規（設立1年未満）で事業計画書・資金エビデンス必須 CASE-000065 ---
+
+
+def test_case_000065_established_date_is_six_to_ten_months_before_base_date(cases_by_id):
+    """設立日は生成時点から6〜10ヶ月前の範囲（設立1年未満の前提が崩れていないか）。"""
+    case = cases_by_id["CASE-000065"]
+    established = _parse_jp_date(case.company.established_date)
+    days_since = (BASE_DATE - established).days
+    assert 180 <= days_since <= 310, "設立日が6〜10ヶ月前の想定範囲から外れている（要再生成）"
+
+
+def test_case_000065_is_new_business_with_reason_and_no_supporting_docs(cases_by_id):
+    """入居理由=新規開業・開業理由記載ありで、決算書・事業計画書・資金エビデンスは未提出。"""
+    case = cases_by_id["CASE-000065"]
+    assert case.applicant_type == "corporate"
+    assert case.property.move_in_reason == "新規開業"
+    assert case.company.new_business_reason
+    document_types = {d.document_type for d in case.documents}
+    assert document_types.isdisjoint({"financial_statement", "business_plan", "funding_evidence"})
+
+
+def test_case_000065_application_form_reflects_new_business_reason(cases_by_id):
+    """申込書（office）の正解JSONに入居理由・開業理由/背景が反映されている。"""
+    case = cases_by_id["CASE-000065"]
+    answer = build_answer(case, "rental_application_corporate", "office")
+    fields = answer["fields"]
+    assert fields["move_in_reason"] == "新規開業"
+    assert fields["new_business_reason"] == case.company.new_business_reason
+
+
 # --- Issue #40: 再アップロード（冪等更新）検証用 value-variant CASE-000032-V2 -------
 
 
@@ -334,3 +364,85 @@ def test_case_000032_v2_financials_stay_consistent(reupload_pair):
     assert _yen(after["net_assets"]) - _yen(before["net_assets"]) == loss_improvement
     # 第1期の新設スタートアップなので当期純損失であること自体は変わらない
     assert _yen(after["net_income"]) < 0
+
+
+# --- Issue #53: 法人向け申込区分（新規申込者／既存入居者）欄 -----------------
+
+
+def test_case_000033_application_category_is_existing_tenant(cases_by_id):
+    """CASE-000033（既存企業版）は申込書officeの正解JSONで申込区分=既存入居者になる。"""
+    case = cases_by_id["CASE-000033"]
+    answer = build_answer(case, "rental_application_corporate", "office")
+    assert answer["fields"]["application_category"] == "既存入居者"
+
+
+def test_case_000036_application_category_is_new_applicant(cases_by_id):
+    """CASE-000036（新規企業版）は申込書officeの正解JSONで申込区分=新規申込者になる。"""
+    case = cases_by_id["CASE-000036"]
+    answer = build_answer(case, "rental_application_corporate", "office")
+    assert answer["fields"]["application_category"] == "新規申込者"
+
+
+# --- 個人向け入居申込書(standard)の必須項目欠落是正 -------------------------
+# 詳細設計書 §10.1.1 で必須(＊)の【物件】申込区分／賃借人(個人)の住居種類・入居理由／
+# 緊急連絡先のフリガナ・生年月日が rental_application_individual/standard.html に
+# 構造的に存在しなかったため追加。CASE-000060 は emergency_contact ブロック自体が
+# 欠落しており最も重篤だったため、緊急連絡先を新設のうえ全項目を補完している。
+
+
+def test_case_000060_has_emergency_contact_with_kana_and_birth_date(cases_by_id):
+    """CASE-000060は緊急連絡先ブロックが丸ごと欠落していたため新設し、
+    フリガナ・生年月日を含む全項目が揃っていることを確認する。"""
+    case = cases_by_id["CASE-000060"]
+    ec = case.emergency_contact
+    assert ec is not None
+    assert ec.name
+    assert ec.kana
+    assert ec.relation
+    assert ec.phone
+    assert ec.address
+    assert ec.birth_date
+
+
+def test_case_000060_answer_contains_new_required_fields(cases_by_id):
+    """CASE-000060の正解JSONに住居種類・入居理由・申込区分・緊急連絡先フリガナ/生年月日が
+    反映される。"""
+    case = cases_by_id["CASE-000060"]
+    answer = build_answer(case, "rental_application_individual", "standard")
+    assert answer["fields"]["residence_type"]
+    assert answer["fields"]["move_in_reason"]
+    assert answer["fields"]["application_category"]
+    assert answer["fields"]["emergency_contact_kana"]
+    assert answer["fields"]["emergency_contact_birth_date"]
+
+
+@pytest.mark.parametrize(
+    "case_id",
+    [
+        "CASE-000002",
+        "CASE-000003",
+        "CASE-000004",
+        "CASE-000006",
+        "CASE-000011",
+        "CASE-000012",
+        "CASE-000013",
+        "CASE-000014",
+        "CASE-000023",
+        "CASE-000048",
+        "CASE-000049",
+        "CASE-000050",
+        "CASE-000052",
+        "CASE-000053",
+        "CASE-000054",
+        "CASE-000060",
+    ],
+)
+def test_individual_standard_cases_have_residence_type_and_move_in_reason(cases_by_id, case_id):
+    """rental_application_individual/standard を使う個人ケース全般に、テンプレートが新設した
+    必須項目（住居種類・入居理由・申込区分）が空欄のまま回帰しないことを確認する。"""
+    case = cases_by_id[case_id]
+    assert case.applicant is not None
+    assert case.applicant.residence_type
+    assert case.applicant.move_in_reason
+    assert case.property is not None
+    assert case.property.application_category

@@ -53,6 +53,8 @@ class Company(BaseModel):
     business_description: str | None = None
     employee_count: str | None = None
     fiscal_year_end: str | None = None
+    # 開業理由・背景欄の記載内容（新規開業の場合のみ）
+    new_business_reason: str | None = None
 
 
 class Applicant(BaseModel):
@@ -66,6 +68,10 @@ class Applicant(BaseModel):
     phone: str | None = None
     email: str | None = None
     id_document_type: str | None = None
+    # 住居種類（現住居チェックボックス。例:「自己所有」「家族所有」「賃貸」「社宅」）
+    residence_type: str | None = None
+    # 入居理由（入居理由チェックボックス。例:「新規開業」「移転」「増店」）
+    move_in_reason: str | None = None
 
 
 class Employment(BaseModel):
@@ -87,6 +93,10 @@ class Property(BaseModel):
     management_fee: str | None = None
     desired_move_in_date: str | None = None
     usage_purpose: str | None = None
+    # 入居理由（例: 「新規開業」「移転」「増店」）
+    move_in_reason: str | None = None
+    # 申込区分（例:「新規申込者」「既存入居者」）。未設定なら申込書の申込区分欄は空欄扱い
+    application_category: str | None = None
 
 
 class Financials(BaseModel):
@@ -122,10 +132,14 @@ class BusinessPlan(BaseModel):
 
 class EmergencyContact(BaseModel):
     name: str | None = None
+    # フリガナ（緊急連絡先氏名の横または下にあるフリガナ欄）
+    kana: str | None = None
     relation: str | None = None
     phone: str | None = None
     postal_code: str | None = None
     address: str | None = None
+    # 生年月日（申込者本人・連帯保証人の生年月日とは別の緊急連絡先セクションの欄）
+    birth_date: str | None = None
 
 
 class Income(BaseModel):
@@ -396,6 +410,31 @@ class TrialBalance(BaseModel):
     operating_profit: str | None = None
 
 
+class AnnualTrialBalanceRow(BaseModel):
+    """通期残高試算表の1行（勘定科目ごとに 前期残高／借方／貸方／期末残高／構成比 を持つ）。"""
+
+    label: str
+    opening_balance: str | None = None
+    debit: str | None = None
+    credit: str | None = None
+    closing_balance: str | None = None
+    ratio: str | None = None
+    # 表示上の強調。"subtotal"=小計行 / "total"=合計行 / None=通常科目
+    emphasis: str | None = None
+
+
+class AnnualTrialBalance(BaseModel):
+    """会計期間が通期（12か月）の残高試算表。
+
+    月次・期中のものは ``TrialBalance`` を使う。通期は正式決算書が未提出の期の
+    財務を審査に取り込む用途があり、勘定科目ごとに残高の増減を列で持つ。
+    """
+
+    fiscal_period: str | None = None
+    balance_sheet_rows: list[AnnualTrialBalanceRow] = []
+    profit_loss_rows: list[AnnualTrialBalanceRow] = []
+
+
 class SohoUsage(BaseModel):
     residential_ratio: str | None = None
     business_ratio: str | None = None
@@ -530,6 +569,7 @@ class Case(BaseModel):
     previous_financials: Financials | None = None
     previous_income: Income | None = None
     trial_balance: TrialBalance | None = None
+    annual_trial_balance: AnnualTrialBalance | None = None
     # 複数期を1ファイルにまとめる書類用
     financials_multi: list[Financials] | None = None
     income_multi: list[Income] | None = None

@@ -105,7 +105,7 @@ E2E `e2e_022_applicant_identification`（申込者特定の異常系）の検証
 | CASE-000057 | 個人（**共同申込**） | 田中 良太・田中 美咲 | **TC-1-070**。申込者2名（申込者①②）を明記した連名申込書。「共同申込は範囲外＝申込者1名＋アラート」の検証用（`applicant_2` を追加し `joint_application` variant で描画） | **共同申込書（joint_application）**＋本人ID（2書類） |
 | CASE-000058 | 既存・法人（**共同代表**） | 株式会社サンプルデュアルリードワークス | **TC-1-071**。代表取締役2名の共同代表制。代表者①②を明記した申込書。「共同代表は代表者1名＋アラート」の検証用（`representative_2_*` を追加し `joint_representative` variant で描画） | **共同代表申込書（joint_representative）**＋登記簿＋代表者ID（3書類） |
 | CASE-000059 | 既存・法人（子会社／**親会社代表が外国籍**） | 株式会社サンプルグローバルロジワークス | **TC-1-094**。CASE-000008 派生。親会社（法人保証人）の代表者が外国籍のため**在留カード**を1点添付（`parent_company_identity_document/residence_card`）。法人保証人代表の外国籍検知の検証用 | 申込書＋子会社登記簿＋親会社登記簿＋親会社決算書＋親会社保証書＋**親会社代表 在留カード**＋代表者ID（7書類） |
-| CASE-000060 | 個人（**保証人＝本人**） | 山本 大輔 | **TC-1-095**。申込者と連帯保証人が同一人物として記載された申込書（続柄「本人（申込者と同一）」）。「保証人が本人と同一＝要アラート」の検証用 | 申込書standard＋本人ID（2書類） |
+| CASE-000060 | 個人（**保証人＝本人**） | 山本 大輔 | **TC-1-095**。申込者と連帯保証人が同一人物として記載された申込書（続柄「本人（申込者と同一）」）。「保証人が本人と同一＝要アラート」の検証用。収入証明書は当年分＋前年分の2年分を提出 | 申込書standard＋収入証明（当年分＋前年分）＋本人ID（4書類） |
 | CASE-000064 | 個人（**共同申込・申込書2通**） | 篠塚 拓真・篠塚 沙耶 | **共同申込の検知トリガ（申込書が2枚以上分類された場合）を満たすデータ**。夫婦2名が同一物件へ 個人用申込書（standard）を1通ずつ提出し、名義の異なる申込書が2通分類される。CASE-000057（連名申込書1通）では申込書が1枚しか分類されずトリガに当たらないため、その2通版として追加した（申込者・物件は CASE-000057 と別＝1ケース1申込者を保つ）。`label`（applicant_1 / applicant_2）でファイル名を分け、2通目は `overrides` で申込者・勤務先を差し替え。「自動処理の範囲外としてアラート」の検証用 | 申込書standard×2通（名義相違・同一物件）＋本人ID（3書類） |
 
 ### F. E2E 再アップロード（冪等更新）検証（合成データ） — 1 ケース
@@ -169,7 +169,7 @@ E2E `e2e_028_corporate_number`（**TC-4-019** 閉鎖法人の検出 ／ **TC-2-0
 | document_type | 説明 | 利用可能な variant |
 |---|---|---|
 | `rental_application_individual` | 個人用入居申込書 | `standard`, `handwritten_like`, `residential`, `soho`, `print_handwriting_mixed`, `joint_application` |
-| `rental_application_corporate` | 法人用入居申込書 | `standard`, `handwritten_like`, `office`, `housing`, `store`, `joint_representative` |
+| `rental_application_corporate` | 法人用入居申込書 | `standard`, `handwritten_like`, `office`, `housing`, `store`, `joint_representative`, `sole_proprietor` |
 | `income_certificate` | 収入証明書風 | `salary_certificate`, `tax_return`, `tax_return_prior`, `tax_return_multi_year`, `withholding_slip`, `withholding_slip_current` |
 | `registry_certificate` | 履歴事項全部証明書風 | `registry_table`, `registry_table_with_shareholders`, `registry_table_public_company_name` |
 | `financial_statement` | 決算書風（財務サマリー） | `financial_summary`, `financial_summary_prior`, `multi_period`, `multi_period_report_form` |
@@ -205,6 +205,7 @@ E2E `e2e_028_corporate_number`（**TC-4-019** 閉鎖法人の検出 ／ **TC-2-0
 - **入居申込書**（個人・法人）— 保証人欄・同居者欄・担当者欄・反社確認文言等を含む業務品質フォーマット。`case.guarantor_2` `case.student` が設定された場合は第2保証人・同居人セクションが自動表示される
 - **法人申込書の代表者情報** — 全 variant（standard/handwritten_like/office/housing/store）で代表者の氏名・フリガナ（`representative_kana`）・生年月日・年齢（`representative_age`）・性別（`representative_gender`）・住所を表示。`case.guarantor` / `case.guarantor_2` が設定された場合は法人申込書にも連帯保証人①②セクション（氏名・フリガナ・生年月日・年齢・性別・続柄・住所・勤務先・年収）が自動表示される
 - **法人申込書の業種欄** — `case.company.business_type`（業種）で全 variant の「業種」欄が埋まる。`standard` は従来空欄だった業種セルが、`store`/`housing`/`handwritten_like` は業種行が（値が設定されたケースのみ）表示され、`office` の「業種カテゴリ」は未設定時のみ従来の既定値にフォールバックする。`business_description`（事業内容）とは別項目
+- **法人申込書の申込区分欄** — `case.property.application_category`（「新規申込者」「既存入居者」）で全 variant（`sole_proprietor` 含む）の「申込区分」欄のチェックが出し分けられる。未設定時、`sole_proprietor` は「新規申込者」にフォールバックし、他 variant は欄自体が非表示（`standard`/`handwritten_like` は両方 `□` のまま表示）になる
 - **郵便番号** — 物件所在地・法人本店・代表者住所・申込者住所・緊急連絡先・連帯保証人住所に 〒XXX-XXXX 形式の仮郵便番号を表示（`postal_code` 系フィールド）。エリア（区市）に応じた実在しそうなプレフィクスを使用
 - **性別・年齢** — 申込者に加え、代表者・連帯保証人①②にも性別（`gender`）・年齢（`age`）を表示
 - **入居申込書 用途バリアント** — `residential`（居住用、世帯構成重視）、`soho`（居住SOHO兼用、業種・面積割合・看板）、`office`（事務所用、従業員数・営業時間・来客）、`housing`（社宅用、入居者情報・家賃補助率）、`store`（店舗用、業態・営業時間・騒音匂い・設備工事）の 5 variant。各 variant は用途固有のセクションを持つ

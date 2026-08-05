@@ -192,6 +192,42 @@ def test_payment_track_record_pledge_generated_as_pdf_and_docx(
     assert [d["output_format"] for d in meta["generated_documents"]] == ["pdf", "docx"]
 
 
+def test_rental_application_corporate_generated_as_pdf_and_docx(
+    corporate_extended_case, tmp_path
+):
+    """法人用入居申込書を PDF と Word(.docx) の2形式で出力できる（Issue #51）。"""
+    case = corporate_extended_case.model_copy(deep=True)
+    case.case_id = "CASE-RENTAL-APP-CORP-MULTI"
+    case.documents = [
+        DocumentSpec(
+            document_type="rental_application_corporate",
+            variant="standard",
+            output_format="pdf",
+        ),
+        DocumentSpec(
+            document_type="rental_application_corporate",
+            variant="standard",
+            output_format="docx",
+        ),
+    ]
+    meta = CasePdfGenerator(output_dir=tmp_path).generate(case)
+
+    case_dir = tmp_path / case.case_id
+    pdf_path = case_dir / "pdf" / "rental_application_corporate_standard.pdf"
+    docx_path = case_dir / "docx" / "rental_application_corporate_standard.docx"
+    assert pdf_path.exists()
+    assert docx_path.exists()
+    with pdf_path.open("rb") as f:
+        assert f.read(4) == b"%PDF"
+
+    with zipfile.ZipFile(docx_path) as zf:
+        xml = zf.read("word/document.xml").decode("utf-8")
+    assert "テスト商事株式会社" in xml
+    assert "テスト 太郎" in xml
+
+    assert [d["output_format"] for d in meta["generated_documents"]] == ["pdf", "docx"]
+
+
 def test_case_meta_json_records_output_format(individual_case, tmp_path):
     case = _single_document_case(individual_case, "jpg")
     CasePdfGenerator(output_dir=tmp_path).generate(case)

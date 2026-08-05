@@ -45,6 +45,37 @@ def test_build_answer_corporate_no_guarantor(corporate_case):
     assert answer["fields"]["guarantor_kana"] is None
 
 
+def test_build_answer_corporate_move_in_reason_defaults_to_none(corporate_case):
+    """move_in_reason / new_business_reason 未設定の既存ケースは None のまま（挙動不変）。"""
+    answer = build_answer(corporate_case, "rental_application_corporate", "office")
+    assert answer["fields"]["move_in_reason"] is None
+    assert answer["fields"]["new_business_reason"] is None
+
+
+def test_build_answer_corporate_new_business_reason(corporate_case_data):
+    """入居理由=新規開業・開業理由/背景欄の設定が正解JSONに反映される。"""
+    corporate_case_data["property"]["move_in_reason"] = "新規開業"
+    corporate_case_data["company"]["new_business_reason"] = "独立開業のため。"
+    case = Case.model_validate(corporate_case_data)
+    answer = build_answer(case, "rental_application_corporate", "office")
+    assert answer["fields"]["move_in_reason"] == "新規開業"
+    assert answer["fields"]["new_business_reason"] == "独立開業のため。"
+
+
+def test_build_answer_corporate_application_category_defaults_to_none(corporate_case):
+    """application_category 未設定の既存ケースは None のまま（挙動不変）。"""
+    answer = build_answer(corporate_case, "rental_application_corporate", "office")
+    assert answer["fields"]["application_category"] is None
+
+
+def test_build_answer_corporate_application_category_existing_tenant(corporate_case_data):
+    """申込区分=既存入居者が正解JSONに反映される。"""
+    corporate_case_data["property"]["application_category"] = "既存入居者"
+    case = Case.model_validate(corporate_case_data)
+    answer = build_answer(case, "rental_application_corporate", "office")
+    assert answer["fields"]["application_category"] == "既存入居者"
+
+
 def test_build_answer_corporate_with_guarantor(corporate_extended_case):
     answer = build_answer(
         corporate_extended_case, "rental_application_corporate", "office"
@@ -238,6 +269,33 @@ def test_build_answer_individual_no_guarantor(individual_case):
     answer = build_answer(individual_case, "rental_application_individual", "standard")
     assert answer["fields"]["guarantor_name"] is None
     assert answer["fields"]["guarantor_annual_income"] is None
+
+
+def test_build_answer_individual_new_fields_default_to_none(individual_case):
+    """residence_type / move_in_reason / application_category / 緊急連絡先フリガナ・生年月日は
+    未設定の既存ケースでは None のまま（挙動不変）。"""
+    answer = build_answer(individual_case, "rental_application_individual", "standard")
+    assert answer["fields"]["residence_type"] is None
+    assert answer["fields"]["move_in_reason"] is None
+    assert answer["fields"]["application_category"] is None
+    assert answer["fields"]["emergency_contact_kana"] is None
+    assert answer["fields"]["emergency_contact_birth_date"] is None
+
+
+def test_build_answer_individual_new_fields_reflected(individual_case_data):
+    """住居種類・入居理由・申込区分・緊急連絡先フリガナ/生年月日が正解JSONに反映される。"""
+    individual_case_data["applicant"]["residence_type"] = "賃貸"
+    individual_case_data["applicant"]["move_in_reason"] = "移転"
+    individual_case_data["property"]["application_category"] = "新規申込者"
+    individual_case_data["emergency_contact"]["kana"] = "テスト イチロウ"
+    individual_case_data["emergency_contact"]["birth_date"] = "1965年01月01日"
+    case = Case.model_validate(individual_case_data)
+    answer = build_answer(case, "rental_application_individual", "standard")
+    assert answer["fields"]["residence_type"] == "賃貸"
+    assert answer["fields"]["move_in_reason"] == "移転"
+    assert answer["fields"]["application_category"] == "新規申込者"
+    assert answer["fields"]["emergency_contact_kana"] == "テスト イチロウ"
+    assert answer["fields"]["emergency_contact_birth_date"] == "1965年01月01日"
 
 
 def test_build_answer_income(individual_case):
@@ -790,6 +848,17 @@ def test_build_answer_corporate_sole_proprietor_has_applicant_block():
     assert fields["years_in_business"] == "8年"
     assert fields["move_in_reason"] == "新規開業"
     assert fields["application_category"] == "新規申込者"
+
+
+def test_build_answer_corporate_sole_proprietor_application_category_overridable():
+    """sole_proprietor variant も case.property.application_category で既存入居者に切替できる。"""
+    data = {
+        **SOLE_PROPRIETOR_CORPORATE_FORM_CASE,
+        "property": {"application_category": "既存入居者"},
+    }
+    case = Case.model_validate(data)
+    fields = build_answer(case, "rental_application_corporate", "sole_proprietor")["fields"]
+    assert fields["application_category"] == "既存入居者"
     assert fields["application_kind"] == "事務所"
     assert fields["emergency_contact_name"] == "テスト 花子"
 

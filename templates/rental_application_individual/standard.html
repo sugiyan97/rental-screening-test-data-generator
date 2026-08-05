@@ -171,6 +171,10 @@ td.wide {
     <th>利用目的</th>
     <td>{{ case.property.usage_purpose or '' }}</td>
   </tr>
+  <tr>
+    <th>申込区分</th>
+    <td colspan="3">{{ '☑' if case.property.application_category == '新規申込者' else '□' }} 新規申込者　{{ '☑' if case.property.application_category == '既存入居者' else '□' }} 既存入居者</td>
+  </tr>
 </table>
 
 <h2>■ 申込者情報</h2>
@@ -192,10 +196,18 @@ td.wide {
     <td colspan="3">〒{{ case.applicant.postal_code or '' }}　{{ case.applicant.current_address or '' }}</td>
   </tr>
   <tr>
+    <th>住居種類</th>
+    <td colspan="3">
+      {{ '☑' if case.applicant.residence_type == '自己所有' else '□' }} 自己所有　{{ '☑' if case.applicant.residence_type == '家族所有' else '□' }} 家族所有　{{ '☑' if case.applicant.residence_type == '賃貸' else '□' }} 賃貸　{{ '☑' if case.applicant.residence_type == '社宅' else '□' }} 社宅
+    </td>
+  </tr>
+  <tr>
     <th>現在の家賃</th>
     <td></td>
-    <th>転居理由</th>
-    <td></td>
+    <th>入居理由</th>
+    <td>
+      {{ '☑' if case.applicant.move_in_reason == '新規開業' else '□' }} 新規開業　{{ '☑' if case.applicant.move_in_reason == '移転' else '□' }} 移転　{{ '☑' if case.applicant.move_in_reason == '増店' else '□' }} 増店
+    </td>
   </tr>
   <tr>
     <th>携帯電話番号</th>
@@ -264,6 +276,12 @@ td.wide {
     <td>{{ case.emergency_contact.name or '' }}</td>
     <th>続柄</th>
     <td>{{ case.emergency_contact.relation or '' }}</td>
+  </tr>
+  <tr>
+    <th>フリガナ</th>
+    <td>{{ case.emergency_contact.kana or '' }}</td>
+    <th>生年月日</th>
+    <td>{{ case.emergency_contact.birth_date or '' }}</td>
   </tr>
   <tr>
     <th>電話番号</th>
