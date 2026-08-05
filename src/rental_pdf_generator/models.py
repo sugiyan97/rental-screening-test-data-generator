@@ -68,6 +68,10 @@ class Applicant(BaseModel):
     phone: str | None = None
     email: str | None = None
     id_document_type: str | None = None
+    # 住居種類（現住居チェックボックス。例:「自己所有」「家族所有」「賃貸」「社宅」）
+    residence_type: str | None = None
+    # 入居理由（入居理由チェックボックス。例:「新規開業」「移転」「増店」）
+    move_in_reason: str | None = None
 
 
 class Employment(BaseModel):
@@ -128,10 +132,14 @@ class BusinessPlan(BaseModel):
 
 class EmergencyContact(BaseModel):
     name: str | None = None
+    # フリガナ（緊急連絡先氏名の横または下にあるフリガナ欄）
+    kana: str | None = None
     relation: str | None = None
     phone: str | None = None
     postal_code: str | None = None
     address: str | None = None
+    # 生年月日（申込者本人・連帯保証人の生年月日とは別の緊急連絡先セクションの欄）
+    birth_date: str | None = None
 
 
 class Income(BaseModel):

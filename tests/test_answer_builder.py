@@ -271,6 +271,33 @@ def test_build_answer_individual_no_guarantor(individual_case):
     assert answer["fields"]["guarantor_annual_income"] is None
 
 
+def test_build_answer_individual_new_fields_default_to_none(individual_case):
+    """residence_type / move_in_reason / application_category / 緊急連絡先フリガナ・生年月日は
+    未設定の既存ケースでは None のまま（挙動不変）。"""
+    answer = build_answer(individual_case, "rental_application_individual", "standard")
+    assert answer["fields"]["residence_type"] is None
+    assert answer["fields"]["move_in_reason"] is None
+    assert answer["fields"]["application_category"] is None
+    assert answer["fields"]["emergency_contact_kana"] is None
+    assert answer["fields"]["emergency_contact_birth_date"] is None
+
+
+def test_build_answer_individual_new_fields_reflected(individual_case_data):
+    """住居種類・入居理由・申込区分・緊急連絡先フリガナ/生年月日が正解JSONに反映される。"""
+    individual_case_data["applicant"]["residence_type"] = "賃貸"
+    individual_case_data["applicant"]["move_in_reason"] = "移転"
+    individual_case_data["property"]["application_category"] = "新規申込者"
+    individual_case_data["emergency_contact"]["kana"] = "テスト イチロウ"
+    individual_case_data["emergency_contact"]["birth_date"] = "1965年01月01日"
+    case = Case.model_validate(individual_case_data)
+    answer = build_answer(case, "rental_application_individual", "standard")
+    assert answer["fields"]["residence_type"] == "賃貸"
+    assert answer["fields"]["move_in_reason"] == "移転"
+    assert answer["fields"]["application_category"] == "新規申込者"
+    assert answer["fields"]["emergency_contact_kana"] == "テスト イチロウ"
+    assert answer["fields"]["emergency_contact_birth_date"] == "1965年01月01日"
+
+
 def test_build_answer_income(individual_case):
     answer = build_answer(individual_case, "income_certificate", "salary_certificate")
     assert answer["fields"]["name"] == "テスト 花子"
