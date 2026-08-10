@@ -228,6 +228,42 @@ def test_rental_application_corporate_generated_as_pdf_and_docx(
     assert [d["output_format"] for d in meta["generated_documents"]] == ["pdf", "docx"]
 
 
+def test_rental_application_corporate_generated_as_pdf_and_xlsx(
+    corporate_extended_case, tmp_path
+):
+    """法人用入居申込書を PDF と Excel(.xlsx) の2形式で出力できる（Issue #66）。"""
+    from openpyxl import load_workbook
+
+    case = corporate_extended_case.model_copy(deep=True)
+    case.case_id = "CASE-RENTAL-APP-CORP-XLSX"
+    case.documents = [
+        DocumentSpec(
+            document_type="rental_application_corporate",
+            variant="standard",
+            output_format="pdf",
+        ),
+        DocumentSpec(
+            document_type="rental_application_corporate",
+            variant="standard",
+            output_format="xlsx",
+        ),
+    ]
+    meta = CasePdfGenerator(output_dir=tmp_path).generate(case)
+
+    case_dir = tmp_path / case.case_id
+    pdf_path = case_dir / "pdf" / "rental_application_corporate_standard.pdf"
+    xlsx_path = case_dir / "xlsx" / "rental_application_corporate_standard.xlsx"
+    assert pdf_path.exists()
+    assert xlsx_path.exists()
+
+    sheet = load_workbook(xlsx_path).active
+    values = [str(cell.value) for row in sheet.iter_rows() for cell in row if cell.value]
+    assert any("テスト商事株式会社" in v for v in values)
+    assert any("テスト 太郎" in v for v in values)
+
+    assert [d["output_format"] for d in meta["generated_documents"]] == ["pdf", "xlsx"]
+
+
 def test_case_meta_json_records_output_format(individual_case, tmp_path):
     case = _single_document_case(individual_case, "jpg")
     CasePdfGenerator(output_dir=tmp_path).generate(case)
