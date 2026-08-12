@@ -275,33 +275,6 @@ class CorporateGuarantee(BaseModel):
     contract_date: str | None = None
 
 
-class Guarantor2(BaseModel):
-    name: str | None = None
-    kana: str | None = None
-    birth_date: str | None = None
-    age: str | None = None
-    gender: str | None = None
-    relationship: str | None = None
-    postal_code: str | None = None
-    current_address: str | None = None
-    phone: str | None = None
-    employer_name: str | None = None
-    annual_income: str | None = None
-
-
-class Guarantor2Income(BaseModel):
-    income_year: str | None = None
-    annual_income: str | None = None
-    monthly_income: str | None = None
-    income_type: str | None = None
-    employer_name: str | None = None
-    employer_phone: str | None = None
-    employer_address: str | None = None
-    issue_date: str | None = None
-    base_salary: str | None = None
-    bonus: str | None = None
-
-
 class GuaranteeCompany(BaseModel):
     company_name: str | None = None
     company_address: str | None = None
@@ -554,8 +527,8 @@ class Case(BaseModel):
     business_license: BusinessLicense | None = None
     corporate_guarantee: CorporateGuarantee | None = None
     # グループ2: 保証人複数 / 保証会社
-    guarantor_2: Guarantor2 | None = None
-    guarantor_2_income: Guarantor2Income | None = None
+    guarantor_2: Guarantor | None = None
+    guarantor_2_income: GuarantorIncome | None = None
     guarantor_2_identity_document: IdentityDocument | None = None
     guarantee_company: GuaranteeCompany | None = None
     # 連帯保証人（個人）の追加証明書
