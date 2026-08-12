@@ -6,8 +6,6 @@ from .answer_builder import build_answer
 from .file_writer import ensure_dir, write_json
 from .models import Case, DocumentSpec, apply_case_overrides
 from .renderers import (
-    EXTENSION_BY_FORMAT,
-    SUBDIR_BY_FORMAT,
     PdfPasswordNotSupportedError,
     encrypt_pdf,
     render_document,
@@ -59,23 +57,9 @@ class CasePdfGenerator:
                     case_dir=case_dir,
                     answers_dir=answers_dir,
                 )
-                relative_path = f"{doc_path.parent.name}/{doc_path.name}"
-                entry = {
-                    "document_type": doc_spec.document_type,
-                    "variant": doc_spec.variant,
-                    "output_format": output_format,
-                    "file": relative_path,
-                }
-                if doc_spec.label:
-                    entry["label"] = doc_spec.label
-                if output_format == "pdf":
-                    # 既存の利用側との互換のため pdf 形式では pdf キーも残す
-                    entry["pdf"] = relative_path
-                if doc_spec.pdf_password:
-                    # 期待値（パスワード保護されている書類）として利用側が参照できるよう記録する
-                    entry["pdf_password"] = doc_spec.pdf_password
-                entry["answer"] = f"answers/{answer_path.name}"
-                generated_documents.append(entry)
+                generated_documents.append(
+                    self._build_document_entry(doc_spec, doc_path, answer_path, output_format)
+                )
 
             browser.close()
 
@@ -88,6 +72,31 @@ class CasePdfGenerator:
             case_meta["description"] = case.description
         write_json(case_dir / "case_meta.json", case_meta)
         return case_meta
+
+    def _build_document_entry(
+        self,
+        doc_spec: DocumentSpec,
+        doc_path: Path,
+        answer_path: Path,
+        output_format: str,
+    ) -> dict:
+        relative_path = f"{doc_path.parent.name}/{doc_path.name}"
+        entry = {
+            "document_type": doc_spec.document_type,
+            "variant": doc_spec.variant,
+            "output_format": output_format,
+            "file": relative_path,
+        }
+        if doc_spec.label:
+            entry["label"] = doc_spec.label
+        if output_format == "pdf":
+            # 既存の利用側との互換のため pdf 形式では pdf キーも残す
+            entry["pdf"] = relative_path
+        if doc_spec.pdf_password:
+            # 期待値（パスワード保護されている書類）として利用側が参照できるよう記録する
+            entry["pdf_password"] = doc_spec.pdf_password
+        entry["answer"] = f"answers/{answer_path.name}"
+        return entry
 
     def _generate_document(
         self,
@@ -116,9 +125,9 @@ class CasePdfGenerator:
                 f"  output_format: {output_format}"
             )
         stem = document_stem(doc_spec)
-        doc_dir = case_dir / SUBDIR_BY_FORMAT.get(output_format, output_format)
+        doc_dir = case_dir / output_format
         ensure_dir(doc_dir)
-        doc_path = doc_dir / f"{stem}.{EXTENSION_BY_FORMAT.get(output_format, output_format)}"
+        doc_path = doc_dir / f"{stem}.{output_format}"
 
         page.set_content(html, wait_until="networkidle", timeout=30000)
         render_document(page=page, output_format=output_format, path=doc_path, title=stem)

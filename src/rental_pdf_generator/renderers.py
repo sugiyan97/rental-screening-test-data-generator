@@ -13,12 +13,6 @@ from typing import Any
 
 OUTPUT_FORMATS: tuple[str, ...] = ("pdf", "png", "jpg", "xlsx", "docx", "csv", "pptx")
 
-# 出力形式ごとの出力先サブディレクトリ（ケースディレクトリ直下）
-SUBDIR_BY_FORMAT: dict[str, str] = {fmt: fmt for fmt in OUTPUT_FORMATS}
-
-# 出力形式ごとの拡張子
-EXTENSION_BY_FORMAT: dict[str, str] = {fmt: fmt for fmt in OUTPUT_FORMATS}
-
 
 class UnsupportedOutputFormatError(Exception):
     pass
@@ -186,6 +180,56 @@ def _render_csv(page, path: Path, title: str) -> None:
 _PPTX_LINES_PER_SLIDE = 12
 
 
+def _add_pptx_slide(presentation, blank_layout, heading: str) -> Any:
+    """見出しテキストボックス付きの空スライドを追加して返す。"""
+    from pptx.util import Inches, Pt
+
+    slide = presentation.slides.add_slide(blank_layout)
+    box = slide.shapes.add_textbox(Inches(0.5), Inches(0.3), Inches(9.0), Inches(0.8))
+    run = box.text_frame.paragraphs[0].add_run()
+    run.text = heading
+    run.font.size = Pt(20)
+    run.font.bold = True
+    run.font.name = _JP_FONT
+    return slide
+
+
+def _add_pptx_lines(slide, lines: list[str]) -> None:
+    """スライド本文にテキスト行を1段落ずつ追加する。"""
+    from pptx.util import Inches, Pt
+
+    box = slide.shapes.add_textbox(Inches(0.5), Inches(1.2), Inches(9.0), Inches(5.5))
+    frame = box.text_frame
+    frame.word_wrap = True
+    for i, line in enumerate(lines):
+        paragraph = frame.paragraphs[0] if i == 0 else frame.add_paragraph()
+        run = paragraph.add_run()
+        run.text = line
+        run.font.size = Pt(12)
+        run.font.name = _JP_FONT
+
+
+class _PptxTextBuffer:
+    """段落テキストをためておき、スライド単位でまとめて書き出すバッファ。
+
+    ためた行は flush 時に _PPTX_LINES_PER_SLIDE 行ずつスライドへ分割される。
+    slide_count は flush・表スライド追加を通じた総スライド数の記録用。
+    """
+
+    def __init__(self) -> None:
+        self.pending: list[str] = []
+        self.slide_count = 0
+
+    def flush(self, presentation, blank_layout, heading: str) -> None:
+        if not self.pending:
+            return
+        for start in range(0, len(self.pending), _PPTX_LINES_PER_SLIDE):
+            slide = _add_pptx_slide(presentation, blank_layout, heading)
+            _add_pptx_lines(slide, self.pending[start : start + _PPTX_LINES_PER_SLIDE])
+            self.slide_count += 1
+        self.pending = []
+
+
 def _render_pptx(page, path: Path, title: str) -> None:
     from pptx import Presentation
     from pptx.util import Inches, Pt
@@ -193,50 +237,19 @@ def _render_pptx(page, path: Path, title: str) -> None:
     presentation = Presentation()
     blank_layout = presentation.slide_layouts[6]
 
-    def add_slide(heading: str) -> Any:
-        slide = presentation.slides.add_slide(blank_layout)
-        box = slide.shapes.add_textbox(Inches(0.5), Inches(0.3), Inches(9.0), Inches(0.8))
-        run = box.text_frame.paragraphs[0].add_run()
-        run.text = heading
-        run.font.size = Pt(20)
-        run.font.bold = True
-        run.font.name = _JP_FONT
-        return slide
-
-    def add_lines(slide, lines: list[str]) -> None:
-        box = slide.shapes.add_textbox(Inches(0.5), Inches(1.2), Inches(9.0), Inches(5.5))
-        frame = box.text_frame
-        frame.word_wrap = True
-        for i, line in enumerate(lines):
-            paragraph = frame.paragraphs[0] if i == 0 else frame.add_paragraph()
-            run = paragraph.add_run()
-            run.text = line
-            run.font.size = Pt(12)
-            run.font.name = _JP_FONT
-
     heading = title
-    pending: list[str] = []
-    slide_count = 0
-
-    def flush() -> None:
-        nonlocal pending, slide_count
-        if not pending:
-            return
-        for start in range(0, len(pending), _PPTX_LINES_PER_SLIDE):
-            add_lines(add_slide(heading), pending[start : start + _PPTX_LINES_PER_SLIDE])
-            slide_count += 1
-        pending = []
+    buffer = _PptxTextBuffer()
 
     for block in extract_blocks(page):
         if block["type"] == "heading":
-            flush()
+            buffer.flush(presentation, blank_layout, heading)
             heading = block["text"]
         elif block["type"] == "text":
-            pending.append(block["text"])
+            buffer.pending.append(block["text"])
         else:
-            flush()
+            buffer.flush(presentation, blank_layout, heading)
             rows = block["rows"]
-            slide = add_slide(heading)
+            slide = _add_pptx_slide(presentation, blank_layout, heading)
             shape = slide.shapes.add_table(
                 len(rows),
                 max(len(r) for r in rows),
@@ -253,11 +266,11 @@ def _render_pptx(page, path: Path, title: str) -> None:
                         for run in paragraph.runs:
                             run.font.size = Pt(10)
                             run.font.name = _JP_FONT
-            slide_count += 1
+            buffer.slide_count += 1
 
-    flush()
-    if slide_count == 0:
-        add_slide(heading)
+    buffer.flush(presentation, blank_layout, heading)
+    if buffer.slide_count == 0:
+        _add_pptx_slide(presentation, blank_layout, heading)
 
     presentation.save(str(path))
 

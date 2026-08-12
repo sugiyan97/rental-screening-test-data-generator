@@ -555,40 +555,11 @@ def _build_business_license(case: Case, variant: str = "") -> dict[str, Any]:
 
 
 def _build_guarantor_2_income_certificate(case: Case, variant: str = "") -> dict[str, Any]:
-    g = case.guarantor_2
-    gi = case.guarantor_2_income
-    return {
-        "name": _get(g, "name"),
-        "current_address": _get(g, "current_address"),
-        "relationship": _get(g, "relationship"),
-        "income_year": _get(gi, "income_year"),
-        "annual_income": _get(gi, "annual_income"),
-        "monthly_income": _get(gi, "monthly_income"),
-        "income_type": _get(gi, "income_type"),
-        "base_salary": _get(gi, "base_salary"),
-        "bonus": _get(gi, "bonus"),
-        "employer_name": _get(gi, "employer_name"),
-        "employer_phone": _get(gi, "employer_phone"),
-        "employer_address": _get(gi, "employer_address"),
-        "issue_date": _get(gi, "issue_date"),
-    }
+    return _guarantor_income_fields(case.guarantor_2, case.guarantor_2_income)
 
 
 def _build_guarantor_2_identity_document(case: Case, variant: str = "") -> dict[str, Any]:
-    g = case.guarantor_2
-    gid = case.guarantor_2_identity_document
-    return {
-        "name": _get(g, "name"),
-        "birth_date": _get(g, "birth_date"),
-        "address": _get(g, "current_address"),
-        "relationship": _get(g, "relationship"),
-        "license_number": _get(gid, "license_number"),
-        "my_number": _get(gid, "my_number"),
-        "passport_number": _get(gid, "passport_number"),
-        "expiry": _get(gid, "expiry"),
-        "issue_date": _get(gid, "issue_date"),
-        "issue_place": _get(gid, "issue_place"),
-    }
+    return _guarantor_identity_fields(case.guarantor_2, case.guarantor_2_identity_document)
 
 
 def _build_guarantee_company_application(case: Case, variant: str = "") -> dict[str, Any]:
@@ -827,9 +798,7 @@ def _build_identity_document(case: Case, variant: str = "") -> dict[str, Any]:
     }
 
 
-def _build_guarantor_income_certificate(case: Case, variant: str = "") -> dict[str, Any]:
-    g = case.guarantor
-    gi = case.guarantor_income
+def _guarantor_income_fields(g: Any, gi: Any) -> dict[str, Any]:
     return {
         "name": _get(g, "name"),
         "current_address": _get(g, "current_address"),
@@ -847,9 +816,11 @@ def _build_guarantor_income_certificate(case: Case, variant: str = "") -> dict[s
     }
 
 
-def _build_guarantor_identity_document(case: Case, variant: str = "") -> dict[str, Any]:
-    g = case.guarantor
-    gid = case.guarantor_identity_document
+def _build_guarantor_income_certificate(case: Case, variant: str = "") -> dict[str, Any]:
+    return _guarantor_income_fields(case.guarantor, case.guarantor_income)
+
+
+def _guarantor_identity_fields(g: Any, gid: Any) -> dict[str, Any]:
     return {
         "name": _get(g, "name"),
         "birth_date": _get(g, "birth_date"),
@@ -864,9 +835,11 @@ def _build_guarantor_identity_document(case: Case, variant: str = "") -> dict[st
     }
 
 
-def _build_guarantor_seal_certificate(case: Case, variant: str = "") -> dict[str, Any]:
-    g = case.guarantor
-    sc = case.guarantor_seal_certificate
+def _build_guarantor_identity_document(case: Case, variant: str = "") -> dict[str, Any]:
+    return _guarantor_identity_fields(case.guarantor, case.guarantor_identity_document)
+
+
+def _guarantor_seal_fields(g: Any, sc: Any) -> dict[str, Any]:
     return {
         "name": _get(g, "name"),
         "birth_date": _get(g, "birth_date"),
@@ -876,58 +849,39 @@ def _build_guarantor_seal_certificate(case: Case, variant: str = "") -> dict[str
         "registration_date": _get(sc, "registration_date"),
         "issuing_municipality": _get(sc, "issuing_municipality"),
         "issue_date": _get(sc, "issue_date"),
+    }
+
+
+def _build_guarantor_seal_certificate(case: Case, variant: str = "") -> dict[str, Any]:
+    return _guarantor_seal_fields(case.guarantor, case.guarantor_seal_certificate)
+
+
+def _guarantor_residence_fields(g: Any, rc: Any) -> dict[str, Any]:
+    return {
+        "name": _get(g, "name"),
+        "birth_date": _get(g, "birth_date"),
+        "address": _get(g, "current_address"),
+        "relationship": _get(g, "relationship"),
+        "gender": _get(rc, "gender"),
+        "honseki": _get(rc, "honseki"),
+        "head_of_household": _get(rc, "head_of_household"),
+        "relation_to_head": _get(rc, "relation_to_head"),
+        "resident_since": _get(rc, "resident_since"),
+        "issuing_municipality": _get(rc, "issuing_municipality"),
+        "issue_date": _get(rc, "issue_date"),
     }
 
 
 def _build_guarantor_residence_certificate(case: Case, variant: str = "") -> dict[str, Any]:
-    g = case.guarantor
-    rc = case.guarantor_residence_certificate
-    return {
-        "name": _get(g, "name"),
-        "birth_date": _get(g, "birth_date"),
-        "address": _get(g, "current_address"),
-        "relationship": _get(g, "relationship"),
-        "gender": _get(rc, "gender"),
-        "honseki": _get(rc, "honseki"),
-        "head_of_household": _get(rc, "head_of_household"),
-        "relation_to_head": _get(rc, "relation_to_head"),
-        "resident_since": _get(rc, "resident_since"),
-        "issuing_municipality": _get(rc, "issuing_municipality"),
-        "issue_date": _get(rc, "issue_date"),
-    }
+    return _guarantor_residence_fields(case.guarantor, case.guarantor_residence_certificate)
 
 
 def _build_guarantor_2_seal_certificate(case: Case, variant: str = "") -> dict[str, Any]:
-    g = case.guarantor_2
-    sc = case.guarantor_2_seal_certificate
-    return {
-        "name": _get(g, "name"),
-        "birth_date": _get(g, "birth_date"),
-        "address": _get(g, "current_address"),
-        "relationship": _get(g, "relationship"),
-        "registration_number": _get(sc, "registration_number"),
-        "registration_date": _get(sc, "registration_date"),
-        "issuing_municipality": _get(sc, "issuing_municipality"),
-        "issue_date": _get(sc, "issue_date"),
-    }
+    return _guarantor_seal_fields(case.guarantor_2, case.guarantor_2_seal_certificate)
 
 
 def _build_guarantor_2_residence_certificate(case: Case, variant: str = "") -> dict[str, Any]:
-    g = case.guarantor_2
-    rc = case.guarantor_2_residence_certificate
-    return {
-        "name": _get(g, "name"),
-        "birth_date": _get(g, "birth_date"),
-        "address": _get(g, "current_address"),
-        "relationship": _get(g, "relationship"),
-        "gender": _get(rc, "gender"),
-        "honseki": _get(rc, "honseki"),
-        "head_of_household": _get(rc, "head_of_household"),
-        "relation_to_head": _get(rc, "relation_to_head"),
-        "resident_since": _get(rc, "resident_since"),
-        "issuing_municipality": _get(rc, "issuing_municipality"),
-        "issue_date": _get(rc, "issue_date"),
-    }
+    return _guarantor_residence_fields(case.guarantor_2, case.guarantor_2_residence_certificate)
 
 
 _BUILDERS: dict[str, Callable[[Case, str], dict[str, Any]]] = {
