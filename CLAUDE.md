@@ -97,7 +97,7 @@ scripts/        CLIエントリポイント
 src/            Pythonソースコード
 templates/      HTMLテンプレート
 tests/          テストコード
-docs/           要件定義書・収録ケース一覧（CASES.md）
+docs/           要件定義書・書類一覧（DOCUMENTS.md）・収録ケース一覧（CASES.md）・開発者向け（DEVELOPMENT.md）
 ```
 
 ## テンプレートの追加
