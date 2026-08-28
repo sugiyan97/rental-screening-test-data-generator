@@ -100,6 +100,8 @@ class Property(BaseModel):
     move_in_reason: str | None = None
     # 申込区分（例:「新規申込者」「既存入居者」）。未設定なら申込書の申込区分欄は空欄扱い
     application_category: str | None = None
+    # 申込種類（選択肢: 事務所/店舗/倉庫/貸地/工場）。未設定なら申込書の申込種類チェック欄は空欄扱い
+    application_type: str | None = None
 
 
 class Financials(BaseModel):

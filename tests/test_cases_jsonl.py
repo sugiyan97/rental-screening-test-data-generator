@@ -446,3 +446,26 @@ def test_individual_standard_cases_have_residence_type_and_move_in_reason(cases_
     assert case.applicant.move_in_reason
     assert case.property is not None
     assert case.property.application_category
+
+
+# --- Issue #2867: 個人向け申込書standardの申込種類（事務所/店舗/倉庫/貸地/工場）欄 ------
+# CASE-000069（TC-2-030 e2e_050）／CASE-000068（TC-2-034 e2e_046）は同一設計で、
+# rental_application_individual/standard に申込種類のチェック欄が構造的に存在しなかった
+# ため、star-link-review-integrator側 #2572 ガード（チェック欄が無ければnullとし他の記載
+# 内容から推測しない）により申込種類がnull化し、期待スコアに届かない不具合があった。
+
+
+@pytest.mark.parametrize("case_id", ["CASE-000068", "CASE-000069"])
+def test_individual_border_score_cases_have_application_type(cases_by_id, case_id):
+    """CASE-000068/069は申込書standardの申込種類チェック欄（事務所）が明示設定されている。"""
+    case = cases_by_id[case_id]
+    assert case.property is not None
+    assert case.property.application_type == "事務所"
+
+
+@pytest.mark.parametrize("case_id", ["CASE-000068", "CASE-000069"])
+def test_individual_border_score_cases_answer_contains_application_type(cases_by_id, case_id):
+    """CASE-000068/069の正解JSONに申込種類=事務所が反映される。"""
+    case = cases_by_id[case_id]
+    answer = build_answer(case, "rental_application_individual", "standard")
+    assert answer["fields"]["application_type"] == "事務所"

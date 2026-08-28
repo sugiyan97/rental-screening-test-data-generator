@@ -336,6 +336,7 @@ def _build_rental_application_individual(case: Case, variant: str = "") -> dict[
         "management_fee": _get(p, "management_fee"),
         "desired_move_in_date": _get(p, "desired_move_in_date"),
         "application_category": _get(p, "application_category"),
+        "application_type": _get(p, "application_type"),
         "emergency_contact_name": _get(ec, "name"),
         "emergency_contact_kana": _get(ec, "kana"),
         "emergency_contact_relation": _get(ec, "relation"),

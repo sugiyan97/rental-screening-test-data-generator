@@ -50,6 +50,7 @@ JSONL の `documents[].document_type` / `variant` で指定する（→ README�
 - **法人申込書の代表者情報** — 全 variant（standard/handwritten_like/office/housing/store）で代表者の氏名・フリガナ（`representative_kana`）・生年月日・年齢（`representative_age`）・性別（`representative_gender`）・住所を表示。`case.guarantor` / `case.guarantor_2` が設定された場合は法人申込書にも連帯保証人①②セクション（氏名・フリガナ・生年月日・年齢・性別・続柄・住所・勤務先・年収）が自動表示される
 - **法人申込書の業種欄** — `case.company.business_type`（業種）で全 variant の「業種」欄が埋まる。`standard` は従来空欄だった業種セルが、`store`/`housing`/`handwritten_like` は業種行が（値が設定されたケースのみ）表示され、`office` の「業種カテゴリ」は未設定時のみ従来の既定値にフォールバックする。`business_description`（事業内容）とは別項目
 - **法人申込書の申込区分欄** — `case.property.application_category`（「新規申込者」「既存入居者」）で全 variant（`sole_proprietor` 含む）の「申込区分」欄のチェックが出し分けられる。未設定時、`sole_proprietor` は「新規申込者」にフォールバックし、他 variant は欄自体が非表示（`standard`/`handwritten_like` は両方 `□` のまま表示）になる
+- **個人申込書(standard)の申込種類欄** — `case.property.application_type`（「事務所」「店舗」「倉庫」「貸地」「工場」）で `rental_application_individual/standard` の「申込種類」欄のチェックが出し分けられる。未設定時は5択すべて `□` のまま表示される。star-link-review-integrator側 #2572 ガード（チェック欄が無ければnullとし他の記載内容から推測しない）対策として追加した項目のため、必ずチェック欄を伴う形で値を設定すること（`usage_purpose` の自由記述だけでは申込種類は抽出されない）
 - **郵便番号** — 物件所在地・法人本店・代表者住所・申込者住所・緊急連絡先・連帯保証人住所に 〒XXX-XXXX 形式の仮郵便番号を表示（`postal_code` 系フィールド）。エリア（区市）に応じた実在しそうなプレフィクスを使用
 - **性別・年齢** — 申込者に加え、代表者・連帯保証人①②にも性別（`gender`）・年齢（`age`）を表示
 - **入居申込書 用途バリアント** — `residential`（居住用、世帯構成重視）、`soho`（居住SOHO兼用、業種・面積割合・看板）、`office`（事務所用、従業員数・営業時間・来客）、`housing`（社宅用、入居者情報・家賃補助率）、`store`（店舗用、業態・営業時間・騒音匂い・設備工事）の 5 variant。各 variant は用途固有のセクションを持つ

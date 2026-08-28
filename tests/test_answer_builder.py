@@ -298,6 +298,20 @@ def test_build_answer_individual_new_fields_reflected(individual_case_data):
     assert answer["fields"]["emergency_contact_birth_date"] == "1965年01月01日"
 
 
+def test_build_answer_individual_application_type_defaults_to_none(individual_case):
+    """application_type 未設定の既存ケースは None のまま（挙動不変）。"""
+    answer = build_answer(individual_case, "rental_application_individual", "standard")
+    assert answer["fields"]["application_type"] is None
+
+
+def test_build_answer_individual_application_type_reflected(individual_case_data):
+    """申込種類=事務所が正解JSONに反映される。"""
+    individual_case_data["property"]["application_type"] = "事務所"
+    case = Case.model_validate(individual_case_data)
+    answer = build_answer(case, "rental_application_individual", "standard")
+    assert answer["fields"]["application_type"] == "事務所"
+
+
 def test_build_answer_income(individual_case):
     answer = build_answer(individual_case, "income_certificate", "salary_certificate")
     assert answer["fields"]["name"] == "テスト 花子"
