@@ -175,6 +175,10 @@ td.wide {
     <th>申込区分</th>
     <td colspan="3">{{ '☑' if case.property.application_category == '新規申込者' else '□' }} 新規申込者　{{ '☑' if case.property.application_category == '既存入居者' else '□' }} 既存入居者</td>
   </tr>
+  <tr>
+    <th>申込種類</th>
+    <td colspan="3">{{ '☑' if case.property.application_type == '事務所' else '□' }} 事務所　{{ '☑' if case.property.application_type == '店舗' else '□' }} 店舗　{{ '☑' if case.property.application_type == '倉庫' else '□' }} 倉庫　{{ '☑' if case.property.application_type == '貸地' else '□' }} 貸地　{{ '☑' if case.property.application_type == '工場' else '□' }} 工場</td>
+  </tr>
 </table>
 
 <h2>■ 申込者情報</h2>
