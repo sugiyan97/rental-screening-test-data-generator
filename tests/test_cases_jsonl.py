@@ -38,9 +38,7 @@ def cases_by_id() -> dict:
 
 
 def test_all_cases_are_valid_models(cases_by_id):
-    lines = [
-        line for line in CASES_PATH.read_text(encoding="utf-8").splitlines() if line.strip()
-    ]
+    lines = [line for line in CASES_PATH.read_text(encoding="utf-8").splitlines() if line.strip()]
     # _load_cases は検証に失敗した行をスキップするため、行数と一致すれば全行が有効
     assert len(cases_by_id) == len(lines)
 
@@ -288,8 +286,9 @@ def test_case_000032_v2_overrides_only_on_original_documents(reupload_pair):
 def test_case_000032_v2_registry_head_office_is_overwritten(reupload_pair):
     """謄本の本店所在地だけが round1 と異なり、他の謄本項目は不変。"""
     round1, round2 = reupload_pair
-    before, after = _answer_of(round1, "registry_certificate"), _answer_of(
-        round2, "registry_certificate"
+    before, after = (
+        _answer_of(round1, "registry_certificate"),
+        _answer_of(round2, "registry_certificate"),
     )
     assert after["head_office_address"] == "東京都千代田区神田駿河台2-9-9 サンプル駿河台ビル8階"
     assert after["head_office_address"] != before["head_office_address"]
@@ -324,9 +323,10 @@ def test_case_000032_v2_application_keeps_round1_head_office(reupload_pair):
     after = _answer_of(round2, "rental_application_corporate")
     assert after == before
     assert after["head_office_address"] == "東京都文京区本郷7-3-1"
-    assert after["head_office_address"] != _answer_of(round2, "registry_certificate")[
-        "head_office_address"
-    ]
+    assert (
+        after["head_office_address"]
+        != _answer_of(round2, "registry_certificate")["head_office_address"]
+    )
 
 
 def test_case_000032_v2_financial_amounts_are_overwritten(reupload_pair):
@@ -469,3 +469,40 @@ def test_individual_border_score_cases_answer_contains_application_type(cases_by
     case = cases_by_id[case_id]
     answer = build_answer(case, "rental_application_individual", "standard")
     assert answer["fields"]["application_type"] == "事務所"
+
+
+# --- Issue #2872: 法人向け申込書office（rental_application_corporate/office）の
+# 申込種類（事務所/店舗/倉庫/貸地/工場）欄 ------------------------------------------------
+# #2867の横断調査で、rental_application_corporate/office にも申込種類のチェック欄が
+# 構造的に存在せず、star-link-review-integrator側 e2e_020/021/030/038/041 の labels.yaml
+# が自由記述（利用用途欄）からの推測値を宣言していたことが判明した。個人向けと同じ要領で
+# チェック欄を追加し、該当5ケースに application_type を明示設定する。
+
+
+@pytest.mark.parametrize(
+    "case_id",
+    ["CASE-000034", "CASE-000021", "CASE-000033", "CASE-000063", "CASE-000065"],
+)
+def test_corporate_office_cases_have_application_type(cases_by_id, case_id):
+    """office variant の法人ケースは申込種類チェック欄（事務所）が明示設定されている。"""
+    case = cases_by_id[case_id]
+    assert case.property is not None
+    assert case.property.application_type == "事務所"
+
+
+@pytest.mark.parametrize(
+    "case_id",
+    ["CASE-000034", "CASE-000021", "CASE-000033", "CASE-000063", "CASE-000065"],
+)
+def test_corporate_office_cases_answer_contains_application_type(cases_by_id, case_id):
+    """上記ケースの正解JSONに申込種類=事務所が反映される。"""
+    case = cases_by_id[case_id]
+    answer = build_answer(case, "rental_application_corporate", "office")
+    assert answer["fields"]["application_type"] == "事務所"
+
+
+def test_case_000061_application_type_intentionally_unset(cases_by_id):
+    """CASE-000061は法人番号閉鎖法人検出パターンの負例で、申込種類は意図的に未設定のまま維持する（#2872）。"""
+    case = cases_by_id["CASE-000061"]
+    assert case.property is not None
+    assert case.property.application_type is None
