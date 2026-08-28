@@ -76,6 +76,20 @@ def test_build_answer_corporate_application_category_existing_tenant(corporate_c
     assert answer["fields"]["application_category"] == "既存入居者"
 
 
+def test_build_answer_corporate_application_type_defaults_to_none(corporate_case):
+    """application_type 未設定の既存ケースは None のまま（挙動不変）。"""
+    answer = build_answer(corporate_case, "rental_application_corporate", "office")
+    assert answer["fields"]["application_type"] is None
+
+
+def test_build_answer_corporate_application_type_reflected(corporate_case_data):
+    """申込種類=事務所が正解JSONに反映される。"""
+    corporate_case_data["property"]["application_type"] = "事務所"
+    case = Case.model_validate(corporate_case_data)
+    answer = build_answer(case, "rental_application_corporate", "office")
+    assert answer["fields"]["application_type"] == "事務所"
+
+
 def test_build_answer_corporate_with_guarantor(corporate_extended_case):
     answer = build_answer(
         corporate_extended_case, "rental_application_corporate", "office"

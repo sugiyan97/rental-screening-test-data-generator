@@ -170,6 +170,7 @@ def _build_rental_application_corporate(case: Case, variant: str = "") -> dict[s
         "management_fee": _get(p, "management_fee"),
         "desired_move_in_date": _get(p, "desired_move_in_date"),
         "usage_purpose": _get(p, "usage_purpose"),
+        "application_type": _get(p, "application_type"),
         "housing_occupant_name": _get(chu, "occupant_name"),
         "housing_occupant_relation": _get(chu, "occupant_relation"),
         "housing_occupant_department": _get(chu, "occupant_department"),
