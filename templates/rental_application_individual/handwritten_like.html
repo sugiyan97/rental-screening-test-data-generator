@@ -66,6 +66,20 @@ th {
   color: #1a237e;
 }
 
+/* --- 判読困難な記入（意図的な異常表現） ---
+   ill-blur   : にじみ・ピンぼけ
+   ill-smudge : 擦れ＋傾きで判読不能 */
+.ill-blur {
+  filter: blur(2.8px);
+  opacity: 0.55;
+}
+
+.ill-smudge {
+  filter: blur(2.1px) contrast(0.5);
+  opacity: 0.26;
+  transform: rotate(-3.2deg);
+}
+
 .sample-notice {
   background: #fff3cd;
   border: 2px solid #ffc107;
@@ -211,7 +225,7 @@ th {
     <th>携帯電話番号</th>
     <td><span class="hw">{{ case.applicant.phone or '' }}</span></td>
     <th>メールアドレス</th>
-    <td><span class="hw">{{ case.applicant.email or '' }}</span></td>
+    <td><span class="hw ill-blur">{{ case.applicant.email or '' }}</span></td>
   </tr>
   <tr>
     <th>本人確認書類</th>
@@ -251,7 +265,7 @@ th {
     <th>勤続年数</th>
     <td><span class="hw">{{ case.employment.years_employed or '' }}</span></td>
     <th>年収（税込）</th>
-    <td><span class="hw">{{ case.employment.annual_income or '' }}</span></td>
+    <td><span class="hw ill-smudge">{{ case.employment.annual_income or '' }}</span></td>
   </tr>
   <tr>
     <th>勤務先電話番号</th>
