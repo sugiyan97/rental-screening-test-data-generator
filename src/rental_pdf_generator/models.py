@@ -4,6 +4,12 @@ from pydantic import BaseModel
 
 OutputFormat = Literal["pdf", "png", "jpg", "xlsx", "docx", "csv", "pptx"]
 
+# 決算書・資金エビデンス系書類の会計基準（多言語ダミーデータ対応）。
+# JGAAP = 日本基準（未設定時のデフォルト相当）。
+AccountingStandard = Literal[
+    "JGAAP", "IFRS", "US_GAAP", "CAS", "TIFRS", "HKFRS", "NTS_STANDARD", "K-IFRS", "K-GAAP"
+]
+
 
 class DocumentSpec(BaseModel):
     document_type: str
@@ -108,11 +114,21 @@ class Financials(BaseModel):
     fiscal_year: str | None = None
     sales: str | None = None
     operating_income: str | None = None
+    # 経常利益。IFRS/US_GAAP系テンプレートには「経常利益」に対応する科目が存在しないため、
+    # 当該テンプレートでは本フィールドを Profit before tax（税引前利益）の値として流用し、
+    # 行ラベルはテンプレート側で "Profit before tax" 等に静的に差し替える
+    # （フィールド追加はしない）。
     ordinary_income: str | None = None
     net_income: str | None = None
     total_assets: str | None = None
     total_liabilities: str | None = None
     net_assets: str | None = None
+    # 多言語ダミーデータ対応（未設定 = JPY・倍率1・日本基準相当）。
+    # 原貨のままの通貨コード（例: "USD","EUR","HKD"）。答えJSON専用の構造化メタ情報。
+    source_currency: str | None = None
+    # 記載金額の倍率（1 / 1,000 / 10,000 / 1,000,000 等）。答えJSON専用の構造化メタ情報。
+    unit_multiplier: int | None = None
+    accounting_standard: AccountingStandard | None = None
 
 
 class BusinessPlan(BaseModel):
@@ -336,6 +352,30 @@ class BankBalanceCertificate(BaseModel):
     balance_amount: str | None = None
     issue_date: str | None = None
     issuer_staff: str | None = None
+    # 多言語ダミーデータ対応（未設定 = JPY・倍率1相当）。答えJSON専用の構造化メタ情報。
+    source_currency: str | None = None
+    unit_multiplier: int | None = None
+
+
+class TimeDepositStatement(BaseModel):
+    """定期預金明細（Time Deposit Statement）。
+
+    bank_balance_certificate と対になる資金エビデンス書類（Issue #76 で新設）。
+    """
+
+    account_holder: str | None = None
+    bank_name: str | None = None
+    branch_name: str | None = None
+    account_number: str | None = None
+    principal_amount: str | None = None  # 預入元本
+    interest_rate: str | None = None  # 適用利率
+    deposit_date: str | None = None  # 預入日
+    maturity_date: str | None = None  # 満期日
+    deposit_term: str | None = None  # 預入期間（例: "12 months"）
+    issue_date: str | None = None
+    issuer_staff: str | None = None
+    source_currency: str | None = None
+    unit_multiplier: int | None = None
 
 
 class PaymentTrackRecordPledge(BaseModel):
@@ -367,6 +407,9 @@ class FundingEvidence(BaseModel):
     fund_usage: str | None = None              # 資金使途
     monthly_rent_coverage: str | None = None   # 賃料支払能力（月額賃料の何ヶ月分か）
     evidence_documents: str | None = None      # 裏付け書類一覧
+    # 多言語ダミーデータ対応（未設定 = JPY・倍率1相当）。答えJSON専用の構造化メタ情報。
+    source_currency: str | None = None
+    unit_multiplier: int | None = None
 
 
 class TrialBalance(BaseModel):
@@ -388,6 +431,10 @@ class TrialBalance(BaseModel):
     gross_profit: str | None = None
     sga_expenses: str | None = None
     operating_profit: str | None = None
+    # 多言語ダミーデータ対応（未設定 = JPY・倍率1・日本基準相当）。答えJSON専用の構造化メタ情報。
+    source_currency: str | None = None
+    unit_multiplier: int | None = None
+    accounting_standard: AccountingStandard | None = None
 
 
 class AnnualTrialBalanceRow(BaseModel):
@@ -413,6 +460,10 @@ class AnnualTrialBalance(BaseModel):
     fiscal_period: str | None = None
     balance_sheet_rows: list[AnnualTrialBalanceRow] = []
     profit_loss_rows: list[AnnualTrialBalanceRow] = []
+    # 多言語ダミーデータ対応（未設定 = JPY・倍率1・日本基準相当）。答えJSON専用の構造化メタ情報。
+    source_currency: str | None = None
+    unit_multiplier: int | None = None
+    accounting_standard: AccountingStandard | None = None
 
 
 class SohoUsage(BaseModel):
@@ -560,6 +611,7 @@ class Case(BaseModel):
     # 開業時補助書類
     business_opening_notice: BusinessOpeningNotice | None = None
     bank_balance_certificate: BankBalanceCertificate | None = None
+    time_deposit_statement: TimeDepositStatement | None = None
     funding_evidence: FundingEvidence | None = None
     payment_track_record_pledge: PaymentTrackRecordPledge | None = None
 

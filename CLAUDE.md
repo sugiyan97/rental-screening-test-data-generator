@@ -91,7 +91,7 @@ uv run ruff check .
 ## ディレクトリ構成
 
 ```
-input/          入力JSONLファイル
+input/          入力JSONLファイル（cases.jsonl: 日本語65ケース／cases_multilingual.jsonl: 多言語ケース）
 output/         生成済みPDF・JSONの出力先
 scripts/        CLIエントリポイント
 src/            Pythonソースコード

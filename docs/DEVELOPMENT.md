@@ -39,6 +39,11 @@ templates/{document_type}/{variant}.html
 
 追加したら [docs/DOCUMENTS.md](DOCUMENTS.md) の書類タイプ一覧にも 1 行（または variant を）追記すること。
 
+外国語版の書類は、`document_type` ディレクトリを言語別に分けず、**言語プレフィックス付きの variant 名**
+（例: `us_gaap_en`, `standard_en`）で既存の document_type に追加する（Issue #76）。入力ケースも
+既存の日本語ケース（`input/cases.jsonl`）とは混在させず、対象書類種が限定的な場合は
+`input/cases_multilingual.jsonl` のような専用ファイルに分離する。
+
 ---
 
 ## 出力形式の追加

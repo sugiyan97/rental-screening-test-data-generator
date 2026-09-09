@@ -159,3 +159,24 @@ E2E `e2e_028_corporate_number`（**TC-4-019** 閉鎖法人の検出 ／ **TC-2-0
 | ケースID | 区分 | 会社名 | シナリオ | 提出書類 |
 |---|---|---|---|---|
 | CASE-000061 | 既存・法人（**閉鎖（解散）法人**・IT・ソフトウェア／業歴15年） | 黒中隊株式会社 | **TC-4-019 / TC-2-037**。法人番号 API で「登記記録の閉鎖等」を発火させるため商号・会社法人等番号（0105-01-048676）・本店所在地のみ公表情報を流用。財務は健全（当期売上 1,180,000,000円・純資産 432,000,000円／自己資本比率60%）で、実在性以外の否決要因を混ぜない。**閉鎖法人の検出とフェーズ3での実在性裏取り**の検証用 | 申込書office＋登記簿（**registry_table_public_company_name**）＋当期決算＋前期決算＋代表者ID（5書類） |
+
+## I. 多言語ケース（外国親会社等）— `input/cases_multilingual.jsonl`（Issue #76）
+
+外国の親会社等が関与する賃貸審査案件向けに、英語で書かれた決算書・資金エビデンス（銀行残高証明・
+定期預金明細）のダミーデータを検証するためのケース。対象書類種が一部（決算書・資金エビデンス）に
+絞られ既存65ケースとPR差分が混線しないよう、**既存の `input/cases.jsonl` とは分離**して
+`input/cases_multilingual.jsonl` に収録している。真陽性（外貨表記→`expected_foreign_currency_flag: true`）
+と真陰性（外国親会社が関与してもJPY表記→`false`）の両方を検証できる構成。
+
+| ケースID | シナリオ | 提出書類 |
+|---|---|---|
+| CASE-ML-000001 | 米国親会社の決算書（US GAAP・USD） | `financial_statement/us_gaap_en` |
+| CASE-ML-000002 | 香港子会社の決算書（HKFRS・HK$'000、**P0**: 通貨単位が数字非隣接） | `financial_statement/singapore_hk_en` |
+| CASE-ML-000003 | 欧州親会社の連結決算書（IFRS・EUR・大陸式桁区切り・2期比較） | `financial_statement/ifrs_consolidated_en` |
+| CASE-ML-000004 | シンガポール銀行発行の残高証明書（クリーン版） | `bank_balance_certificate/standard_en` |
+| CASE-ML-000005 | CASE-ML-000004 と同一データの **P0**: スキャン画質劣化・公印重なり版 | `bank_balance_certificate/standard_en_scan_degraded` |
+| CASE-ML-000006 | 台湾/香港系の定期預金明細（新規 document_type） | `time_deposit_statement/standard_en` |
+| CASE-ML-000007 | 外国親会社が関与するが決算書自体はJPY表記（**真陰性**の検証用） | `parent_company_financial_statement/financial_summary` |
+
+中国語（本土・台湾・香港3地域の字形作り分け）・韓国語対応、および横断的な通貨・数値表記の検証観点は
+別Issueでフォローアップ予定（本ツールでは今回未対応）。
