@@ -1125,3 +1125,179 @@ def test_build_answer_corporate_other_variants_have_no_applicant_block():
         fields = build_answer(case, "rental_application_corporate", variant)["fields"]
         assert "applicant_name" not in fields
         assert "trade_name" not in fields
+
+
+# --- Issue #79: 多言語（韓国語）決算書・資金エビデンス対応 ---
+
+
+def _kr_detail_case(**overrides) -> Case:
+    base = {
+        "case_id": "CASE-TEST-KR-DETAIL",
+        "applicant_type": "corporate",
+        "company": {"company_name": "주식회사 샘플테크코리아"},
+        "financials_detail": {
+            "fiscal_year": "2025년 사업연도",
+            "fiscal_period": "2025.01.01 ~ 2025.12.31",
+            "unit_label": "원",
+            "balance_sheet_rows": [
+                {"label": "현금및현금성자산", "code": "011", "amount": "350,000,000"},
+                {
+                    "label": "자산총계",
+                    "code": "099",
+                    "amount": "1,700,000,000",
+                    "key": "total_assets",
+                    "emphasis": "total",
+                },
+            ],
+            "profit_loss_rows": [
+                {"label": "매출액", "code": "311", "amount": "2,400,000,000", "key": "sales"},
+            ],
+            "source_currency": "KRW",
+            "unit_multiplier": 1,
+            "accounting_standard": "NTS_STANDARD",
+        },
+        "documents": [{"document_type": "financial_statement", "variant": "kr_nts_standard"}],
+    }
+    base.update(overrides)
+    return Case.model_validate(base)
+
+
+def test_build_answer_financial_statement_detail_row_variant_expands_flat_keys():
+    """明細行の key から導出した正規キーが正解JSONへフラット展開される。"""
+    case = _kr_detail_case()
+    fields = build_answer(case, "financial_statement", "kr_nts_standard")["fields"]
+    assert fields["company_name"] == "주식회사 샘플테크코리아"
+    assert fields["total_assets"] == "1,700,000,000"
+    assert fields["sales"] == "2,400,000,000"
+    # 行データ自体（code/label/contra を含む）もそのまま保持される
+    assert fields["balance_sheet_rows"][0]["code"] == "011"
+    assert fields["balance_sheet_rows"][0]["label"] == "현금및현금성자산"
+    assert fields["balance_sheet_rows"][0]["contra"] is False
+    assert fields["profit_loss_rows"][0]["key"] == "sales"
+    # 通貨・単位・会計基準メタ情報（unit_label含む）
+    assert fields["expected_foreign_currency_flag"] is True
+    assert fields["source_currency"] == "KRW"
+    assert fields["unit_label"] == "원"
+    assert fields["accounting_standard"] == "NTS_STANDARD"
+
+
+def test_build_answer_kr_sme_simple_keeps_both_printed_label_and_canonical_key():
+    """表記ゆれケースでも印字labelと正規キーの両方が正解JSONに保持される。"""
+    case = _kr_detail_case(
+        financials_detail={
+            "balance_sheet_rows": [
+                {
+                    "label": "자산 합계",
+                    "amount": "1,700,000,000",
+                    "key": "total_assets",
+                    "emphasis": "total",
+                },
+            ],
+            "profit_loss_rows": [
+                {"label": "매출", "amount": "2,400,000,000", "key": "sales"},
+            ],
+        },
+        documents=[{"document_type": "financial_statement", "variant": "kr_sme_simple"}],
+    )
+    fields = build_answer(case, "financial_statement", "kr_sme_simple")["fields"]
+    # 正規キーで採点できる
+    assert fields["total_assets"] == "1,700,000,000"
+    assert fields["sales"] == "2,400,000,000"
+    # 印字labelの表記ゆれも保持される
+    assert fields["balance_sheet_rows"][0]["label"] == "자산 합계"
+    assert fields["profit_loss_rows"][0]["label"] == "매출"
+
+
+def test_build_answer_kr_kgaap_bracket_minus_keeps_contra_flag():
+    """控除科目（contra）フラグと括弧マイナス金額がそのまま正解JSONに保持される。"""
+    case = _kr_detail_case(
+        financials_detail={
+            "balance_sheet_rows": [
+                {"label": "매출채권", "amount": "450,000,000"},
+                {"label": "대손충당금", "amount": "(15,000,000)", "contra": True},
+                {
+                    "label": "자산총계",
+                    "amount": "1,255,000,000",
+                    "key": "total_assets",
+                    "emphasis": "total",
+                },
+            ],
+            "profit_loss_rows": [],
+        },
+        documents=[
+            {"document_type": "financial_statement", "variant": "kr_kgaap_bracket_minus"}
+        ],
+    )
+    fields = build_answer(case, "financial_statement", "kr_kgaap_bracket_minus")["fields"]
+    assert fields["balance_sheet_rows"][1]["label"] == "대손충당금"
+    assert fields["balance_sheet_rows"][1]["contra"] is True
+    assert fields["balance_sheet_rows"][1]["amount"] == "(15,000,000)"
+    assert fields["total_assets"] == "1,255,000,000"
+
+
+def test_build_answer_kr_kifrs_audited_multi_period_has_periods_and_meta():
+    """K-IFRS2期比較は periods 配列と通貨・単位・会計基準メタ情報を持つ。"""
+    case = Case.model_validate(
+        {
+            "case_id": "CASE-TEST-KR-IFRS",
+            "applicant_type": "corporate",
+            "company": {"company_name": "주식회사 샘플글로벌코리아"},
+            "financials_multi": [
+                {
+                    "fiscal_year": "제25기(2025)",
+                    "sales": "125,400,000",
+                    "source_currency": "KRW",
+                    "unit_multiplier": 1000,
+                    "accounting_standard": "K-IFRS",
+                },
+                {
+                    "fiscal_year": "제24기(2024)",
+                    "sales": "108,700,000",
+                    "source_currency": "KRW",
+                    "unit_multiplier": 1000,
+                    "accounting_standard": "K-IFRS",
+                },
+            ],
+            "documents": [
+                {"document_type": "financial_statement", "variant": "kr_kifrs_audited"}
+            ],
+        }
+    )
+    fields = build_answer(case, "financial_statement", "kr_kifrs_audited")["fields"]
+    assert [p["fiscal_year"] for p in fields["periods"]] == ["제25기(2025)", "제24기(2024)"]
+    assert fields["expected_foreign_currency_flag"] is True
+    assert fields["source_currency"] == "KRW"
+    assert fields["unit_multiplier"] == 1000
+    assert fields["accounting_standard"] == "K-IFRS"
+
+
+def test_build_answer_bank_balance_certificate_amount_in_words_conditional():
+    """amount_in_words は設定時のみ正解JSONに出力される。"""
+    case = Case.model_validate(
+        {
+            "case_id": "CASE-TEST-KR-BAL",
+            "applicant_type": "corporate",
+            "company": {"company_name": "주식회사 샘플무역코리아"},
+            "bank_balance_certificate": {
+                "account_holder": "주식회사 샘플무역코리아",
+                "balance_amount": "1,245,600,000원",
+                "source_currency": "KRW",
+                "amount_in_words": "금 일십이억사천오백육십만원정",
+            },
+            "documents": [
+                {"document_type": "bank_balance_certificate", "variant": "kr_standard"}
+            ],
+        }
+    )
+    fields = build_answer(case, "bank_balance_certificate", "kr_standard")["fields"]
+    assert fields["amount_in_words"] == "금 일십이억사천오백육십만원정"
+
+
+def test_build_answer_bank_balance_certificate_amount_in_words_omitted_when_unset(
+    individual_extended_case,
+):
+    """amount_in_words 未設定の既存ケースは正解JSONにキーが出ない（既存ケースへの無影響確認）。"""
+    fields = build_answer(
+        individual_extended_case, "bank_balance_certificate", "standard"
+    )["fields"]
+    assert "amount_in_words" not in fields

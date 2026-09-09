@@ -2,7 +2,7 @@
 
 [← README に戻る](../README.md)
 
-本ツールが生成できる書類は 32 種類の `document_type`、合計 74 種類の variant。
+本ツールが生成できる書類は 32 種類の `document_type`、合計 80 種類の variant。
 テンプレートは `templates/{document_type}/{variant}.html` に 1:1 で対応しており、
 JSONL の `documents[].document_type` / `variant` で指定する（→ README「入力 JSONL フォーマット」）。
 
@@ -14,11 +14,11 @@ JSONL の `documents[].document_type` / `variant` で指定する（→ README�
 | `rental_application_corporate` | 法人用入居申込書 | `standard`, `handwritten_like`, `office`, `housing`, `store`, `joint_representative`, `sole_proprietor` |
 | `income_certificate` | 収入証明書風 | `salary_certificate`, `salary_certificate_prior`, `tax_return`, `tax_return_prior`, `tax_return_multi_year`, `withholding_slip`, `withholding_slip_current` |
 | `registry_certificate` | 履歴事項全部証明書風 | `registry_table`, `registry_table_with_shareholders`, `registry_table_public_company_name`, `registry_table_co_representative` |
-| `financial_statement` | 決算書風（財務サマリー） | `financial_summary`, `financial_summary_prior`, `multi_period`, `multi_period_report_form`, `us_gaap_en`, `singapore_hk_en`, `ifrs_consolidated_en`, `cn_mainland_account_style`, `cn_taiwan_report_form`, `cn_hk_bilingual`, `cn_mainland_en_translated`, `cn_taiwan_en_translated` |
+| `financial_statement` | 決算書風（財務サマリー） | `financial_summary`, `financial_summary_prior`, `multi_period`, `multi_period_report_form`, `us_gaap_en`, `singapore_hk_en`, `ifrs_consolidated_en`, `cn_mainland_account_style`, `cn_taiwan_report_form`, `cn_hk_bilingual`, `cn_mainland_en_translated`, `cn_taiwan_en_translated`, `kr_nts_standard`, `kr_kifrs_audited`, `kr_sme_simple`, `kr_kgaap_bracket_minus` |
 | `trial_balance` | 合計残高試算表風 | `monthly_summary`, `annual_summary` |
 | `business_opening_notice` | 個人事業の開業・廃業等届出書（開業届）写し風 | `individual` |
-| `bank_balance_certificate` | 預貯金残高証明書風（金融機関発行） | `standard`, `standard_en`, `standard_en_scan_degraded`, `cn_mainland_deposit_certificate`, `cn_trad_deposit_certificate` |
-| `time_deposit_statement` | 定期預金明細風（金融機関発行、英語版） | `standard_en` |
+| `bank_balance_certificate` | 預貯金残高証明書風（金融機関発行） | `standard`, `standard_en`, `standard_en_scan_degraded`, `cn_mainland_deposit_certificate`, `cn_trad_deposit_certificate`, `kr_standard` |
+| `time_deposit_statement` | 定期預金明細風（金融機関発行） | `standard_en`, `kr_standard` |
 | `funding_evidence` | 資金エビデンス（資金調達証明書） | `standard` |
 | `payment_track_record_pledge` | 支払実績確約書（既存事業者の賃料支払実績） | `standard` |
 | `business_plan` | 事業計画書 | `narrative`, `individual_startup`, `corporate_startup` |
@@ -81,13 +81,20 @@ JSONL の `documents[].document_type` / `variant` で指定する（→ README�
   - `cn_mainland_en_translated` / `cn_taiwan_en_translated` — 中国本土・台湾企業の決算書を英訳した体裁の variant（`RMB'000` / `NT$'000` 表記）。香港版の中英併記技法を主従反転させ、英語ラベルを主、中国語ラベルを括弧で従属表示する（例: `Total assets （资产总计）`）
   - フォント方針: 地域ごとに正しい Google Fonts ファミリ（`Noto Sans SC` / `Noto Sans TC` / `Noto Sans HK`）を CDN 読み込みし、OS フォールバック（簡体字: `PingFang SC`/`Microsoft YaHei`、繁体字台湾: `PingFang TC`/`Microsoft JhengHei`、繁体字香港: `PingFang HK`/`Microsoft JhengHei`）を必ず併記する。ブラウザコンテキストの `locale` が `ja-JP` 固定のため、`lang` 未指定だと CJK 統合漢字が日本語字形で選ばれるおそれがあり、全 variant に `<html lang="zh-CN">` / `lang="zh-TW">` / `lang="zh-HK">` を地域別に明示している
   - 通貨記号の曖昧性（「元」問題）についての設計判断: `source_currency` は正解 JSON 側では常に ISO コード（`CNY`/`TWD`/`HKD`）で明示し、紙面には曖昧な「元」とだけ記載して通貨コードそのものは印字しない（正解が曖昧では採点できないため）。曖昧性はあくまで紙面側だけに残す設計としている（具体的なテストケースは資金エビデンス節を参照）
+- **多言語（韓国語）決算書**（Issue #79）— `financial_statement` に `kr_` プレフィックス付き variant を4種追加。うち3種（`kr_nts_standard`／`kr_sme_simple`／`kr_kgaap_bracket_minus`）は既存のフラットな `Financials` では表現できない**コード番号付き明細行・科目名の表記ゆれ・控除科目の括弧**を検証するため、新設モデル `FinancialStatementDetail`（`Case.financials_detail`）を使う。`FinancialStatementDetail` は `balance_sheet_rows`/`profit_loss_rows`（`FinancialStatementRow` のリスト）・`unit_label`（紙面の単位表記。例: `"원"`/`"천원"`/`"백만원"`）・`source_currency`/`unit_multiplier`/`accounting_standard` を持つ。`FinancialStatementRow` は印字される `label`（表記ゆれをそのまま保持）・様式コード番号 `code`・金額 `amount`（括弧マイナス等もそのまま文字列で保持）・正規科目キー `key`（設定時は `Financials` のフィールド名と同じキーで正解 JSON にフラット展開され、表記ゆれがあっても正規キーで採点できる）・表示強調 `emphasis`（`"section"`/`"subtotal"`/`"total"`）・控除科目フラグ `contra`（true の場合、科目名自体を括弧で括って表示する）を持つ:
+  - `kr_nts_standard`：韓国国税庁発行の標準財務諸表証明様式を模したダミー。様式コード番号付き・表紙／貸借対照表／損益計算書の3ページ構成（`page-break-before` で複数ページ化）
+  - `kr_kifrs_audited`：K-IFRS監査報告書添付様式。`ifrs_consolidated_en` と同じ `case.financials_multi` を使う2期比較（Python側の変更は `_MULTI_PERIOD_VARIANTS_EXTRA` への追記のみ）
+  - `kr_sme_simple`：中小企業の簡易様式。様式コード番号がなく、`kr_nts_standard` と同一の数値・行構成のまま科目名の表記ゆれ（例:「매출채권」→「외상매출금」）だけを変えた対照ペア
+  - `kr_kgaap_bracket_minus`：括弧マイナス（例: `(15,000,000)`）と控除科目名自体の括弧（例: `(대손충당금)`）が同一書類に同居するバリアント。凡例ブロックで両ルールを明記
+  - 韓国語テンプレートは Google Fonts の `Noto+Sans+KR` を読み込み、CDN取得失敗時のフォールバックとして `'Apple SD Gothic Neo'`/`'Malgun Gothic'`/`'NanumGothic'` を併記する。`generator.py` のブラウザコンテキストが `locale="ja-JP"` のため、CJK統合漢字が日本語字形で選ばれないよう全テンプレートで `<html lang="ko">` を明示している
+  - `renderers.py` の DOCX/PPTX 出力が使う `_JP_FONT = "Yu Gothic"` はハングルグリフを持たないため、韓国語ケースは `output_format` を指定せず pdf 限定で運用する
 
 ### D. 資金・支払実績・事業計画
 
 - **開業届** — 個人事業の開業・廃業等届出書写し風。新規個人事業（業歴1期未満）で確定申告書の代替として提出
-- **預貯金残高証明書** — 金融機関発行の残高証明書風。新規法人・新規個人事業で自己資金の証明に使用（英語版 `bank_balance_certificate/standard_en` のほか、中国語版 `cn_mainland_deposit_certificate`（簡体字・存款证明书）/ `cn_trad_deposit_certificate`（繁体字・存款證明書、台湾・香港共用）あり、Issue #78）
+- **預貯金残高証明書** — 金融機関発行の残高証明書風。新規法人・新規個人事業で自己資金の証明に使用（英語版 `bank_balance_certificate/standard_en` のほか、中国語版 `cn_mainland_deposit_certificate`（簡体字・存款证明书）/ `cn_trad_deposit_certificate`（繁体字・存款證明書、台湾・香港共用）、韓国語版 `bank_balance_certificate/kr_standard`（잔액증명서）あり）。`kr_standard` は `amount_in_words`（한글大字金額。例:「금 일십이억사천오백육십만원정」）を設定すると金額欄の下に併記される（未設定なら従来どおり出力されない）
   - **通貨曖昧性ケース（Issue #78）** — 中国語圏の「元」は人民元（CNY）・新台幣（TWD）・港元（HKD）のいずれも指しうる表記上のリスクがある。これを検証するため、`cn_trad_deposit_certificate` を使う2ケースは**同一variant・同一の「1,280,000元」表記**とし、通貨判別の唯一の手がかりを発行銀行名（架空の Sample 系銀行名）だけに絞った「通貨曖昧性トリオ」（[CASES.md](CASES.md) I 節 CASE-ML-000013〜000015）を用意している。正解 JSON 側の `source_currency` は常に ISO コード（CNY/TWD/HKD）で明示するため採点自体は曖昧にならない
-- **定期預金明細**（Issue #76、新規 document_type）— `time_deposit_statement/standard_en`。預貯金残高証明書と対をなす資金エビデンス書類で、預入元本・適用利率・預入日・満期日・預入期間を証明する。現状は英語版のみ
+- **定期預金明細**（Issue #76、新規 document_type）— `time_deposit_statement/standard_en`（英語版）／`time_deposit_statement/kr_standard`（韓国語版、정기예금）。預貯金残高証明書と対をなす資金エビデンス書類で、預入元本・適用利率・預入日・満期日・預入期間を証明する
 - **資金エビデンス（資金調達証明書）** — 自己資金（資本金）・金融機関融資・VC等の出資・補助金の調達内訳を 1 枚にまとめ、月額賃料に対する支払能力を裏付ける書類。資金調達済スタートアップ向け
 - **支払実績確約書** — 既存事業者が現在賃借中の物件における過去の賃料支払実績（契約物件・支払実績期間・月額賃料・延滞履歴／延滞回数・賃料支払総額・完済状況・支払方法・照会先）を示し、今後も遅滞なく支払うことを確約する書類。業歴のある法人向け（新規向けの資金エビデンスと対をなす）。延滞回数・賃料支払総額・完済状況は値が設定されたケースのみ行が表示される
 - **事業計画書** — 既存 `narrative` に加え、開業時向けの 2 variant を用意：

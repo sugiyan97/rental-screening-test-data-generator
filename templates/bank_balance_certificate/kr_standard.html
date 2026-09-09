@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap');
+
+@page { size: A4; margin: 25mm 30mm; }
+* { box-sizing: border-box; font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', 'NanumGothic', sans-serif; }
+body { font-size: 11pt; line-height: 1.8; color: #222; margin: 0; }
+
+.sample-notice { background: #fff3cd; border: 2px solid #ffc107; padding: 4px 12px; margin-bottom: 14px; font-size: 8.5pt; font-weight: bold; text-align: center; color: #856404; }
+
+.cert-frame { border: 4px double #1a5276; padding: 30px 36px; background: #fbfdff; }
+
+h1 { font-size: 20pt; text-align: center; letter-spacing: 0.1em; color: #1a5276; margin: 14px 0 6px; }
+.subtitle { text-align: center; font-size: 10pt; color: #555; margin-bottom: 24px; }
+
+.cert-no { font-size: 10pt; text-align: right; color: #444; margin-bottom: 14px; }
+
+.preamble { text-align: center; font-size: 11pt; margin: 20px 0; }
+
+table { width: 100%; border-collapse: collapse; font-size: 11pt; margin: 14px 0; }
+th, td { border-bottom: 1px solid #aaa; padding: 8px 12px; vertical-align: middle; }
+th { width: 36%; font-weight: bold; text-align: left; white-space: nowrap; }
+td { text-align: left; }
+
+.balance-row td { text-align: right; }
+.balance-highlight { font-size: 18pt; font-weight: bold; color: #c0392b; letter-spacing: 0.04em; }
+.amount-words-row td { text-align: right; font-size: 10.5pt; color: #444; }
+
+.issuer-block { margin-top: 26px; text-align: right; font-size: 11pt; }
+.issuer-block .stamp-square { display: inline-block; width: 56px; height: 56px; border: 2px solid #c0392b; text-align: center; line-height: 14px; font-size: 7pt; color: #c0392b; margin-left: 12px; vertical-align: middle; padding-top: 14px; }
+
+.footer-note { font-size: 8pt; color: #666; margin-top: 18px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="sample-notice">[테스트용 샘플 서류 — 실제 은행 증명서가 아니며 실재하는 계좌 정보가 아닙니다]</div>
+
+<div class="cert-frame">
+  <p class="cert-no">증명서 번호: BAL-{{ case.case_id }}</p>
+
+  <h1>잔 액 증 명 서</h1>
+  <p class="subtitle">은행 발급 예금 잔액 증명서 (샘플)</p>
+
+  <p class="preamble">아래와 같이 당행에 예치된 잔액이 있음을 증명합니다.</p>
+
+  <table>
+    <tr><th>예금주</th><td>{{ case.bank_balance_certificate.account_holder if case.bank_balance_certificate else '' }}</td></tr>
+    <tr><th>은행 / 지점</th><td>{{ case.bank_balance_certificate.bank_name if case.bank_balance_certificate else '' }}&emsp;{{ case.bank_balance_certificate.branch_name if case.bank_balance_certificate else '' }}</td></tr>
+    <tr><th>예금 종류 / 계좌번호</th><td>{{ case.bank_balance_certificate.account_type if case.bank_balance_certificate else '' }}&emsp;/&emsp;{{ case.bank_balance_certificate.account_number if case.bank_balance_certificate else '' }}</td></tr>
+    <tr><th>증명 기준일</th><td>{{ case.bank_balance_certificate.balance_as_of_date if case.bank_balance_certificate else '' }}</td></tr>
+    <tr class="balance-row">
+      <th>잔액</th>
+      <td><span class="balance-highlight">{{ case.bank_balance_certificate.balance_amount if case.bank_balance_certificate else '' }}</span></td>
+    </tr>
+    {% if case.bank_balance_certificate and case.bank_balance_certificate.amount_in_words %}
+    <tr class="amount-words-row">
+      <th>금액(한글)</th>
+      <td>{{ case.bank_balance_certificate.amount_in_words }}</td>
+    </tr>
+    {% endif %}
+    <tr><th>발급일</th><td>{{ case.bank_balance_certificate.issue_date if case.bank_balance_certificate else '' }}</td></tr>
+  </table>
+
+  <div class="issuer-block">
+    <div>{{ case.bank_balance_certificate.bank_name if case.bank_balance_certificate else '' }}&emsp;{{ case.bank_balance_certificate.branch_name if case.bank_balance_certificate else '' }}</div>
+    <div>담당자: {{ case.bank_balance_certificate.issuer_staff if case.bank_balance_certificate else '' }}<span class="stamp-square">은행<br>직인<br>(더미)</span></div>
+  </div>
+</div>
+
+<p class="footer-note">
+  ※ 본 서류는 OCR・LLM・Document AI 시스템 테스트를 위해 작성된 샘플 서류입니다.
+  실제 은행이 발급한 잔액 증명서가 아닙니다.
+</p>
+</body>
+</html>

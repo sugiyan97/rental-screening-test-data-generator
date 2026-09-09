@@ -54,6 +54,13 @@ def test_load_all_initial_templates():
         ("financial_statement", "cn_taiwan_en_translated"),
         ("bank_balance_certificate", "cn_mainland_deposit_certificate"),
         ("bank_balance_certificate", "cn_trad_deposit_certificate"),
+        # Issue #79: 多言語（韓国語）決算書・資金エビデンス対応
+        ("financial_statement", "kr_nts_standard"),
+        ("financial_statement", "kr_kifrs_audited"),
+        ("financial_statement", "kr_sme_simple"),
+        ("financial_statement", "kr_kgaap_bracket_minus"),
+        ("bank_balance_certificate", "kr_standard"),
+        ("time_deposit_statement", "kr_standard"),
     ]
     for document_type, variant in templates:
         template = loader.load(case_id="CASE-TEST", document_type=document_type, variant=variant)
@@ -565,6 +572,288 @@ def test_cn_mainland_deposit_certificate_declares_lang_and_font_import():
     ).read_text(encoding="utf-8")
     assert 'lang="zh-CN"' in source
     assert "Noto+Sans+SC" in source
+
+
+
+# --- Issue #79: 多言語（韓国語）決算書・資金エビデンス対応 ---
+
+
+def _kr_detail_row(label, amount=None, code=None, key=None, emphasis=None, contra=False):
+    row = {"label": label}
+    if amount is not None:
+        row["amount"] = amount
+    if code is not None:
+        row["code"] = code
+    if key is not None:
+        row["key"] = key
+    if emphasis is not None:
+        row["emphasis"] = emphasis
+    if contra:
+        row["contra"] = True
+    return row
+
+
+def _kr_nts_standard_case() -> _Case:
+    return _Case.model_validate(
+        {
+            "case_id": "CASE-TEST-KR-NTS",
+            "applicant_type": "corporate",
+            "company": {
+                "company_name": "주식회사 샘플테크코리아",
+                "corporate_number": "000-00-00000",
+                "representative_name": "김도윤",
+            },
+            "financials_detail": {
+                "fiscal_year": "2025년 사업연도",
+                "fiscal_period": "2025.01.01 ~ 2025.12.31",
+                "unit_label": "원",
+                "balance_sheet_rows": [
+                    _kr_detail_row("현금및현금성자산", "350,000,000", code="011"),
+                    _kr_detail_row(
+                        "자산총계",
+                        "1,700,000,000",
+                        code="099",
+                        key="total_assets",
+                        emphasis="total",
+                    ),
+                ],
+                "profit_loss_rows": [
+                    _kr_detail_row("매출액", "2,400,000,000", code="311", key="sales"),
+                ],
+                "source_currency": "KRW",
+                "unit_multiplier": 1,
+                "accounting_standard": "NTS_STANDARD",
+            },
+            "documents": [
+                {"document_type": "financial_statement", "variant": "kr_nts_standard"}
+            ],
+        }
+    )
+
+
+def test_kr_nts_standard_renders_code_numbers_and_three_pages():
+    """コード番号付き・表紙/貸借対照表/損益計算書の3ページ構成であることを検証する。"""
+    case = _kr_nts_standard_case()
+    loader = TemplateLoader()
+    template = loader.load(
+        case_id=case.case_id, document_type="financial_statement", variant="kr_nts_standard"
+    )
+    html = template.render(case=case)
+    assert "011" in html
+    assert "099" in html
+    assert "311" in html
+    assert "표준재무제표증명" in html
+    assert "대 차 대 조 표" in html
+    assert "손 익 계 산 서" in html
+    # 3ページ構成（表紙・貸借対照表・損益計算書の3つの .page ブロックがあり、
+    # 隣接ページ間に page-break-before が適用される）
+    assert html.count('class="page"') == 3
+    assert "page-break-before" in html
+
+
+def test_kr_kifrs_audited_renders_two_periods():
+    """K-IFRS2期比較は両期の決算年度表記が出力される。"""
+    case = _Case.model_validate(
+        {
+            "case_id": "CASE-TEST-KR-IFRS",
+            "applicant_type": "corporate",
+            "company": {"company_name": "주식회사 샘플글로벌코리아"},
+            "financials_multi": [
+                {
+                    "fiscal_year": "제25기(2025)",
+                    "sales": "125,400,000",
+                    "total_assets": "210,000,000",
+                    "source_currency": "KRW",
+                    "unit_multiplier": 1000,
+                    "accounting_standard": "K-IFRS",
+                },
+                {
+                    "fiscal_year": "제24기(2024)",
+                    "sales": "108,700,000",
+                    "total_assets": "190,000,000",
+                    "source_currency": "KRW",
+                    "unit_multiplier": 1000,
+                    "accounting_standard": "K-IFRS",
+                },
+            ],
+            "documents": [
+                {"document_type": "financial_statement", "variant": "kr_kifrs_audited"}
+            ],
+        }
+    )
+    loader = TemplateLoader()
+    template = loader.load(
+        case_id=case.case_id, document_type="financial_statement", variant="kr_kifrs_audited"
+    )
+    html = template.render(case=case)
+    assert "제25기" in html
+    assert "제24기" in html
+    assert "125,400,000" in html
+    assert "108,700,000" in html
+
+
+def test_kr_sme_simple_prints_label_variants_not_canonical_terms():
+    """簡易様式は印字labelの表記ゆれをそのまま出力し、コード番号付き様式の正規表記は印字しない。"""
+    case = _Case.model_validate(
+        {
+            "case_id": "CASE-TEST-KR-SME",
+            "applicant_type": "corporate",
+            "company": {"company_name": "주식회사 샘플테크코리아"},
+            "financials_detail": {
+                "balance_sheet_rows": [
+                    _kr_detail_row("외상매출금", "420,000,000"),
+                    _kr_detail_row(
+                        "자산 합계",
+                        "1,700,000,000",
+                        key="total_assets",
+                        emphasis="total",
+                    ),
+                ],
+                "profit_loss_rows": [
+                    _kr_detail_row("매출", "2,400,000,000", key="sales"),
+                ],
+            },
+            "documents": [
+                {"document_type": "financial_statement", "variant": "kr_sme_simple"}
+            ],
+        }
+    )
+    loader = TemplateLoader()
+    template = loader.load(
+        case_id=case.case_id, document_type="financial_statement", variant="kr_sme_simple"
+    )
+    html = template.render(case=case)
+    # 表記ゆれの印字labelはそのまま出る
+    assert "외상매출금" in html
+    assert "매출" in html
+    # コード番号なし（コード番号付き様式の正規表記「매출채권」「매출액」は印字されない）
+    assert "매출채권" not in html
+    assert "매출액" not in html
+    assert "<td>코드</td>" not in html
+
+
+def test_kr_kgaap_bracket_minus_coexists_with_contra_account_brackets():
+    """括弧マイナスと控除科目名自体の括弧が同一書類に同居することを検証する。"""
+    case = _Case.model_validate(
+        {
+            "case_id": "CASE-TEST-KR-KGAAP",
+            "applicant_type": "corporate",
+            "company": {"company_name": "주식회사 샘플코리아홀딩스"},
+            "financials_detail": {
+                "balance_sheet_rows": [
+                    _kr_detail_row("매출채권", "450,000,000"),
+                    _kr_detail_row("대손충당금", "(15,000,000)", contra=True),
+                    _kr_detail_row(
+                        "자산총계", "1,255,000,000", key="total_assets", emphasis="total"
+                    ),
+                ],
+                "profit_loss_rows": [
+                    _kr_detail_row(
+                        "당기순손실", "(68,000,000)", key="net_income", emphasis="total"
+                    ),
+                ],
+            },
+            "documents": [
+                {"document_type": "financial_statement", "variant": "kr_kgaap_bracket_minus"}
+            ],
+        }
+    )
+    loader = TemplateLoader()
+    template = loader.load(
+        case_id=case.case_id,
+        document_type="financial_statement",
+        variant="kr_kgaap_bracket_minus",
+    )
+    html = template.render(case=case)
+    # 控除科目名自体の括弧（科目名ラベルが括弧で括られる）
+    assert "(대손충당금)" in html
+    # 金額の括弧マイナス
+    assert "(15,000,000)" in html
+    assert "(68,000,000)" in html
+    # 両ルールを明記した凡例
+    assert "차감(공제)" in html
+
+
+def test_kr_bank_balance_certificate_renders_amount_in_words():
+    """잔액증명서は한글大字金額(amount_in_words)を併記できる。"""
+    case = _Case.model_validate(
+        {
+            "case_id": "CASE-TEST-KR-BAL",
+            "applicant_type": "corporate",
+            "company": {"company_name": "주식회사 샘플무역코리아"},
+            "bank_balance_certificate": {
+                "account_holder": "주식회사 샘플무역코리아",
+                "bank_name": "샘플은행",
+                "balance_amount": "1,245,600,000원",
+                "source_currency": "KRW",
+                "amount_in_words": "금 일십이억사천오백육십만원정",
+            },
+            "documents": [
+                {"document_type": "bank_balance_certificate", "variant": "kr_standard"}
+            ],
+        }
+    )
+    loader = TemplateLoader()
+    template = loader.load(
+        case_id=case.case_id, document_type="bank_balance_certificate", variant="kr_standard"
+    )
+    html = template.render(case=case)
+    assert "금 일십이억사천오백육십만원정" in html
+    assert "1,245,600,000원" in html
+
+
+def test_kr_time_deposit_statement_renders():
+    case = _Case.model_validate(
+        {
+            "case_id": "CASE-TEST-KR-TD",
+            "applicant_type": "corporate",
+            "company": {"company_name": "주식회사 샘플무역코리아"},
+            "time_deposit_statement": {
+                "account_holder": "주식회사 샘플무역코리아",
+                "bank_name": "샘플은행",
+                "principal_amount": "500,000,000원",
+                "deposit_term": "12개월",
+                "source_currency": "KRW",
+            },
+            "documents": [
+                {"document_type": "time_deposit_statement", "variant": "kr_standard"}
+            ],
+        }
+    )
+    loader = TemplateLoader()
+    template = loader.load(
+        case_id=case.case_id, document_type="time_deposit_statement", variant="kr_standard"
+    )
+    html = template.render(case=case)
+    assert "정 기 예 금 증 명 서" in html
+    assert "500,000,000원" in html
+    assert "12개월" in html
+
+
+@pytest.mark.parametrize(
+    "document_type,variant",
+    [
+        ("bank_balance_certificate", "kr_standard"),
+        ("financial_statement", "kr_kifrs_audited"),
+        ("financial_statement", "kr_nts_standard"),
+        ("financial_statement", "kr_sme_simple"),
+        ("financial_statement", "kr_kgaap_bracket_minus"),
+        ("time_deposit_statement", "kr_standard"),
+    ],
+)
+def test_kr_templates_declare_font_import_and_korean_lang(document_type, variant):
+    """テンプレート原文にNoto Sans KRのCDN読み込みとlang="ko"宣言があることの回帰ガード。
+
+    generator.py のブラウザコンテキストが locale="ja-JP" のため、lang 未指定だと
+    CJK統合漢字が日本語字形で選ばれてしまう（Issue #79 設計方針）。
+    """
+    template_path = (
+        Path(__file__).parent.parent / "templates" / document_type / f"{variant}.html"
+    )
+    source = template_path.read_text(encoding="utf-8")
+    assert 'lang="ko"' in source
+    assert "Noto+Sans+KR" in source
+
 
 
 def test_load_invalid_document_type_raises():

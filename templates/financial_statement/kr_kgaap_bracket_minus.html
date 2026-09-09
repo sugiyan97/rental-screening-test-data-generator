@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap');
+
+@page { size: A4; margin: 15mm 16mm; }
+* { box-sizing: border-box; font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', 'NanumGothic', sans-serif; }
+body { font-size: 10pt; line-height: 1.5; color: #222; margin: 0; }
+
+.sample-notice { background: #fff3cd; border: 2px solid #ffc107; padding: 4px 12px; margin-bottom: 8px; font-size: 8.5pt; font-weight: bold; text-align: center; color: #856404; }
+
+h1 { font-size: 15pt; text-align: center; margin: 4px 0 4px; letter-spacing: 0.05em; }
+.meta { display: flex; justify-content: space-between; font-size: 9pt; color: #444; border-bottom: 1px solid #ccc; padding-bottom: 4px; margin-bottom: 8px; }
+
+.legend { border: 1px solid #c0392b; background: #fdf2f0; padding: 8px 12px; font-size: 8.5pt; color: #7b241c; margin-bottom: 10px; line-height: 1.7; }
+.legend b { color: #c0392b; }
+
+h2 { font-size: 11pt; margin: 12px 0 4px; background: #eef2f7; padding: 3px 8px; border-left: 4px solid #555; }
+
+table { width: 100%; border-collapse: collapse; font-size: 9.5pt; margin-bottom: 8px; }
+th, td { border: 1px solid #999; padding: 4px 8px; vertical-align: middle; }
+td.label { text-align: left; width: 60%; }
+td.amount { text-align: right; }
+td.label.contra { color: #7b241c; }
+
+tr.section td { background: #eef2f7; font-weight: bold; }
+tr.subtotal td { background: #f4f7fb; font-weight: bold; }
+tr.total td { background: #e4eaf4; font-weight: bold; }
+
+.footer-note { font-size: 8pt; color: #666; margin-top: 10px; border-top: 1px solid #ccc; padding-top: 4px; }
+</style>
+</head>
+<body>
+<div class="sample-notice">【테스트용 샘플 서류 ― 실재하는 법인의 재무정보가 아닙니다】</div>
+<h1>재 무 제 표 (K-GAAP)</h1>
+<div class="meta">
+  <span>{{ case.company.company_name if case.company else '' }}</span>
+  <span>{{ case.financials_detail.fiscal_period if case.financials_detail else '' }}</span>
+  <span>단위：{{ case.financials_detail.unit_label if case.financials_detail else '원' }}</span>
+</div>
+
+<div class="legend">
+  <b>[표기 안내]</b><br>
+  1. 금액란의 괄호（ ）는 <b>음수(부(-)의 금액)</b>를 의미합니다. 예) (1,234,000)<br>
+  2. 과목명 자체가 괄호로 표시된 항목（예: (대손충당금)）은 <b>차감(공제) 계정과목</b>임을 의미하며, 해당 자산・부채에서 차감하여 표시합니다.
+</div>
+
+<h2>재무상태표</h2>
+<table>
+  <tbody>
+    {% for row in (case.financials_detail.balance_sheet_rows if case.financials_detail else []) %}
+    <tr class="{{ row.emphasis or '' }}">
+      <td class="label{{ ' contra' if row.contra else '' }}">{% if row.contra %}({{ row.label }}){% else %}{{ row.label }}{% endif %}</td>
+      <td class="amount">{{ row.amount or '' }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h2>손익계산서</h2>
+<table>
+  <tbody>
+    {% for row in (case.financials_detail.profit_loss_rows if case.financials_detail else []) %}
+    <tr class="{{ row.emphasis or '' }}">
+      <td class="label{{ ' contra' if row.contra else '' }}">{% if row.contra %}({{ row.label }}){% else %}{{ row.label }}{% endif %}</td>
+      <td class="amount">{{ row.amount or '' }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<p class="footer-note">
+  ※ 본 서류는 OCR・LLM・Document AI 시스템 테스트를 위해 작성된 샘플 서류입니다.
+</p>
+</body>
+</html>

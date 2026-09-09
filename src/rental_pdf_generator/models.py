@@ -355,6 +355,9 @@ class BankBalanceCertificate(BaseModel):
     # 多言語ダミーデータ対応（未設定 = JPY・倍率1相当）。答えJSON専用の構造化メタ情報。
     source_currency: str | None = None
     unit_multiplier: int | None = None
+    # 大字（漢数字・한글）併記金額（例: "금 일십이억삼천사백오십육만원정"）。
+    # 未設定なら紙面に併記なし。
+    amount_in_words: str | None = None
 
 
 class TimeDepositStatement(BaseModel):
@@ -460,6 +463,37 @@ class AnnualTrialBalance(BaseModel):
     fiscal_period: str | None = None
     balance_sheet_rows: list[AnnualTrialBalanceRow] = []
     profit_loss_rows: list[AnnualTrialBalanceRow] = []
+    # 多言語ダミーデータ対応（未設定 = JPY・倍率1・日本基準相当）。答えJSON専用の構造化メタ情報。
+    source_currency: str | None = None
+    unit_multiplier: int | None = None
+    accounting_standard: AccountingStandard | None = None
+
+
+class FinancialStatementRow(BaseModel):
+    """決算書の明細1行（コード番号付き様式・科目名の表記ゆれ検証用）。
+
+    韓国の国税庁標準財務諸表証明様式・中小企業簡易様式などのように、勘定科目が
+    コード番号付きの構造化された明細行で構成される決算書を表現するためのモデル
+    （Issue #79）。
+    """
+
+    label: str  # 印字される科目名（表記ゆれをそのまま保持）
+    code: str | None = None  # 様式コード番号（簡易様式では None）
+    amount: str | None = None  # 括弧マイナス等もそのまま文字列で保持
+    # 正規科目キー（Financialsのフィールド名）。設定時は正解JSONへフラット展開する
+    key: str | None = None
+    emphasis: str | None = None  # "section"/"subtotal"/"total"/None
+    contra: bool = False  # 控除科目（科目名自体を括弧で括る）
+
+
+class FinancialStatementDetail(BaseModel):
+    """明細行で構成される決算書（国税庁標準様式・中小企業簡易様式など、Issue #79）。"""
+
+    fiscal_year: str | None = None
+    fiscal_period: str | None = None
+    unit_label: str | None = None  # 紙面の単位表記（"원"/"천원"/"백만원"）
+    balance_sheet_rows: list[FinancialStatementRow] = []
+    profit_loss_rows: list[FinancialStatementRow] = []
     # 多言語ダミーデータ対応（未設定 = JPY・倍率1・日本基準相当）。答えJSON専用の構造化メタ情報。
     source_currency: str | None = None
     unit_multiplier: int | None = None
@@ -601,6 +635,8 @@ class Case(BaseModel):
     previous_income: Income | None = None
     trial_balance: TrialBalance | None = None
     annual_trial_balance: AnnualTrialBalance | None = None
+    # 明細行（コード番号付き様式・表記ゆれ検証用）で構成される決算書（Issue #79）
+    financials_detail: FinancialStatementDetail | None = None
     # 複数期を1ファイルにまとめる書類用
     financials_multi: list[Financials] | None = None
     income_multi: list[Income] | None = None
