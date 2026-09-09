@@ -44,6 +44,13 @@ templates/{document_type}/{variant}.html
 既存の日本語ケース（`input/cases.jsonl`）とは混在させず、対象書類種が限定的な場合は
 `input/cases_multilingual.jsonl` のような専用ファイルに分離する。
 
+英語版は `_en` サフィックス、中国語版は `cn_` プレフィックス（例: `cn_mainland_account_style`,
+`cn_taiwan_report_form`）という非対称な命名規則になっているが、Issue本文の例示に倣った意図的な
+決定であり、既存の英語 variant 名を変更する予定はない（Issue #78）。中国語のように地域ごとに
+字形（簡体字／繁体字）が異なる言語では、`<html lang="zh-CN">` / `lang="zh-TW">` / `lang="zh-HK">`
+を variant ごとに必ず指定すること。`generator.py` のブラウザコンテキストが `locale="ja-JP"` 固定の
+ため、`lang` 未指定だと CJK 統合漢字が日本語字形で選ばれてしまう。
+
 ---
 
 ## 出力形式の追加

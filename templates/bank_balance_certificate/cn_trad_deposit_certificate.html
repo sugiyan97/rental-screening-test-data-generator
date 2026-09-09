@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<style>
+/* 台湾・香港で共用する繁体字テンプレート。両地域の字形をカバーするため
+   Noto Sans TC / Noto Sans HK の両ファミリを読み込む。 */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Noto+Sans+HK:wght@400;700&display=swap');
+
+@page { size: A4; margin: 25mm 30mm; }
+* { box-sizing: border-box; font-family: 'Noto Sans TC', 'Noto Sans HK', 'PingFang TC', 'PingFang HK', 'Microsoft JhengHei', 'Helvetica Neue', Arial, sans-serif; }
+body { font-size: 11pt; line-height: 1.8; color: #222; margin: 0; }
+
+.sample-notice { background: #fff3cd; border: 2px solid #ffc107; padding: 4px 12px; margin-bottom: 14px; font-size: 8.5pt; font-weight: bold; text-align: center; color: #856404; }
+
+.cert-frame { border: 4px double #1a5276; padding: 30px 36px; background: #fbfdff; }
+
+h1 { font-size: 20pt; text-align: center; letter-spacing: 0.1em; color: #1a5276; margin: 14px 0 6px; }
+.subtitle { text-align: center; font-size: 10pt; color: #555; margin-bottom: 24px; }
+
+.cert-no { font-size: 10pt; text-align: right; color: #444; margin-bottom: 14px; }
+
+.preamble { text-align: center; font-size: 11pt; margin: 20px 0; }
+
+table { width: 100%; border-collapse: collapse; font-size: 11pt; margin: 14px 0; }
+th, td { border-bottom: 1px solid #aaa; padding: 8px 12px; vertical-align: middle; }
+th { width: 36%; font-weight: bold; text-align: left; white-space: nowrap; }
+td { text-align: left; }
+
+.balance-row td { text-align: right; }
+.balance-highlight { font-size: 18pt; font-weight: bold; color: #c0392b; letter-spacing: 0.04em; }
+
+.issuer-block { margin-top: 26px; text-align: right; font-size: 11pt; }
+.issuer-block .stamp-square { display: inline-block; width: 56px; height: 56px; border: 2px solid #c0392b; text-align: center; line-height: 14px; font-size: 7pt; color: #c0392b; margin-left: 12px; vertical-align: middle; padding-top: 14px; }
+
+.footer-note { font-size: 8pt; color: #666; margin-top: 18px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="sample-notice">【測試用樣本文件，僅供OCR／LLM測試使用，非真實銀行憑證，非真實帳戶資訊】</div>
+
+<div class="cert-frame">
+  <p class="cert-no">證明編號：CN-{{ case.case_id }}</p>
+
+  <h1>存 款 證 明 書</h1>
+  <p class="subtitle">銀行出具之存款餘額證明（樣本）</p>
+
+  <p class="preamble">茲證明本行客戶存款情況如下：</p>
+
+  <table>
+    <tr><th>戶　名</th><td>{{ case.bank_balance_certificate.account_holder if case.bank_balance_certificate else '' }}</td></tr>
+    <tr><th>開戶銀行及分行</th><td>{{ case.bank_balance_certificate.bank_name if case.bank_balance_certificate else '' }}&emsp;{{ case.bank_balance_certificate.branch_name if case.bank_balance_certificate else '' }}</td></tr>
+    <tr><th>帳戶類型／帳號</th><td>{{ case.bank_balance_certificate.account_type if case.bank_balance_certificate else '' }}&emsp;/&emsp;{{ case.bank_balance_certificate.account_number if case.bank_balance_certificate else '' }}</td></tr>
+    <tr><th>截至日期</th><td>{{ case.bank_balance_certificate.balance_as_of_date if case.bank_balance_certificate else '' }}</td></tr>
+    <tr class="balance-row">
+      <th>存款餘額</th>
+      <td><span class="balance-highlight">{{ case.bank_balance_certificate.balance_amount if case.bank_balance_certificate else '' }}</span></td>
+    </tr>
+    <tr><th>出具日期</th><td>{{ case.bank_balance_certificate.issue_date if case.bank_balance_certificate else '' }}</td></tr>
+  </table>
+
+  <div class="issuer-block">
+    <div>{{ case.bank_balance_certificate.bank_name if case.bank_balance_certificate else '' }}&emsp;{{ case.bank_balance_certificate.branch_name if case.bank_balance_certificate else '' }}</div>
+    <div>經辦人：{{ case.bank_balance_certificate.issuer_staff if case.bank_balance_certificate else '' }}<span class="stamp-square">銀行印章<br>（樣本）</span></div>
+  </div>
+</div>
+
+<p class="footer-note">
+  ※ 本文件係為測試 OCR／LLM／Document AI 系統而製作之樣本，非真實銀行出具之存款證明書。
+</p>
+</body>
+</html>

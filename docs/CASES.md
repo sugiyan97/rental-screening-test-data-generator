@@ -160,11 +160,11 @@ E2E `e2e_028_corporate_number`（**TC-4-019** 閉鎖法人の検出 ／ **TC-2-0
 |---|---|---|---|---|
 | CASE-000061 | 既存・法人（**閉鎖（解散）法人**・IT・ソフトウェア／業歴15年） | 黒中隊株式会社 | **TC-4-019 / TC-2-037**。法人番号 API で「登記記録の閉鎖等」を発火させるため商号・会社法人等番号（0105-01-048676）・本店所在地のみ公表情報を流用。財務は健全（当期売上 1,180,000,000円・純資産 432,000,000円／自己資本比率60%）で、実在性以外の否決要因を混ぜない。**閉鎖法人の検出とフェーズ3での実在性裏取り**の検証用 | 申込書office＋登記簿（**registry_table_public_company_name**）＋当期決算＋前期決算＋代表者ID（5書類） |
 
-## I. 多言語ケース（外国親会社等）— `input/cases_multilingual.jsonl`（Issue #76）
+## I. 多言語ケース（外国親会社等）— `input/cases_multilingual.jsonl`（Issue #76・#78）
 
-外国の親会社等が関与する賃貸審査案件向けに、英語で書かれた決算書・資金エビデンス（銀行残高証明・
-定期預金明細）のダミーデータを検証するためのケース。対象書類種が一部（決算書・資金エビデンス）に
-絞られ既存65ケースとPR差分が混線しないよう、**既存の `input/cases.jsonl` とは分離**して
+外国の親会社等が関与する賃貸審査案件向けに、英語・中国語で書かれた決算書・資金エビデンス（銀行残高
+証明・定期預金明細）のダミーデータを検証するためのケース。対象書類種が一部（決算書・資金エビデンス）
+に絞られ既存65ケースとPR差分が混線しないよう、**既存の `input/cases.jsonl` とは分離**して
 `input/cases_multilingual.jsonl` に収録している。真陽性（外貨表記→`expected_foreign_currency_flag: true`）
 と真陰性（外国親会社が関与してもJPY表記→`false`）の両方を検証できる構成。
 
@@ -177,6 +177,20 @@ E2E `e2e_028_corporate_number`（**TC-4-019** 閉鎖法人の検出 ／ **TC-2-0
 | CASE-ML-000005 | CASE-ML-000004 と同一データの **P0**: スキャン画質劣化・公印重なり版 | `bank_balance_certificate/standard_en_scan_degraded` |
 | CASE-ML-000006 | 台湾/香港系の定期預金明細（新規 document_type） | `time_deposit_statement/standard_en` |
 | CASE-ML-000007 | 外国親会社が関与するが決算書自体はJPY表記（**真陰性**の検証用） | `parent_company_financial_statement/financial_summary` |
+| CASE-ML-000008 | 中国本土企業の決算書（簡体字・企业会计准则CAS・账户式・CNY・単位「元」） | `financial_statement/cn_mainland_account_style` |
+| CASE-ML-000009 | 台湾企業の決算書（繁体字・IFRSs・報告式・TWD・新臺幣仟元・括弧マイナス） | `financial_statement/cn_taiwan_report_form` |
+| CASE-ML-000010 | 香港企業の決算書（繁体字・HKFRS・中英併記・HKD・港幣千元） | `financial_statement/cn_hk_bilingual` |
+| CASE-ML-000011 | 中国本土企業の決算書 英訳版（英語主・中国語従属、RMB'000表記） | `financial_statement/cn_mainland_en_translated` |
+| CASE-ML-000012 | 台湾企業の決算書 英訳版（英語主・中国語従属、NT$'000表記） | `financial_statement/cn_taiwan_en_translated` |
+| CASE-ML-000013 | **通貨曖昧性トリオ 1/3**: 中国本土の存款证明书（簡体字・CNY） | `bank_balance_certificate/cn_mainland_deposit_certificate` |
+| CASE-ML-000014 | **通貨曖昧性トリオ 2/3**: 台湾の存款證明書（繁体字・TWD、CASE-ML-000015と同一variant・同一「1,280,000元」表記で発行銀行名のみ異なる） | `bank_balance_certificate/cn_trad_deposit_certificate` |
+| CASE-ML-000015 | **通貨曖昧性トリオ 3/3**: 香港の存款證明書（繁体字・HKD、CASE-ML-000014と同一variant・同一「1,280,000元」表記で発行銀行名のみ異なる） | `bank_balance_certificate/cn_trad_deposit_certificate` |
+| CASE-ML-000016 | 中国本土企業の決算書（簡体字・账户式・CNY・`unit_multiplier: 10000`の「万元」表記版） | `financial_statement/cn_mainland_account_style` |
 
-中国語（本土・台湾・香港3地域の字形作り分け）・韓国語対応、および横断的な通貨・数値表記の検証観点は
-別Issueでフォローアップ予定（本ツールでは今回未対応）。
+CASE-ML-000008〜000016（Issue #78）は、中国語圏3地域（本土・台湾・香港）の様式差（账户式 / 報告式 /
+中英併記）・フォント（簡体字/繁体字の字形の作り分け）・英訳決算書・「元」表記の通貨曖昧性を検証する
+ためのケース。**通貨曖昧性トリオ**（CASE-ML-000013〜000015）は同じ「1,280,000元」という額面・同じ
+テンプレート系統でも、発行銀行名以外に通貨を判別する手がかりが紙面上に一切無いことを意図的に作った
+検証用ケースである（正解 JSON 側の `source_currency` は常に ISO コードで明示するため採点は曖昧にならない）。
+
+韓国語対応、および横断的な通貨・数値表記の検証観点は別Issueでフォローアップ予定（本ツールでは今回未対応）。
