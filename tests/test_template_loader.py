@@ -37,6 +37,13 @@ def test_load_all_initial_templates():
         ("payment_track_record_pledge", "standard"),
         ("business_license", "entertainment_business"),
         ("registry_certificate", "registry_table_with_shareholders"),
+        # Issue #76: 多言語（英語）決算書・資金エビデンス対応
+        ("financial_statement", "us_gaap_en"),
+        ("financial_statement", "singapore_hk_en"),
+        ("financial_statement", "ifrs_consolidated_en"),
+        ("bank_balance_certificate", "standard_en"),
+        ("bank_balance_certificate", "standard_en_scan_degraded"),
+        ("time_deposit_statement", "standard_en"),
     ]
     for document_type, variant in templates:
         template = loader.load(case_id="CASE-TEST", document_type=document_type, variant=variant)
@@ -132,6 +139,144 @@ def test_load_multi_period_report_form_template(corporate_extended_case):
     # 各期の数値（既存 multi_period と同じ器違いなので値は一致）
     assert "15,000,000円" in html  # 第1期 資産合計
     assert "テスト商事株式会社" in html
+
+
+# --- Issue #76: 多言語（英語）決算書・資金エビデンス対応 ---
+
+import re  # noqa: E402
+
+from rental_pdf_generator.models import Case as _Case  # noqa: E402
+
+
+def _ml_bank_balance_case(variant: str) -> _Case:
+    return _Case.model_validate(
+        {
+            "case_id": "CASE-TEST-ML-BAL",
+            "applicant_type": "corporate",
+            "company": {"company_name": "Sample Singapore Holdings Pte. Ltd."},
+            "bank_balance_certificate": {
+                "account_holder": "Sample Singapore Holdings Pte. Ltd.",
+                "bank_name": "Sample Bank of Singapore",
+                "branch_name": "Marina Bay Branch",
+                "account_type": "Current Account",
+                "account_number": "001-234567-8",
+                "balance_as_of_date": "2026-06-30",
+                "balance_amount": "S$2,450,000",
+                "issue_date": "2026-07-05",
+                "issuer_staff": "Tan Wei Ming",
+                "source_currency": "SGD",
+            },
+            "documents": [{"document_type": "bank_balance_certificate", "variant": variant}],
+        }
+    )
+
+
+def test_bank_balance_certificate_scan_degraded_renders():
+    """P0-1: スキャン画質劣化・公印重なりの疑似演出がCSS/SVGで出力され、値自体は変わらない。"""
+    case = _ml_bank_balance_case("standard_en_scan_degraded")
+    loader = TemplateLoader()
+    template = loader.load(
+        case_id=case.case_id,
+        document_type="bank_balance_certificate",
+        variant="standard_en_scan_degraded",
+    )
+    html = template.render(case=case)
+    assert "scan-noise-overlay" in html
+    assert "degraded-stamp" in html
+    assert "feTurbulence" in html
+    # 劣化演出があっても金額の値自体は変わらず出力される
+    assert "S$2,450,000" in html
+
+
+def test_singapore_hk_en_currency_label_not_adjacent_to_numbers():
+    """P0-2: 通貨単位表記がヘッダー注記に1回だけあり、金額数字には隣接しない。"""
+    case = _Case.model_validate(
+        {
+            "case_id": "CASE-TEST-ML-HK",
+            "applicant_type": "corporate",
+            "company": {"company_name": "Sample HK Trading Ltd."},
+            "financials": {
+                "fiscal_year": "FY2025",
+                "sales": "128,450",
+                "operating_income": "18,220",
+                "ordinary_income": "17,600",
+                "net_income": "13,900",
+                "total_assets": "312,000",
+                "total_liabilities": "150,000",
+                "net_assets": "162,000",
+                "source_currency": "HKD",
+                "unit_multiplier": 1000,
+                "accounting_standard": "HKFRS",
+            },
+            "documents": [
+                {"document_type": "financial_statement", "variant": "singapore_hk_en"}
+            ],
+        }
+    )
+    loader = TemplateLoader()
+    template = loader.load(
+        case_id=case.case_id, document_type="financial_statement", variant="singapore_hk_en"
+    )
+    html = template.render(case=case)
+    # 通貨表記はヘッダー注記中に1回だけ出現する
+    assert html.count("HK$") == 1
+    # 表中の金額の値そのものには通貨記号が付与されていない（直前直後に $ がない）
+    for value in ("128,450", "18,220", "17,600", "13,900", "312,000", "150,000", "162,000"):
+        assert value in html
+        assert re.search(r"\$\s*" + re.escape(value), html) is None
+        assert re.search(re.escape(value) + r"\s*\$", html) is None
+
+
+def test_ifrs_consolidated_en_renders_two_periods_with_continental_format():
+    """P1: IFRS連結決算書は2期比較・大陸式桁区切り・括弧マイナスをそのまま出力する。"""
+    case = _Case.model_validate(
+        {
+            "case_id": "CASE-TEST-ML-IFRS",
+            "applicant_type": "corporate",
+            "company": {"company_name": "Sample Europe Holdings GmbH"},
+            "financials_multi": [
+                {
+                    "fiscal_year": "FY2024",
+                    "sales": "8.450.000,00",
+                    "operating_income": "620.000,00",
+                    "ordinary_income": "580.000,00",
+                    "net_income": "(120.000,00)",
+                    "total_assets": "22.000.000,00",
+                    "total_liabilities": "9.500.000,00",
+                    "net_assets": "12.500.000,00",
+                    "source_currency": "EUR",
+                    "unit_multiplier": 1,
+                    "accounting_standard": "IFRS",
+                },
+                {
+                    "fiscal_year": "FY2025",
+                    "sales": "9.120.000,00",
+                    "operating_income": "980.000,00",
+                    "ordinary_income": "910.000,00",
+                    "net_income": "710.000,00",
+                    "total_assets": "24.500.000,00",
+                    "total_liabilities": "10.100.000,00",
+                    "net_assets": "14.400.000,00",
+                    "source_currency": "EUR",
+                    "unit_multiplier": 1,
+                    "accounting_standard": "IFRS",
+                },
+            ],
+            "documents": [
+                {"document_type": "financial_statement", "variant": "ifrs_consolidated_en"}
+            ],
+        }
+    )
+    loader = TemplateLoader()
+    template = loader.load(
+        case_id=case.case_id, document_type="financial_statement", variant="ifrs_consolidated_en"
+    )
+    html = template.render(case=case)
+    assert "FY2024" in html
+    assert "FY2025" in html
+    assert "9.120.000,00" in html
+    assert "(120.000,00)" in html
+    assert "Profit before tax" in html
 
 
 def test_load_invalid_document_type_raises():

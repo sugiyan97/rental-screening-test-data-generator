@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&display=swap');
+
+@page {
+  size: A4;
+  margin: 15mm 20mm;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: 'Noto Sans', 'Helvetica Neue', Arial, sans-serif;
+}
+
+body {
+  font-size: 10pt;
+  line-height: 1.5;
+  color: #222;
+  margin: 0;
+}
+
+h1 {
+  font-size: 15pt;
+  text-align: center;
+  margin: 0 0 4px;
+  letter-spacing: 0.04em;
+}
+
+.company-info {
+  text-align: center;
+  font-size: 10pt;
+  margin-bottom: 4px;
+  color: #333;
+}
+
+.standard-note {
+  text-align: center;
+  font-size: 9pt;
+  color: #555;
+  margin-bottom: 12px;
+}
+
+.sample-notice {
+  background: #fff3cd;
+  border: 2px solid #ffc107;
+  padding: 4px 12px;
+  margin-bottom: 12px;
+  font-size: 8.5pt;
+  font-weight: bold;
+  text-align: center;
+  color: #856404;
+}
+
+h2 {
+  font-size: 11pt;
+  margin: 14px 0 5px;
+  border-bottom: 1px solid #555;
+  padding-bottom: 2px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 9.5pt;
+  margin-bottom: 14px;
+}
+
+th, td {
+  border: 1px solid #777;
+  padding: 4px 10px;
+  vertical-align: middle;
+}
+
+th {
+  background-color: #f0f0f0;
+  font-weight: 700;
+  text-align: left;
+}
+
+th.col-item { width: 55%; }
+th.col-curr { width: 45%; text-align: right; }
+td { text-align: right; }
+td.label { text-align: left; }
+
+.total-row td, .total-row th {
+  background-color: #e4eaf4;
+  font-weight: bold;
+}
+
+.section-row th {
+  background-color: #dce0e8;
+  font-weight: bold;
+}
+
+.footer-note {
+  font-size: 8pt;
+  color: #666;
+  margin-top: 14px;
+  border-top: 1px solid #ccc;
+  padding-top: 5px;
+}
+</style>
+</head>
+<body>
+<div class="sample-notice">[SAMPLE DOCUMENT FOR TESTING ONLY — Not actual financial statements of any company]</div>
+<h1>FINANCIAL STATEMENTS SUMMARY</h1>
+<p class="company-info">{{ case.company.company_name if case.company else '' }}</p>
+<p class="standard-note">Prepared in accordance with U.S. GAAP &mdash; Fiscal Year: {{ case.financials.fiscal_year if case.financials else '' }}</p>
+
+<h2>Statement of Income (Summary)</h2>
+<table>
+  <tr>
+    <th class="col-item">Line Item</th>
+    <th class="col-curr">Amount</th>
+  </tr>
+  <tr>
+    <td class="label">Revenue</td>
+    <td>{{ case.financials.sales if case.financials else '' }}</td>
+  </tr>
+  <tr>
+    <td class="label">Operating income</td>
+    <td>{{ case.financials.operating_income if case.financials else '' }}</td>
+  </tr>
+  <tr>
+    <td class="label">Profit before tax</td>
+    <td>{{ case.financials.ordinary_income if case.financials else '' }}</td>
+  </tr>
+  <tr class="total-row">
+    <td class="label">Net income</td>
+    <td>{{ case.financials.net_income if case.financials else '' }}</td>
+  </tr>
+</table>
+
+<h2>Balance Sheet (Summary)</h2>
+<table>
+  <tr>
+    <th class="col-item">Line Item</th>
+    <th class="col-curr">Amount</th>
+  </tr>
+  <tr class="section-row">
+    <th colspan="2">Assets</th>
+  </tr>
+  <tr class="total-row">
+    <td class="label">Total assets</td>
+    <td>{{ case.financials.total_assets if case.financials else '' }}</td>
+  </tr>
+  <tr class="section-row">
+    <th colspan="2">Liabilities</th>
+  </tr>
+  <tr class="total-row">
+    <td class="label">Total liabilities</td>
+    <td>{{ case.financials.total_liabilities if case.financials else '' }}</td>
+  </tr>
+  <tr class="section-row">
+    <th colspan="2">Stockholders' Equity</th>
+  </tr>
+  <tr class="total-row">
+    <td class="label">Total stockholders' equity</td>
+    <td>{{ case.financials.net_assets if case.financials else '' }}</td>
+  </tr>
+</table>
+
+<p class="footer-note">
+  * This document is a sample created for the purpose of testing OCR / LLM / Document AI systems.
+  It does not represent the financial information of any real company.
+</p>
+</body>
+</html>

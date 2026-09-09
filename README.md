@@ -90,13 +90,13 @@ uv run python scripts/generate_case_pdfs.py --input input/cases.jsonl --output o
 
 ## 生成できる書類
 
-31 種類の `document_type` × 61 種類の variant に対応している。
+32 種類の `document_type` × 67 種類の variant に対応している。
 書類タイプ／variant の一覧と各書類の詳細な特徴は [docs/DOCUMENTS.md](docs/DOCUMENTS.md) を参照。
 
 - **入居申込書** — 個人用／法人用（居住・SOHO・事務所・社宅・店舗など用途別 variant、手書き風・印刷手書き混在あり）
 - **収入・所得** — 給与証明・確定申告書・源泉徴収票（前職／当年分）・多年度／複数年まとめ
-- **会社の登記・財務** — 履歴事項全部証明書風（株主名簿付・公表商号あり）・決算書・複数期決算書・合計残高試算表
-- **資金・実績・計画** — 開業届・預貯金残高証明書・資金エビデンス・支払実績確約書・事業計画書
+- **会社の登記・財務** — 履歴事項全部証明書風（株主名簿付・公表商号あり）・決算書・複数期決算書・合計残高試算表・多言語（英語）決算書
+- **資金・実績・計画** — 開業届・預貯金残高証明書・定期預金明細・資金エビデンス・支払実績確約書・事業計画書
 - **本人確認** — 運転免許証・マイナンバーカード・パスポート・在留カード・学生証
 - **連帯保証人／親会社** — 保証人の収入証明・本人確認・印鑑証明・住民票、代表者連帯保証契約書、親会社保証書一式
 - **許認可・その他** — 営業許可証／申請書・業態変更誓約書・保証会社申込書・内定通知書
@@ -106,6 +106,13 @@ uv run python scripts/generate_case_pdfs.py --input input/cases.jsonl --output o
 ## 収録ケース一覧
 
 `input/cases.jsonl` には現在 65 ケースが収録されている。既存会社／新規（新設）会社／個人事業／個人（給与所得者）／E2E異常系検証用など、区分別の一覧は [docs/CASES.md](docs/CASES.md) を参照。
+
+多言語（英語）決算書・資金エビデンスのケースは、既存の日本語ケースと混在させず
+`input/cases_multilingual.jsonl` に分離して収録している（詳細は docs/CASES.md 参照）。
+
+```bash
+uv run python scripts/generate_case_pdfs.py --input input/cases_multilingual.jsonl --output output
+```
 
 ---
 

@@ -397,6 +397,17 @@ def test_build_answer_parent_company_financial_statement(corporate_extended_case
     assert answer["fields"]["net_income"] == "40,000,000円"
 
 
+def test_build_answer_parent_company_financial_statement_expected_foreign_currency_flag_false(
+    corporate_extended_case,
+):
+    # 外国親会社が関与していても、決算書自体がJPY表記なら真陰性（false）になる。
+    answer = build_answer(
+        corporate_extended_case, "parent_company_financial_statement", "financial_summary"
+    )
+    assert answer["fields"]["expected_foreign_currency_flag"] is False
+    assert "source_currency" not in answer["fields"]
+
+
 def test_build_answer_business_license(corporate_extended_case):
     answer = build_answer(corporate_extended_case, "business_license", "restaurant")
     assert answer["fields"]["company_name"] == "テスト商事株式会社"
@@ -629,6 +640,13 @@ def test_build_answer_funding_evidence(corporate_extended_case):
     assert answer["fields"]["investor_name"] == "テストVC"
 
 
+def test_build_answer_funding_evidence_expected_foreign_currency_flag_false(
+    corporate_extended_case,
+):
+    answer = build_answer(corporate_extended_case, "funding_evidence", "standard")
+    assert answer["fields"]["expected_foreign_currency_flag"] is False
+
+
 def test_build_answer_business_use_pledge(corporate_extended_case):
     answer = build_answer(
         corporate_extended_case, "business_use_pledge", "no_license_required"
@@ -694,6 +712,21 @@ def test_build_answer_financial_statement_current_still_works(corporate_extended
     assert answer["fields"]["sales"] == "50,000,000円"
 
 
+def test_build_answer_financial_statement_expected_foreign_currency_flag_false(
+    corporate_extended_case,
+):
+    answer = build_answer(corporate_extended_case, "financial_statement", "financial_summary")
+    assert answer["fields"]["expected_foreign_currency_flag"] is False
+    assert "source_currency" not in answer["fields"]
+
+
+def test_build_answer_financial_statement_multi_period_expected_foreign_currency_flag_false(
+    corporate_extended_case,
+):
+    answer = build_answer(corporate_extended_case, "financial_statement", "multi_period")
+    assert answer["fields"]["expected_foreign_currency_flag"] is False
+
+
 def test_build_answer_income_certificate_prior(individual_extended_case):
     answer = build_answer(
         individual_extended_case, "income_certificate", "tax_return_prior"
@@ -711,6 +744,13 @@ def test_build_answer_trial_balance(corporate_extended_case):
     assert answer["fields"]["fiscal_period"] == "2026年10月度（月次）"
     assert answer["fields"]["total_assets"] == "22,500,000円"
     assert answer["fields"]["operating_profit"] == "2,600,000円"
+
+
+def test_build_answer_trial_balance_expected_foreign_currency_flag_false(
+    corporate_extended_case,
+):
+    answer = build_answer(corporate_extended_case, "trial_balance", "monthly_summary")
+    assert answer["fields"]["expected_foreign_currency_flag"] is False
 
 
 def test_build_answer_corporate_with_housing_usage(corporate_extended_case):
@@ -757,6 +797,74 @@ def test_build_answer_bank_balance_certificate(individual_extended_case):
     assert answer["fields"]["bank_name"] == "テストメガバンク"
     assert answer["fields"]["branch_name"] == "テスト支店"
     assert answer["fields"]["balance_amount"] == "3,500,000円"
+
+
+def test_build_answer_bank_balance_certificate_expected_foreign_currency_flag_false(
+    individual_extended_case,
+):
+    answer = build_answer(individual_extended_case, "bank_balance_certificate", "standard")
+    assert answer["fields"]["expected_foreign_currency_flag"] is False
+    assert "source_currency" not in answer["fields"]
+
+
+# --- Issue #76: 多言語（英・中・韓）決算書・資金エビデンス対応の通貨メタ情報 ---
+
+
+def test_build_answer_financial_statement_with_source_currency_is_foreign():
+    case = Case.model_validate(
+        {
+            "case_id": "CASE-TEST-ML-001",
+            "applicant_type": "corporate",
+            "company": {"company_name": "Sample US Holdings Inc."},
+            "financials": {
+                "fiscal_year": "FY2025",
+                "sales": "$12,345,000",
+                "source_currency": "USD",
+                "unit_multiplier": 1000,
+                "accounting_standard": "US_GAAP",
+            },
+            "documents": [{"document_type": "financial_statement", "variant": "us_gaap_en"}],
+        }
+    )
+    answer = build_answer(case, "financial_statement", "us_gaap_en")
+    assert answer["fields"]["expected_foreign_currency_flag"] is True
+    assert answer["fields"]["source_currency"] == "USD"
+    assert answer["fields"]["unit_multiplier"] == 1000
+    assert answer["fields"]["accounting_standard"] == "US_GAAP"
+
+
+def test_build_answer_time_deposit_statement():
+    case = Case.model_validate(
+        {
+            "case_id": "CASE-TEST-ML-002",
+            "applicant_type": "corporate",
+            "company": {"company_name": "Sample HK Trading Ltd."},
+            "time_deposit_statement": {
+                "account_holder": "Sample HK Trading Ltd.",
+                "bank_name": "Sample Bank of Hong Kong",
+                "branch_name": "Central Branch",
+                "account_number": "HK-001-234567",
+                "principal_amount": "500,000",
+                "interest_rate": "2.5% p.a.",
+                "deposit_date": "2026-01-15",
+                "maturity_date": "2027-01-15",
+                "deposit_term": "12 months",
+                "issue_date": "2026-01-16",
+                "issuer_staff": "Chan Tai Man",
+                "source_currency": "HKD",
+                "unit_multiplier": 1,
+            },
+            "documents": [
+                {"document_type": "time_deposit_statement", "variant": "standard_en"}
+            ],
+        }
+    )
+    answer = build_answer(case, "time_deposit_statement", "standard_en")
+    assert answer["fields"]["account_holder"] == "Sample HK Trading Ltd."
+    assert answer["fields"]["principal_amount"] == "500,000"
+    assert answer["fields"]["maturity_date"] == "2027-01-15"
+    assert answer["fields"]["expected_foreign_currency_flag"] is True
+    assert answer["fields"]["source_currency"] == "HKD"
 
 
 # --- Issue #37: 申込者特定 異常系（共同申込 / 共同代表 / 外国籍親会社代表 / 保証人=本人） ---

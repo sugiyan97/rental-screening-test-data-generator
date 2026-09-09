@@ -38,6 +38,27 @@ def _has_keyword(value: Any, keywords: tuple[str, ...]) -> bool:
     return any(keyword in text for keyword in keywords)
 
 
+def _currency_meta_fields(obj: Any) -> dict[str, Any]:
+    """financials/trial_balance/bank_balance_certificate/funding_evidence 系オブジェクトから
+    通貨・単位・会計基準のメタ情報を正解JSONへ展開する。
+
+    obj が None、または source_currency が未設定（＝JPY記載の国内書類）の場合は
+    expected_foreign_currency_flag=False を明示的に返す（真陰性のテストケースを担保する）。
+    """
+    source_currency = _get(obj, "source_currency")
+    unit_multiplier = _get(obj, "unit_multiplier")
+    accounting_standard = _get(obj, "accounting_standard")
+    is_foreign = bool(source_currency) and source_currency.upper() != "JPY"
+    fields: dict[str, Any] = {"expected_foreign_currency_flag": is_foreign}
+    if source_currency:
+        fields["source_currency"] = source_currency
+    if unit_multiplier is not None:
+        fields["unit_multiplier"] = unit_multiplier
+    if accounting_standard:
+        fields["accounting_standard"] = accounting_standard
+    return fields
+
+
 def _shareholder_fields(s: Any) -> dict[str, Any]:
     return {
         "name": _get(s, "name"),
@@ -248,18 +269,27 @@ def _financials_fields(f: Any) -> dict[str, Any]:
     }
 
 
+# financials_multi（複数期を1ファイルにまとめる書類）を使う variant。
+# ifrs_consolidated_en は2期比較のIFRS連結決算書のためここに含める。
+_MULTI_PERIOD_VARIANTS_PREFIX = "multi"
+_MULTI_PERIOD_VARIANTS_EXTRA = {"ifrs_consolidated_en"}
+
+
 def _build_financial_statement(case: Case, variant: str = "") -> dict[str, Any]:
     c = case.company
-    if variant.startswith("multi"):
+    if variant.startswith(_MULTI_PERIOD_VARIANTS_PREFIX) or variant in _MULTI_PERIOD_VARIANTS_EXTRA:
         periods = case.financials_multi or []
+        meta_source = periods[-1] if periods else None
         return {
             "company_name": _get(c, "company_name"),
             "periods": [_financials_fields(f) for f in periods],
+            **_currency_meta_fields(meta_source),
         }
     f = case.previous_financials if variant.endswith("_prior") else case.financials
     return {
         "company_name": _get(c, "company_name"),
         **_financials_fields(f),
+        **_currency_meta_fields(f),
     }
 
 
@@ -507,14 +537,8 @@ def _build_parent_company_financial_statement(case: Case, variant: str = "") -> 
     f = case.parent_company_financials
     return {
         "company_name": _get(pc, "company_name"),
-        "fiscal_year": _get(f, "fiscal_year"),
-        "sales": _get(f, "sales"),
-        "operating_income": _get(f, "operating_income"),
-        "ordinary_income": _get(f, "ordinary_income"),
-        "net_income": _get(f, "net_income"),
-        "total_assets": _get(f, "total_assets"),
-        "total_liabilities": _get(f, "total_liabilities"),
-        "net_assets": _get(f, "net_assets"),
+        **_financials_fields(f),
+        **_currency_meta_fields(f),
     }
 
 
@@ -660,6 +684,29 @@ def _build_bank_balance_certificate(case: Case, variant: str = "") -> dict[str, 
         "balance_amount": _get(b, "balance_amount"),
         "issue_date": _get(b, "issue_date"),
         "issuer_staff": _get(b, "issuer_staff"),
+        **_currency_meta_fields(b),
+    }
+
+
+def _build_time_deposit_statement(case: Case, variant: str = "") -> dict[str, Any]:
+    td = case.time_deposit_statement
+    a = case.applicant
+    c = case.company
+    return {
+        "account_holder": (
+            _get(td, "account_holder") or _get(c, "company_name") or _get(a, "name")
+        ),
+        "bank_name": _get(td, "bank_name"),
+        "branch_name": _get(td, "branch_name"),
+        "account_number": _get(td, "account_number"),
+        "principal_amount": _get(td, "principal_amount"),
+        "interest_rate": _get(td, "interest_rate"),
+        "deposit_date": _get(td, "deposit_date"),
+        "maturity_date": _get(td, "maturity_date"),
+        "deposit_term": _get(td, "deposit_term"),
+        "issue_date": _get(td, "issue_date"),
+        "issuer_staff": _get(td, "issuer_staff"),
+        **_currency_meta_fields(td),
     }
 
 
@@ -682,6 +729,7 @@ def _build_funding_evidence(case: Case, variant: str = "") -> dict[str, Any]:
         "monthly_rent_coverage": _get(fe, "monthly_rent_coverage"),
         "evidence_documents": _get(fe, "evidence_documents"),
         "rent": _get(p, "rent"),
+        **_currency_meta_fields(fe),
     }
 
 
@@ -720,6 +768,7 @@ def _build_trial_balance(case: Case, variant: str = "") -> dict[str, Any]:
             "fiscal_period": _get(atb, "fiscal_period"),
             "balance_sheet_rows": [r.model_dump() for r in atb.balance_sheet_rows] if atb else [],
             "profit_loss_rows": [r.model_dump() for r in atb.profit_loss_rows] if atb else [],
+            **_currency_meta_fields(atb),
         }
     tb = case.trial_balance
     return {
@@ -742,6 +791,7 @@ def _build_trial_balance(case: Case, variant: str = "") -> dict[str, Any]:
         "gross_profit": _get(tb, "gross_profit"),
         "sga_expenses": _get(tb, "sga_expenses"),
         "operating_profit": _get(tb, "operating_profit"),
+        **_currency_meta_fields(tb),
     }
 
 
@@ -916,6 +966,7 @@ _BUILDERS: dict[str, Callable[[Case, str], dict[str, Any]]] = {
     "trial_balance": _build_trial_balance,
     "business_opening_notice": _build_business_opening_notice,
     "bank_balance_certificate": _build_bank_balance_certificate,
+    "time_deposit_statement": _build_time_deposit_statement,
     "funding_evidence": _build_funding_evidence,
     "payment_track_record_pledge": _build_payment_track_record_pledge,
 }

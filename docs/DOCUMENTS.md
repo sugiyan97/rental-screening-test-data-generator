@@ -2,7 +2,7 @@
 
 [← README に戻る](../README.md)
 
-本ツールが生成できる書類は 31 種類の `document_type`、合計 61 種類の variant。
+本ツールが生成できる書類は 32 種類の `document_type`、合計 67 種類の variant。
 テンプレートは `templates/{document_type}/{variant}.html` に 1:1 で対応しており、
 JSONL の `documents[].document_type` / `variant` で指定する（→ README「入力 JSONL フォーマット」）。
 
@@ -14,10 +14,11 @@ JSONL の `documents[].document_type` / `variant` で指定する（→ README�
 | `rental_application_corporate` | 法人用入居申込書 | `standard`, `handwritten_like`, `office`, `housing`, `store`, `joint_representative`, `sole_proprietor` |
 | `income_certificate` | 収入証明書風 | `salary_certificate`, `salary_certificate_prior`, `tax_return`, `tax_return_prior`, `tax_return_multi_year`, `withholding_slip`, `withholding_slip_current` |
 | `registry_certificate` | 履歴事項全部証明書風 | `registry_table`, `registry_table_with_shareholders`, `registry_table_public_company_name`, `registry_table_co_representative` |
-| `financial_statement` | 決算書風（財務サマリー） | `financial_summary`, `financial_summary_prior`, `multi_period`, `multi_period_report_form` |
+| `financial_statement` | 決算書風（財務サマリー） | `financial_summary`, `financial_summary_prior`, `multi_period`, `multi_period_report_form`, `us_gaap_en`, `singapore_hk_en`, `ifrs_consolidated_en` |
 | `trial_balance` | 合計残高試算表風 | `monthly_summary`, `annual_summary` |
 | `business_opening_notice` | 個人事業の開業・廃業等届出書（開業届）写し風 | `individual` |
-| `bank_balance_certificate` | 預貯金残高証明書風（金融機関発行） | `standard` |
+| `bank_balance_certificate` | 預貯金残高証明書風（金融機関発行） | `standard`, `standard_en`, `standard_en_scan_degraded` |
+| `time_deposit_statement` | 定期預金明細風（金融機関発行、英語版） | `standard_en` |
 | `funding_evidence` | 資金エビデンス（資金調達証明書） | `standard` |
 | `payment_track_record_pledge` | 支払実績確約書（既存事業者の賃料支払実績） | `standard` |
 | `business_plan` | 事業計画書 | `narrative`, `individual_startup`, `corporate_startup` |
@@ -72,11 +73,13 @@ JSONL の `documents[].document_type` / `variant` で指定する（→ README�
 - **多年度書類** — 決算書の `financial_summary_prior`（前年度版）、確定申告書の `tax_return_prior`（前年度版）。`case.previous_financials` / `case.previous_income` を参照
 - **複数期を1ファイルにまとめた書類** — `financial_statement/multi_period`（複数期決算書を1ファイルで横並び比較）、`income_certificate/tax_return_multi_year`（複数年の確定申告を1ファイルで横並び比較）。`case.financials_multi` / `case.income_multi`（リスト）を参照し、正解 JSON は `periods` 配列で各期を保持
 - **合計残高試算表** — 月次・年次の科目別残高表（資産・負債・純資産・損益）
+- **多言語（英語）決算書**（Issue #76）— `financial_statement` に言語プレフィックス付き variant を追加（`us_gaap_en`: US GAAP・USD、`singapore_hk_en`: HKFRS・HK$'000（通貨表記が数字非隣接のレイアウト）、`ifrs_consolidated_en`: IFRS連結・EUR・大陸式桁区切り・2期比較）。外国の親会社等が関与する審査案件向けのダミーデータ。科目マッピング方針として、IFRS/US GAAPには「経常利益」に対応する科目が無いため `financials.ordinary_income` の値を "Profit before tax"（税引前利益）の行として表示する。`Financials`/`TrialBalance` 系モデルに `source_currency`（原貨通貨コード）・`unit_multiplier`（記載金額の倍率）・`accounting_standard` を持たせられ、正解 JSON には常に `expected_foreign_currency_flag`（外貨検知が発火すべきかの正解値。`source_currency` が JPY 相当なら `false`）が付与される（既存の日本語×JPYケースも `false` になり真陰性を検証できる）
 
 ### D. 資金・支払実績・事業計画
 
 - **開業届** — 個人事業の開業・廃業等届出書写し風。新規個人事業（業歴1期未満）で確定申告書の代替として提出
-- **預貯金残高証明書** — 金融機関発行の残高証明書風。新規法人・新規個人事業で自己資金の証明に使用
+- **預貯金残高証明書** — 金融機関発行の残高証明書風。新規法人・新規個人事業で自己資金の証明に使用（英語版 `bank_balance_certificate/standard_en` あり）
+- **定期預金明細**（Issue #76、新規 document_type）— `time_deposit_statement/standard_en`。預貯金残高証明書と対をなす資金エビデンス書類で、預入元本・適用利率・預入日・満期日・預入期間を証明する。現状は英語版のみ
 - **資金エビデンス（資金調達証明書）** — 自己資金（資本金）・金融機関融資・VC等の出資・補助金の調達内訳を 1 枚にまとめ、月額賃料に対する支払能力を裏付ける書類。資金調達済スタートアップ向け
 - **支払実績確約書** — 既存事業者が現在賃借中の物件における過去の賃料支払実績（契約物件・支払実績期間・月額賃料・延滞履歴／延滞回数・賃料支払総額・完済状況・支払方法・照会先）を示し、今後も遅滞なく支払うことを確約する書類。業歴のある法人向け（新規向けの資金エビデンスと対をなす）。延滞回数・賃料支払総額・完済状況は値が設定されたケースのみ行が表示される
 - **事業計画書** — 既存 `narrative` に加え、開業時向けの 2 variant を用意：
@@ -107,6 +110,8 @@ JSONL の `documents[].document_type` / `variant` で指定する（→ README�
 
 - **手書き風バリアント** — Klee One フォント（Google Fonts / OFL）で記入欄をレンダリング
 - **印刷＋手書き混在バリアント**（`rental_application_individual/print_handwriting_mixed`）— 印刷された枠・ラベルはそのままで、記入値の一部を手書き風（Klee One・青インク・行ごとの微傾斜）にした様式。ページ全体に軽いスキャン風の質感（用紙の傾き・コントラスト調整）を与えている。さらに一部の記入項目を意図的に**判読困難**（`opacity` によるかすれ／`blur` によるにじみ／`rotate` を伴う擦れ）にしてあり、「読めた項目のみ登録・読めない項目は不足記載」という挙動の検証に使う。判読困難にしているのは **携帯電話番号（にじみ）／メールアドレス（インクかすれ）／年収（税込）（擦れ＋傾きで判読不能）／連帯保証人の電話番号（インクかすれ）** の4項目で、それ以外（氏名・フリガナ・生年月日・現住所・緊急連絡先・勤務先情報など）は判読可能。スキャン相当のため `output_format` は `jpg` を想定（CASE-000050 参照）
+- **スキャン画質劣化・公印重なりバリアント**（`bank_balance_certificate/standard_en_scan_degraded`、Issue #76 P0）— 実書類で「公印が金額に重なる低画質スキャンでは桁スケール誤り・数字の読み違い・フィールド欠損が発生する」ことを確認済みのパターンを再現する。SVG `feTurbulence` によるノイズテクスチャ・`contrast`/`brightness` フィルタでのコントラスト低下・半透明で回転した円形の「公印（ダミー）」を残高金額に重ねる演出を CSS/SVG のみで実装しており、新規のPython依存や画像処理パイプラインは追加していない（`standard_en` と同じデータをそのまま使い、演出のみを上乗せしたvariant）
+- **通貨単位が数字非隣接のバリアント**（`financial_statement/singapore_hk_en`、Issue #76 P0）— 通貨・単位表記（例: `HK$'000`）を見出し直下に1回だけ記載し、表中の金額数字自体には通貨記号を一切付与しないレイアウト。「数字に隣接する通貨表記」だけを前提にした外貨検知ロジックの穴を突く検証用
 
 ---
 
