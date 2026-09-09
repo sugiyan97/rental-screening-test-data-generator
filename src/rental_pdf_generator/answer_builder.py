@@ -56,6 +56,9 @@ def _currency_meta_fields(obj: Any) -> dict[str, Any]:
         fields["unit_multiplier"] = unit_multiplier
     if accounting_standard:
         fields["accounting_standard"] = accounting_standard
+    unit_label = _get(obj, "unit_label")
+    if unit_label:
+        fields["unit_label"] = unit_label
     return fields
 
 
@@ -269,14 +272,45 @@ def _financials_fields(f: Any) -> dict[str, Any]:
     }
 
 
+# financials_detail（明細行で構成される決算書。Issue #79: 韓国語決算書対応）を使う variant。
+_DETAIL_ROW_VARIANTS = {"kr_nts_standard", "kr_sme_simple", "kr_kgaap_bracket_minus"}
+
+
+def _detail_row_fields(detail: Any) -> dict[str, Any]:
+    """FinancialStatementDetail から正解JSONを組み立てる。
+
+    balance_sheet_rows / profit_loss_rows はそのまま配列で保持しつつ、各行の
+    `key`（正規科目キー）が設定されていればその `amount` を正規キーでフラット展開する。
+    表記ゆれ（label）があっても正規キーで採点できるようにするための設計。
+    """
+    balance_sheet_rows = _get(detail, "balance_sheet_rows") or []
+    profit_loss_rows = _get(detail, "profit_loss_rows") or []
+    fields: dict[str, Any] = {
+        "fiscal_year": _get(detail, "fiscal_year"),
+        "fiscal_period": _get(detail, "fiscal_period"),
+        "balance_sheet_rows": [r.model_dump() for r in balance_sheet_rows],
+        "profit_loss_rows": [r.model_dump() for r in profit_loss_rows],
+    }
+    for row in [*balance_sheet_rows, *profit_loss_rows]:
+        if row.key:
+            fields[row.key] = row.amount
+    fields.update(_currency_meta_fields(detail))
+    return fields
+
+
 # financials_multi（複数期を1ファイルにまとめる書類）を使う variant。
-# ifrs_consolidated_en は2期比較のIFRS連結決算書のためここに含める。
+# ifrs_consolidated_en / kr_kifrs_audited は2期比較のIFRS(K-IFRS)連結決算書のためここに含める。
 _MULTI_PERIOD_VARIANTS_PREFIX = "multi"
-_MULTI_PERIOD_VARIANTS_EXTRA = {"ifrs_consolidated_en"}
+_MULTI_PERIOD_VARIANTS_EXTRA = {"ifrs_consolidated_en", "kr_kifrs_audited"}
 
 
 def _build_financial_statement(case: Case, variant: str = "") -> dict[str, Any]:
     c = case.company
+    if variant in _DETAIL_ROW_VARIANTS:
+        return {
+            "company_name": _get(c, "company_name"),
+            **_detail_row_fields(case.financials_detail),
+        }
     if variant.startswith(_MULTI_PERIOD_VARIANTS_PREFIX) or variant in _MULTI_PERIOD_VARIANTS_EXTRA:
         periods = case.financials_multi or []
         meta_source = periods[-1] if periods else None
@@ -670,7 +704,7 @@ def _build_bank_balance_certificate(case: Case, variant: str = "") -> dict[str, 
     b = case.bank_balance_certificate
     a = case.applicant
     c = case.company
-    return {
+    fields: dict[str, Any] = {
         "account_holder": (
             _get(b, "account_holder")
             or _get(c, "company_name")
@@ -686,6 +720,10 @@ def _build_bank_balance_certificate(case: Case, variant: str = "") -> dict[str, 
         "issuer_staff": _get(b, "issuer_staff"),
         **_currency_meta_fields(b),
     }
+    # 大字（한글）併記金額が指定されたケースのみ正解値を持たせる（未設定ケースの出力は従来どおり）
+    if _get(b, "amount_in_words"):
+        fields["amount_in_words"] = _get(b, "amount_in_words")
+    return fields
 
 
 def _build_time_deposit_statement(case: Case, variant: str = "") -> dict[str, Any]:

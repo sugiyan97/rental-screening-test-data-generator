@@ -40,9 +40,15 @@ templates/{document_type}/{variant}.html
 追加したら [docs/DOCUMENTS.md](DOCUMENTS.md) の書類タイプ一覧にも 1 行（または variant を）追記すること。
 
 外国語版の書類は、`document_type` ディレクトリを言語別に分けず、**言語プレフィックス付きの variant 名**
-（例: `us_gaap_en`, `standard_en`）で既存の document_type に追加する（Issue #76）。入力ケースも
-既存の日本語ケース（`input/cases.jsonl`）とは混在させず、対象書類種が限定的な場合は
+（例: `us_gaap_en`, `standard_en`, `kr_standard`）で既存の document_type に追加する（Issue #76 / #79）。
+入力ケースも既存の日本語ケース（`input/cases.jsonl`）とは混在させず、対象書類種が限定的な場合は
 `input/cases_multilingual.jsonl` のような専用ファイルに分離する。
+
+コード番号付き明細行・科目名の表記ゆれ・控除科目の括弧などフラットな `Financials` では表現できない
+決算書 variant を追加する場合は `Case.financials_detail`（`FinancialStatementDetail`／
+`FinancialStatementRow`）を使い、`src/rental_pdf_generator/answer_builder.py` の
+`_DETAIL_ROW_VARIANTS` に variant 名を追記すること（追記しないと `_build_financial_statement` が
+明細行ではなくフラットな `case.financials` を参照してしまう）。
 
 ---
 

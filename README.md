@@ -90,7 +90,7 @@ uv run python scripts/generate_case_pdfs.py --input input/cases.jsonl --output o
 
 ## 生成できる書類
 
-32 種類の `document_type` × 67 種類の variant に対応している。
+32 種類の `document_type` × 73 種類の variant に対応している。
 書類タイプ／variant の一覧と各書類の詳細な特徴は [docs/DOCUMENTS.md](docs/DOCUMENTS.md) を参照。
 
 - **入居申込書** — 個人用／法人用（居住・SOHO・事務所・社宅・店舗など用途別 variant、手書き風・印刷手書き混在あり）

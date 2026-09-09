@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap');
+
+@page { size: A4; margin: 16mm 16mm; }
+* { box-sizing: border-box; font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', 'NanumGothic', sans-serif; }
+body { font-size: 9.5pt; line-height: 1.5; color: #222; margin: 0; }
+
+.sample-notice { background: #fff3cd; border: 2px solid #ffc107; padding: 4px 12px; margin-bottom: 8px; font-size: 8.5pt; font-weight: bold; text-align: center; color: #856404; }
+
+.page { }
+.page + .page { page-break-before: always; break-before: page; }
+
+/* ===== 표지(1페이지) ===== */
+.cover { border: 2px solid #333; padding: 40px 36px; margin-top: 30px; }
+.form-code { text-align: right; font-size: 8.5pt; color: #555; }
+h1.cover-title { font-size: 20pt; text-align: center; letter-spacing: 0.2em; margin: 24px 0 6px; }
+.cover-subtitle { text-align: center; font-size: 10pt; color: #555; margin-bottom: 30px; }
+
+table.cover-table { width: 100%; border-collapse: collapse; font-size: 10.5pt; margin: 20px 0; }
+table.cover-table th, table.cover-table td { border: 1px solid #888; padding: 8px 12px; }
+table.cover-table th { background: #f0f0f0; text-align: left; width: 32%; }
+table.cover-table td { text-align: left; }
+
+.cover-note { font-size: 9pt; color: #444; margin-top: 26px; line-height: 1.8; }
+.issuer-stamp { text-align: right; margin-top: 40px; font-size: 10.5pt; }
+
+/* ===== 명세 페이지（貸借対照表・損益計算書) ===== */
+h2.doc-title { font-size: 14pt; text-align: center; margin: 4px 0 4px; }
+.meta { display: flex; justify-content: space-between; font-size: 9pt; color: #444; border-bottom: 1px solid #ccc; padding-bottom: 4px; margin-bottom: 8px; }
+
+table.detail-table { width: 100%; border-collapse: collapse; font-size: 9pt; margin-bottom: 10px; }
+table.detail-table th, table.detail-table td { border: 1px solid #777; padding: 3px 8px; vertical-align: middle; }
+table.detail-table thead th { background-color: #dfe6ef; font-weight: 700; text-align: center; }
+table.detail-table td.code { width: 12%; text-align: center; color: #555; }
+table.detail-table td.label { text-align: left; width: 52%; }
+table.detail-table td.amount { text-align: right; }
+
+tr.section td { background: #eef2f7; font-weight: bold; }
+tr.subtotal td { background: #f4f7fb; font-weight: bold; }
+tr.total td { background: #e4eaf4; font-weight: bold; }
+
+.footer-note { font-size: 8pt; color: #666; margin-top: 8px; border-top: 1px solid #ccc; padding-top: 4px; }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <div class="sample-notice">【테스트용 샘플 서류 ― 실제 국세청 증명서가 아닙니다】</div>
+  <div class="cover">
+    <p class="form-code">서식 코드: 국세청고시 제0000-00호 서식 (표준재무제표증명용, 샘플)</p>
+    <h1 class="cover-title">표준재무제표증명</h1>
+    <p class="cover-subtitle">(법인용) — 국세청 홈택스 발급 (샘플)</p>
+
+    <table class="cover-table">
+      <tr><th>상호(법인명)</th><td>{{ case.company.company_name if case.company else '' }}</td></tr>
+      <tr><th>사업자등록번호</th><td>{{ case.company.corporate_number if case.company else '' }}</td></tr>
+      <tr><th>대표자</th><td>{{ case.company.representative_name if case.company else '' }}</td></tr>
+      <tr><th>사업장소재지</th><td>{{ case.company.head_office_address if case.company else '' }}</td></tr>
+      <tr><th>귀속연도</th><td>{{ case.financials_detail.fiscal_year if case.financials_detail else '' }}</td></tr>
+      <tr><th>과세기간</th><td>{{ case.financials_detail.fiscal_period if case.financials_detail else '' }}</td></tr>
+      <tr><th>단위</th><td>{{ case.financials_detail.unit_label if case.financials_detail else '원' }}</td></tr>
+    </table>
+
+    <p class="cover-note">
+      위 법인의 표준재무제표는 국세청에 신고된 내용과 같음을 증명합니다.<br>
+      본 증명서는 대차대조표(2페이지) 및 손익계산서(3페이지)로 구성됩니다.
+    </p>
+    <p class="issuer-stamp">국세청장 (직인 생략, 샘플)</p>
+  </div>
+</div>
+
+<div class="page">
+  <h2 class="doc-title">대 차 대 조 표</h2>
+  <div class="meta">
+    <span>{{ case.company.company_name if case.company else '' }}</span>
+    <span>과세기간：{{ case.financials_detail.fiscal_period if case.financials_detail else '' }}</span>
+    <span>단위：{{ case.financials_detail.unit_label if case.financials_detail else '원' }}</span>
+  </div>
+  <table class="detail-table">
+    <thead>
+      <tr>
+        <th>코드</th>
+        <th>과목</th>
+        <th>금액</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in (case.financials_detail.balance_sheet_rows if case.financials_detail else []) %}
+      <tr class="{{ row.emphasis or '' }}">
+        <td class="code">{{ row.code or '' }}</td>
+        <td class="label">{% if row.contra %}({{ row.label }}){% else %}{{ row.label }}{% endif %}</td>
+        <td class="amount">{{ row.amount or '' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <p class="footer-note">
+    ※ 금액란의 괄호（ ）는 음수(부(-)의 금액)를 의미하며, 과목명 자체가 괄호로 표시된 경우는 차감(공제) 항목을 의미합니다.
+  </p>
+</div>
+
+<div class="page">
+  <h2 class="doc-title">손 익 계 산 서</h2>
+  <div class="meta">
+    <span>{{ case.company.company_name if case.company else '' }}</span>
+    <span>과세기간：{{ case.financials_detail.fiscal_period if case.financials_detail else '' }}</span>
+    <span>단위：{{ case.financials_detail.unit_label if case.financials_detail else '원' }}</span>
+  </div>
+  <table class="detail-table">
+    <thead>
+      <tr>
+        <th>코드</th>
+        <th>과목</th>
+        <th>금액</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in (case.financials_detail.profit_loss_rows if case.financials_detail else []) %}
+      <tr class="{{ row.emphasis or '' }}">
+        <td class="code">{{ row.code or '' }}</td>
+        <td class="label">{% if row.contra %}({{ row.label }}){% else %}{{ row.label }}{% endif %}</td>
+        <td class="amount">{{ row.amount or '' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <p class="footer-note">
+    ※ 본 서류는 OCR・LLM・Document AI 시스템 테스트를 위해 작성된 샘플 서류입니다. 실재하는 법인의 재무정보가 아닙니다.
+  </p>
+</div>
+
+</body>
+</html>

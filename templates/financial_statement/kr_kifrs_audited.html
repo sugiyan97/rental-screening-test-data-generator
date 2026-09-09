@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap');
+
+@page { size: A4; margin: 15mm 18mm; }
+* { box-sizing: border-box; font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', 'NanumGothic', sans-serif; }
+body { font-size: 10pt; line-height: 1.5; color: #222; margin: 0; }
+
+h1 { font-size: 15pt; text-align: center; margin: 0 0 4px; letter-spacing: 0.04em; }
+.company-info { text-align: center; font-size: 10pt; margin-bottom: 6px; color: #333; }
+.standard-note { text-align: center; font-size: 9pt; color: #555; margin-bottom: 12px; }
+
+.sample-notice { background: #fff3cd; border: 2px solid #ffc107; padding: 4px 12px; margin-bottom: 8px; font-size: 8.5pt; font-weight: bold; text-align: center; color: #856404; }
+
+h2 { font-size: 11pt; margin: 14px 0 5px; border-bottom: 1px solid #555; padding-bottom: 2px; }
+
+table { width: 100%; border-collapse: collapse; font-size: 9.5pt; margin-bottom: 14px; }
+th, td { border: 1px solid #777; padding: 4px 8px; vertical-align: middle; }
+th { background-color: #f0f0f0; font-weight: 700; }
+th.item { width: 40%; text-align: left; }
+th.period { text-align: center; width: 30%; }
+td { text-align: right; }
+td.label { text-align: left; background: #fafafa; font-weight: 600; }
+
+.total-row td, .total-row th { background-color: #e4eaf4; font-weight: bold; }
+
+.footer-note { font-size: 8pt; color: #666; margin-top: 12px; border-top: 1px solid #ccc; padding-top: 5px; }
+</style>
+</head>
+<body>
+<div class="sample-notice">[테스트용 샘플 서류 — 실제 법인의 연결재무제표가 아닙니다]</div>
+<h1>연결재무제표 (요약)</h1>
+<p class="company-info">{{ case.company.company_name if case.company else '' }}</p>
+<p class="standard-note">한국채택국제회계기준(K-IFRS)에 따라 작성 — 2개년 비교. 단위: 천원. 음수는 괄호로 표시합니다(예: (123,456)).</p>
+
+<h2>연결 손익계산서 (요약)</h2>
+<table>
+  <tr>
+    <th class="item">과목</th>
+    {% for f in case.financials_multi %}<th class="period">{{ f.fiscal_year or '' }}</th>{% endfor %}
+  </tr>
+  <tr>
+    <td class="label">매출액</td>
+    {% for f in case.financials_multi %}<td>{{ f.sales or '' }}</td>{% endfor %}
+  </tr>
+  <tr>
+    <td class="label">영업이익</td>
+    {% for f in case.financials_multi %}<td>{{ f.operating_income or '' }}</td>{% endfor %}
+  </tr>
+  <tr>
+    <td class="label">법인세비용차감전순이익</td>
+    {% for f in case.financials_multi %}<td>{{ f.ordinary_income or '' }}</td>{% endfor %}
+  </tr>
+  <tr class="total-row">
+    <td class="label">당기순이익</td>
+    {% for f in case.financials_multi %}<td>{{ f.net_income or '' }}</td>{% endfor %}
+  </tr>
+</table>
+
+<h2>연결 재무상태표 (요약)</h2>
+<table>
+  <tr>
+    <th class="item">과목</th>
+    {% for f in case.financials_multi %}<th class="period">{{ f.fiscal_year or '' }}</th>{% endfor %}
+  </tr>
+  <tr class="total-row">
+    <td class="label">자산총계</td>
+    {% for f in case.financials_multi %}<td>{{ f.total_assets or '' }}</td>{% endfor %}
+  </tr>
+  <tr class="total-row">
+    <td class="label">부채총계</td>
+    {% for f in case.financials_multi %}<td>{{ f.total_liabilities or '' }}</td>{% endfor %}
+  </tr>
+  <tr class="total-row">
+    <td class="label">자본총계</td>
+    {% for f in case.financials_multi %}<td>{{ f.net_assets or '' }}</td>{% endfor %}
+  </tr>
+</table>
+
+<p class="footer-note">
+  ※ 본 서류는 OCR・LLM・Document AI 시스템 테스트를 위해 작성된 샘플 서류입니다.
+  실재하는 기업・그룹의 재무정보가 아닙니다.
+</p>
+</body>
+</html>

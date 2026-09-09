@@ -160,9 +160,9 @@ E2E `e2e_028_corporate_number`（**TC-4-019** 閉鎖法人の検出 ／ **TC-2-0
 |---|---|---|---|---|
 | CASE-000061 | 既存・法人（**閉鎖（解散）法人**・IT・ソフトウェア／業歴15年） | 黒中隊株式会社 | **TC-4-019 / TC-2-037**。法人番号 API で「登記記録の閉鎖等」を発火させるため商号・会社法人等番号（0105-01-048676）・本店所在地のみ公表情報を流用。財務は健全（当期売上 1,180,000,000円・純資産 432,000,000円／自己資本比率60%）で、実在性以外の否決要因を混ぜない。**閉鎖法人の検出とフェーズ3での実在性裏取り**の検証用 | 申込書office＋登記簿（**registry_table_public_company_name**）＋当期決算＋前期決算＋代表者ID（5書類） |
 
-## I. 多言語ケース（外国親会社等）— `input/cases_multilingual.jsonl`（Issue #76）
+## I. 多言語ケース（外国親会社等）— `input/cases_multilingual.jsonl`（Issue #76 / #79）
 
-外国の親会社等が関与する賃貸審査案件向けに、英語で書かれた決算書・資金エビデンス（銀行残高証明・
+外国の親会社等が関与する賃貸審査案件向けに、英語・韓国語で書かれた決算書・資金エビデンス（銀行残高証明・
 定期預金明細）のダミーデータを検証するためのケース。対象書類種が一部（決算書・資金エビデンス）に
 絞られ既存65ケースとPR差分が混線しないよう、**既存の `input/cases.jsonl` とは分離**して
 `input/cases_multilingual.jsonl` に収録している。真陽性（外貨表記→`expected_foreign_currency_flag: true`）
@@ -177,6 +177,13 @@ E2E `e2e_028_corporate_number`（**TC-4-019** 閉鎖法人の検出 ／ **TC-2-0
 | CASE-ML-000005 | CASE-ML-000004 と同一データの **P0**: スキャン画質劣化・公印重なり版 | `bank_balance_certificate/standard_en_scan_degraded` |
 | CASE-ML-000006 | 台湾/香港系の定期預金明細（新規 document_type） | `time_deposit_statement/standard_en` |
 | CASE-ML-000007 | 外国親会社が関与するが決算書自体はJPY表記（**真陰性**の検証用） | `parent_company_financial_statement/financial_summary` |
+| CASE-ML-000017 | 韓国・国税庁標準財務諸表証明（コード番号付き・3ページ構成） | `financial_statement/kr_nts_standard` |
+| CASE-ML-000018 | 韓国・K-IFRS監査報告書添付の連結財務諸表（2期比較・単位：천원） | `financial_statement/kr_kifrs_audited` |
+| CASE-ML-000019 | 韓国・中小企業簡易様式（CASE-ML-000017と同一数値・科目名の表記ゆれ） | `financial_statement/kr_sme_simple` |
+| CASE-ML-000020 | 韓国・K-GAAP決算書（括弧マイナスと控除科目名の括弧の同居） | `financial_statement/kr_kgaap_bracket_minus` |
+| CASE-ML-000021 | 韓国の銀行発行잔액증명서（한글大字金額 `amount_in_words` 併記） | `bank_balance_certificate/kr_standard` |
+| CASE-ML-000022 | 韓国の정기예금（定期預金）明細 | `time_deposit_statement/kr_standard` |
+| CASE-ML-000023 | 韓国法人の在日拠点向け内部決算（JPY明示の**真陰性**検証用） | `financial_statement/kr_sme_simple` |
 
-中国語（本土・台湾・香港3地域の字形作り分け）・韓国語対応、および横断的な通貨・数値表記の検証観点は
+中国語（本土・台湾・香港3地域の字形作り分け）対応、および横断的な通貨・数値表記の検証観点は
 別Issueでフォローアップ予定（本ツールでは今回未対応）。
