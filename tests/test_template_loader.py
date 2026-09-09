@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 
 from rental_pdf_generator.template_loader import TemplateLoader, TemplateNotFoundError
@@ -44,6 +46,14 @@ def test_load_all_initial_templates():
         ("bank_balance_certificate", "standard_en"),
         ("bank_balance_certificate", "standard_en_scan_degraded"),
         ("time_deposit_statement", "standard_en"),
+        # Issue #78: 多言語（中国語：本土・台湾・香港）決算書・資金エビデンス対応
+        ("financial_statement", "cn_mainland_account_style"),
+        ("financial_statement", "cn_taiwan_report_form"),
+        ("financial_statement", "cn_hk_bilingual"),
+        ("financial_statement", "cn_mainland_en_translated"),
+        ("financial_statement", "cn_taiwan_en_translated"),
+        ("bank_balance_certificate", "cn_mainland_deposit_certificate"),
+        ("bank_balance_certificate", "cn_trad_deposit_certificate"),
         # Issue #79: 多言語（韓国語）決算書・資金エビデンス対応
         ("financial_statement", "kr_nts_standard"),
         ("financial_statement", "kr_kifrs_audited"),
@@ -284,6 +294,285 @@ def test_ifrs_consolidated_en_renders_two_periods_with_continental_format():
     assert "9.120.000,00" in html
     assert "(120.000,00)" in html
     assert "Profit before tax" in html
+
+
+# --- Issue #78: 多言語（中国語：本土・台湾・香港）決算書・資金エビデンス対応 ---
+
+_TEMPLATES_DIR = Path(__file__).resolve().parents[1] / "templates"
+
+
+def _cn_financial_statement_case(variant: str, financials: dict, company_name: str) -> _Case:
+    return _Case.model_validate(
+        {
+            "case_id": f"CASE-TEST-ML-{variant}",
+            "applicant_type": "corporate",
+            "company": {"company_name": company_name},
+            "financials": financials,
+            "documents": [{"document_type": "financial_statement", "variant": variant}],
+        }
+    )
+
+
+def test_cn_mainland_account_style_balances_left_and_right():
+    """账户式は4列単一tableで、最終行に資産総計を左右両方に印字する（会計恒等式）。"""
+    case = _cn_financial_statement_case(
+        "cn_mainland_account_style",
+        {
+            "fiscal_year": "2025年度",
+            "sales": "45,800,000",
+            "operating_income": "6,200,000",
+            "ordinary_income": "5,900,000",
+            "net_income": "4,350,000",
+            "total_assets": "128,000,000",
+            "total_liabilities": "52,000,000",
+            "net_assets": "76,000,000",
+            "source_currency": "CNY",
+            "unit_multiplier": 1,
+            "accounting_standard": "CAS",
+        },
+        "样品上海贸易有限公司",
+    )
+    loader = TemplateLoader()
+    template = loader.load(
+        case_id=case.case_id,
+        document_type="financial_statement",
+        variant="cn_mainland_account_style",
+    )
+    html = template.render(case=case)
+    # 資産総計の金額（128,000,000）が左右両側（資産合計欄・負債純資産合計欄）に1回ずつ出現する
+    assert html.count("128,000,000") == 2
+    # 2テーブルではなく単一の<table>で左右対応が保たれている（xlsx/csv抽出の対応関係を壊さないため）
+    assert html.count("<table>") == 2  # 資産負債表(账户式) 1本 + 利润表 1本
+
+
+def test_cn_mainland_account_style_unit_label_switches_by_multiplier():
+    """unit_multiplierが10000なら「万元」、それ以外なら「元」がテンプレート内で動的に切り替わる。"""
+    loader = TemplateLoader()
+    template = loader.load(
+        case_id="CASE-TEST-ML-UNIT",
+        document_type="financial_statement",
+        variant="cn_mainland_account_style",
+    )
+
+    yuan_case = _cn_financial_statement_case(
+        "cn_mainland_account_style",
+        {
+            "total_assets": "128,000,000",
+            "total_liabilities": "52,000,000",
+            "net_assets": "76,000,000",
+            "unit_multiplier": 1,
+        },
+        "样品上海贸易有限公司",
+    )
+    yuan_html = template.render(case=yuan_case)
+    assert "万元" not in yuan_html
+    assert "元" in yuan_html
+
+    wanyuan_case = _cn_financial_statement_case(
+        "cn_mainland_account_style",
+        {
+            "total_assets": "12,800",
+            "total_liabilities": "5,200",
+            "net_assets": "7,600",
+            "unit_multiplier": 10000,
+        },
+        "样品杭州科技有限公司",
+    )
+    wanyuan_html = template.render(case=wanyuan_case)
+    assert "万元" in wanyuan_html
+
+
+def test_cn_mainland_templates_do_not_mix_traditional_characters():
+    """簡体字テンプレート（账户式・英訳）に繁体字専用字形が混入していない。"""
+    loader = TemplateLoader()
+    # 「资产」（簡体）と「資產」（繁体）は字形が異なる代表例
+    traditional_only = ("資產", "負債", "權益")
+    for variant in ("cn_mainland_account_style", "cn_mainland_en_translated"):
+        case = _cn_financial_statement_case(
+            variant,
+            {
+                "total_assets": "1", "total_liabilities": "1", "net_assets": "1",
+                "unit_multiplier": 1,
+            },
+            "样品公司",
+        )
+        template = loader.load(
+            case_id=case.case_id, document_type="financial_statement", variant=variant
+        )
+        html = template.render(case=case)
+        for word in traditional_only:
+            assert word not in html, f"{variant} に繁体字 {word} が混入している"
+
+
+def test_cn_taiwan_templates_do_not_mix_simplified_characters():
+    """繁体字テンプレート（報告式・英訳）に簡体字専用字形が混入していない。"""
+    loader = TemplateLoader()
+    # 「资产」「负债」（簡体）は「資產」「負債」（繁体）と字形が異なる代表例
+    simplified_only = ("资产", "负债")
+    for variant in ("cn_taiwan_report_form", "cn_taiwan_en_translated"):
+        case = _cn_financial_statement_case(
+            variant,
+            {
+                "total_assets": "1", "total_liabilities": "1", "net_assets": "1",
+                "unit_multiplier": 1000,
+            },
+            "樣品公司",
+        )
+        template = loader.load(
+            case_id=case.case_id, document_type="financial_statement", variant=variant
+        )
+        html = template.render(case=case)
+        for word in simplified_only:
+            assert word not in html, f"{variant} に簡体字 {word} が混入している"
+
+
+def test_cn_taiwan_report_form_passes_through_bracket_minus():
+    """台湾報告式は括弧マイナスの文字列をテンプレート側で加工せずそのまま出力する。"""
+    case = _cn_financial_statement_case(
+        "cn_taiwan_report_form",
+        {
+            "fiscal_year": "2025年度",
+            "sales": "182,450",
+            "operating_income": "9,300",
+            "ordinary_income": "3,150",
+            "net_income": "(1,842)",
+            "total_assets": "560,000",
+            "total_liabilities": "412,000",
+            "net_assets": "148,000",
+            "source_currency": "TWD",
+            "unit_multiplier": 1000,
+            "accounting_standard": "TIFRS",
+        },
+        "樣品台北科技股份有限公司",
+    )
+    loader = TemplateLoader()
+    template = loader.load(
+        case_id=case.case_id, document_type="financial_statement", variant="cn_taiwan_report_form"
+    )
+    html = template.render(case=case)
+    assert "(1,842)" in html
+    assert "新臺幣仟元" in html
+
+
+def test_cn_hk_bilingual_has_both_chinese_and_english_labels():
+    """香港中英併記は、同一科目に繁体字ラベルと英語ラベルの両方を持つ。"""
+    case = _cn_financial_statement_case(
+        "cn_hk_bilingual",
+        {
+            "fiscal_year": "FY2025",
+            "sales": "215,600",
+            "operating_income": "31,400",
+            "ordinary_income": "29,800",
+            "net_income": "23,150",
+            "total_assets": "480,000",
+            "total_liabilities": "210,000",
+            "net_assets": "270,000",
+            "source_currency": "HKD",
+            "unit_multiplier": 1000,
+            "accounting_standard": "HKFRS",
+        },
+        "樣品香港控股有限公司",
+    )
+    loader = TemplateLoader()
+    template = loader.load(
+        case_id=case.case_id, document_type="financial_statement", variant="cn_hk_bilingual"
+    )
+    html = template.render(case=case)
+    for zh, en in (
+        ("資產總額", "Total assets"),
+        ("負債總額", "Total liabilities"),
+        ("權益總額", "Total equity"),
+    ):
+        assert zh in html
+        assert en in html
+
+
+@pytest.mark.parametrize(
+    "variant,bank_name",
+    [
+        ("cn_mainland_deposit_certificate", "中国样本银行"),
+        ("cn_trad_deposit_certificate", "臺灣樣本銀行"),
+        ("cn_trad_deposit_certificate", "香港樣本銀行"),
+    ],
+)
+def test_cn_deposit_certificate_never_prints_currency_code(variant, bank_name):
+    """通貨曖昧性のコアテスト: 存款证明书のHTMLに通貨コード・通貨名が一切出現しない
+    （通貨判別の唯一の手がかりを発行銀行名だけに絞る設計）。"""
+    case = _Case.model_validate(
+        {
+            "case_id": "CASE-TEST-ML-DEPOSIT",
+            "applicant_type": "corporate",
+            "company": {"company_name": "样品测试有限公司"},
+            "bank_balance_certificate": {
+                "account_holder": "样品测试有限公司",
+                "bank_name": bank_name,
+                "branch_name": "測試分行",
+                "account_type": "帳戶",
+                "account_number": "0000000000",
+                "balance_as_of_date": "2026年06月30日",
+                "balance_amount": "1,280,000元",
+                "issue_date": "2026年07月02日",
+                "issuer_staff": "測試",
+                "source_currency": "CNY",
+                "unit_multiplier": 1,
+            },
+            "documents": [{"document_type": "bank_balance_certificate", "variant": variant}],
+        }
+    )
+    loader = TemplateLoader()
+    template = loader.load(
+        case_id=case.case_id, document_type="bank_balance_certificate", variant=variant
+    )
+    html = template.render(case=case)
+    forbidden_words = (
+        "CNY", "RMB", "人民币", "人民幣", "TWD", "新臺幣", "新台幣", "HKD", "港幣", "港币",
+    )
+    for forbidden in forbidden_words:
+        assert forbidden not in html, f"{variant} に通貨の手がかり {forbidden} が印字されている"
+    assert "1,280,000元" in html
+    assert bank_name in html
+
+
+@pytest.mark.parametrize(
+    "variant,expected_lang,expected_import",
+    [
+        ("cn_mainland_account_style", "zh-CN", "Noto+Sans+SC"),
+        ("cn_mainland_en_translated", "zh-CN", "Noto+Sans+SC"),
+        ("cn_taiwan_report_form", "zh-TW", "Noto+Sans+TC"),
+        ("cn_taiwan_en_translated", "zh-TW", "Noto+Sans+TC"),
+        ("cn_hk_bilingual", "zh-HK", "Noto+Sans+HK"),
+    ],
+)
+def test_cn_financial_statement_templates_declare_lang_and_font_import(
+    variant, expected_lang, expected_import
+):
+    """CDN取得失敗時のフォールバック用に、テンプレート原文に地域別langとGoogle Fonts @importが
+    必ず存在することを検証する（オフラインでも決定的に通るよう原文をアサートする）。"""
+    source = (_TEMPLATES_DIR / "financial_statement" / f"{variant}.html").read_text(
+        encoding="utf-8"
+    )
+    assert f'lang="{expected_lang}"' in source
+    assert expected_import in source
+    assert "@import url('https://fonts.googleapis.com/css2?family=" in source
+
+
+def test_cn_trad_deposit_certificate_declares_lang_and_shared_font_imports():
+    """台湾・香港共用の繁体字テンプレートは、両地域の字形をカバーするフォントを両方読み込む。"""
+    source = (
+        _TEMPLATES_DIR / "bank_balance_certificate" / "cn_trad_deposit_certificate.html"
+    ).read_text(encoding="utf-8")
+    assert 'lang="zh-TW"' in source
+    assert "Noto+Sans+TC" in source
+    assert "Noto+Sans+HK" in source
+
+
+def test_cn_mainland_deposit_certificate_declares_lang_and_font_import():
+    source = (
+        _TEMPLATES_DIR / "bank_balance_certificate" / "cn_mainland_deposit_certificate.html"
+    ).read_text(encoding="utf-8")
+    assert 'lang="zh-CN"' in source
+    assert "Noto+Sans+SC" in source
+
 
 
 # --- Issue #79: 多言語（韓国語）決算書・資金エビデンス対応 ---
@@ -566,6 +855,7 @@ def test_kr_templates_declare_font_import_and_korean_lang(document_type, variant
     assert "Noto+Sans+KR" in source
 
 
+
 def test_load_invalid_document_type_raises():
     loader = TemplateLoader()
     with pytest.raises(TemplateNotFoundError) as exc_info:
@@ -609,7 +899,6 @@ def test_list_available_unknown_type_returns_empty():
 # --- Issue #37: 申込者特定 異常系の様式（共同申込 / 共同代表 / 親会社代表の在留カード） ---
 
 import json  # noqa: E402
-from pathlib import Path  # noqa: E402
 
 from rental_pdf_generator.models import Case  # noqa: E402
 

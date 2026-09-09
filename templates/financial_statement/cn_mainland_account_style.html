@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&display=swap');
+
+@page {
+  size: A4;
+  margin: 15mm 18mm;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', 'Helvetica Neue', Arial, sans-serif;
+}
+
+body {
+  font-size: 10pt;
+  line-height: 1.5;
+  color: #222;
+  margin: 0;
+}
+
+h1 {
+  font-size: 15pt;
+  text-align: center;
+  margin: 0 0 4px;
+  letter-spacing: 0.04em;
+}
+
+.company-info {
+  text-align: center;
+  font-size: 10pt;
+  margin-bottom: 4px;
+  color: #333;
+}
+
+.standard-note {
+  text-align: center;
+  font-size: 9pt;
+  color: #555;
+  margin-bottom: 12px;
+}
+
+.sample-notice {
+  background: #fff3cd;
+  border: 2px solid #ffc107;
+  padding: 4px 12px;
+  margin-bottom: 12px;
+  font-size: 8.5pt;
+  font-weight: bold;
+  text-align: center;
+  color: #856404;
+}
+
+.form-badge {
+  background: #eef6ee;
+  border: 1px solid #4a8f5c;
+  padding: 3px 12px;
+  margin-bottom: 10px;
+  font-size: 9pt;
+  font-weight: bold;
+  text-align: center;
+  color: #2f5e3a;
+}
+
+h2 {
+  font-size: 11pt;
+  margin: 14px 0 5px;
+  border-bottom: 1px solid #555;
+  padding-bottom: 2px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 9pt;
+  margin-bottom: 14px;
+}
+
+th, td {
+  border: 1px solid #777;
+  padding: 4px 8px;
+  vertical-align: middle;
+}
+
+th {
+  background-color: #f0f0f0;
+  font-weight: 700;
+  text-align: left;
+}
+
+th.col-item { width: 30%; }
+th.col-amt { width: 20%; text-align: right; }
+td { text-align: right; }
+td.label { text-align: left; }
+
+.total-row td, .total-row th {
+  background-color: #e4eaf4;
+  font-weight: bold;
+}
+
+.footer-note {
+  font-size: 8pt;
+  color: #666;
+  margin-top: 14px;
+  border-top: 1px solid #ccc;
+  padding-top: 5px;
+}
+</style>
+</head>
+<body>
+{% set unit_label = '万元' if case.financials and case.financials.unit_multiplier == 10000 else '元' %}
+<div class="sample-notice">【测试用样本文件，仅供OCR／LLM测试使用，非任何公司之真实财务数据】</div>
+<div class="form-badge">■ 账户式布局 — 资产负债表左右两侧分别列示「资产」与「负债和所有者权益」</div>
+<h1>资产负债表 利润表（摘要）</h1>
+<p class="company-info">{{ case.company.company_name if case.company else '' }}</p>
+<p class="standard-note">依据企业会计准则（CAS）编制 &mdash; 会计期间：{{ case.financials.fiscal_year if case.financials else '' }}（金额单位：{{ unit_label }}）</p>
+
+<h2>资产负债表（账户式，摘要）</h2>
+<table>
+  <tr>
+    <th class="col-item">资产</th>
+    <th class="col-amt">金额（{{ unit_label }}）</th>
+    <th class="col-item">负债和所有者权益</th>
+    <th class="col-amt">金额（{{ unit_label }}）</th>
+  </tr>
+  <tr>
+    <td class="label">流动资产合计</td>
+    <td>&mdash;</td>
+    <td class="label">流动负债合计</td>
+    <td>&mdash;</td>
+  </tr>
+  <tr>
+    <td class="label">非流动资产合计</td>
+    <td>&mdash;</td>
+    <td class="label">非流动负债合计</td>
+    <td>&mdash;</td>
+  </tr>
+  <tr>
+    <td class="label">&nbsp;</td>
+    <td>&nbsp;</td>
+    <td class="label">负债合计</td>
+    <td>{{ case.financials.total_liabilities if case.financials else '' }}</td>
+  </tr>
+  <tr>
+    <td class="label">&nbsp;</td>
+    <td>&nbsp;</td>
+    <td class="label">所有者权益合计</td>
+    <td>{{ case.financials.net_assets if case.financials else '' }}</td>
+  </tr>
+  <tr class="total-row">
+    <td class="label">资产总计</td>
+    <td>{{ case.financials.total_assets if case.financials else '' }}</td>
+    <td class="label">负债和所有者权益总计</td>
+    <td>{{ case.financials.total_assets if case.financials else '' }}</td>
+  </tr>
+</table>
+
+<h2>利润表（摘要）</h2>
+<table>
+  <tr>
+    <th class="col-item">科目</th>
+    <th class="col-amt">金额（{{ unit_label }}）</th>
+    <th class="col-item"></th>
+    <th class="col-amt"></th>
+  </tr>
+  <tr>
+    <td class="label">营业收入</td>
+    <td>{{ case.financials.sales if case.financials else '' }}</td>
+    <td class="label"></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td class="label">营业利润</td>
+    <td>{{ case.financials.operating_income if case.financials else '' }}</td>
+    <td class="label"></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td class="label">利润总额</td>
+    <td>{{ case.financials.ordinary_income if case.financials else '' }}</td>
+    <td class="label"></td>
+    <td></td>
+  </tr>
+  <tr class="total-row">
+    <td class="label">净利润</td>
+    <td>{{ case.financials.net_income if case.financials else '' }}</td>
+    <td class="label"></td>
+    <td></td>
+  </tr>
+</table>
+
+<p class="footer-note">
+  ※ 本文件系为测试 OCR／LLM／Document AI 系统而制作之样本，非任何真实公司之财务数据。
+  最后一行「资产总计」与「负债和所有者权益总计」金额相同，体现会计恒等式。
+</p>
+</body>
+</html>

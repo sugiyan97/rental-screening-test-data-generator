@@ -40,9 +40,17 @@ templates/{document_type}/{variant}.html
 追加したら [docs/DOCUMENTS.md](DOCUMENTS.md) の書類タイプ一覧にも 1 行（または variant を）追記すること。
 
 外国語版の書類は、`document_type` ディレクトリを言語別に分けず、**言語プレフィックス付きの variant 名**
-（例: `us_gaap_en`, `standard_en`, `kr_standard`）で既存の document_type に追加する（Issue #76 / #79）。
-入力ケースも既存の日本語ケース（`input/cases.jsonl`）とは混在させず、対象書類種が限定的な場合は
-`input/cases_multilingual.jsonl` のような専用ファイルに分離する。
+（例: `us_gaap_en`, `standard_en`, `cn_mainland_account_style`, `kr_standard`）で既存の document_type に
+追加する（Issue #76 / #78 / #79）。入力ケースも既存の日本語ケース（`input/cases.jsonl`）とは混在させず、
+対象書類種が限定的な場合は `input/cases_multilingual.jsonl` のような専用ファイルに分離する。
+
+英語版は `_en` サフィックス、中国語版・韓国語版は `cn_` / `kr_` プレフィックス（例:
+`cn_mainland_account_style`, `kr_nts_standard`）という非対称な命名規則になっているが、Issue本文の
+例示に倣った意図的な決定であり、既存の英語 variant 名を変更する予定はない（Issue #78 / #79）。
+中国語のように地域ごとに字形（簡体字／繁体字）が異なる言語や、日本語以外のCJK言語全般では、
+`<html lang="zh-CN">` / `lang="zh-TW">` / `lang="zh-HK">` / `lang="ko">` を variant ごとに必ず
+指定すること。`generator.py` のブラウザコンテキストが `locale="ja-JP"` 固定のため、`lang` 未指定だと
+CJK 統合漢字が日本語字形で選ばれてしまう。
 
 コード番号付き明細行・科目名の表記ゆれ・控除科目の括弧などフラットな `Financials` では表現できない
 決算書 variant を追加する場合は `Case.financials_detail`（`FinancialStatementDetail`／

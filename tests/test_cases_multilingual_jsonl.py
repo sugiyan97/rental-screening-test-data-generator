@@ -1,5 +1,5 @@
-"""input/cases_multilingual.jsonl（Issue #76: 英語 / Issue #79: 韓国語 多言語決算書・
-資金エビデンス対応）の整合性テスト。
+"""input/cases_multilingual.jsonl（Issue #76: 英語 / Issue #78: 中国語 / Issue #79: 韓国語
+多言語決算書・資金エビデンス対応）の整合性テスト。
 
 日本語65ケース（input/cases.jsonl）とは分離した多言語専用の入力ファイル。
 真陽性（外貨表記のケースは expected_foreign_currency_flag=true）・
@@ -29,6 +29,10 @@ _KOREAN_CASE_IDS = {
     "CASE-ML-000023",
 }
 
+# Issue #78 で追加した通貨曖昧性トリオ（存款证明书）。
+# 同一 variant・同一「元」表記で発行銀行名だけが異なる3ケース。
+_CURRENCY_AMBIGUITY_TRIO_CASE_IDS = ("CASE-ML-000013", "CASE-ML-000014", "CASE-ML-000015")
+
 
 @pytest.fixture(scope="module")
 def cases_by_id() -> dict:
@@ -40,7 +44,9 @@ def test_all_multilingual_cases_are_valid_models(cases_by_id):
     lines = [line for line in CASES_PATH.read_text(encoding="utf-8").splitlines() if line.strip()]
     # _load_cases は検証に失敗した行をスキップするため、行数と一致すれば全行が有効
     assert len(cases_by_id) == len(lines)
-    assert len(cases_by_id) == 14
+    # Issue #76: 7件 + Issue #78: 9件（CASE-ML-000008〜000016）
+    # + Issue #79: 7件（CASE-ML-000017〜000023）= 23件
+    assert len(cases_by_id) == 23
 
 
 def test_multilingual_case_ids_are_unique():
@@ -61,6 +67,16 @@ def test_multilingual_case_ids_are_unique():
         ("CASE-ML-000004", "bank_balance_certificate", "standard_en"),
         ("CASE-ML-000005", "bank_balance_certificate", "standard_en_scan_degraded"),
         ("CASE-ML-000006", "time_deposit_statement", "standard_en"),
+        # Issue #78: 中国語（本土・台湾・香港）決算書・資金エビデンス
+        ("CASE-ML-000008", "financial_statement", "cn_mainland_account_style"),
+        ("CASE-ML-000009", "financial_statement", "cn_taiwan_report_form"),
+        ("CASE-ML-000010", "financial_statement", "cn_hk_bilingual"),
+        ("CASE-ML-000011", "financial_statement", "cn_mainland_en_translated"),
+        ("CASE-ML-000012", "financial_statement", "cn_taiwan_en_translated"),
+        ("CASE-ML-000013", "bank_balance_certificate", "cn_mainland_deposit_certificate"),
+        ("CASE-ML-000014", "bank_balance_certificate", "cn_trad_deposit_certificate"),
+        ("CASE-ML-000015", "bank_balance_certificate", "cn_trad_deposit_certificate"),
+        ("CASE-ML-000016", "financial_statement", "cn_mainland_account_style"),
         # Issue #79: 韓国語決算書・資金エビデンス対応
         ("CASE-ML-000017", "financial_statement", "kr_nts_standard"),
         ("CASE-ML-000018", "financial_statement", "kr_kifrs_audited"),
@@ -130,6 +146,44 @@ def test_korean_cases_are_pdf_only(cases_by_id):
             checked_any = True
             assert doc.output_format == "pdf"
     assert checked_any
+
+
+def test_currency_ambiguity_trio_has_three_distinct_source_currencies(cases_by_id):
+    """通貨曖昧性トリオ（存款证明书）は CNY/TWD/HKD の3通りの source_currency を持つ。"""
+    currencies = {
+        cases_by_id[case_id].bank_balance_certificate.source_currency
+        for case_id in _CURRENCY_AMBIGUITY_TRIO_CASE_IDS
+    }
+    assert currencies == {"CNY", "TWD", "HKD"}
+
+
+def test_currency_ambiguity_trio_uses_same_variant_and_wording_for_traditional_pair(cases_by_id):
+    """CASE-ML-000014（TWD）とCASE-ML-000015（HKD）は同一variant・同一「元」表記の繁体字テンプレートを
+    使い、発行銀行名だけが異なる（通貨判別の手がかりを銀行名だけに絞る設計）。"""
+    twd_case = cases_by_id["CASE-ML-000014"]
+    hkd_case = cases_by_id["CASE-ML-000015"]
+    assert twd_case.documents[0].variant == hkd_case.documents[0].variant == (
+        "cn_trad_deposit_certificate"
+    )
+    assert (
+        twd_case.bank_balance_certificate.balance_amount
+        == hkd_case.bank_balance_certificate.balance_amount
+    )
+    assert (
+        twd_case.bank_balance_certificate.bank_name
+        != hkd_case.bank_balance_certificate.bank_name
+    )
+
+
+def test_all_multilingual_cases_use_pdf_output_format_only(cases_by_id):
+    """多言語ケースは output_format 未指定（= pdf）のみで運用する
+    （DOCX/PPTX 用の _JP_FONT ハードコード問題を踏まないためのガード）。"""
+    for case in cases_by_id.values():
+        for document in case.documents:
+            assert document.output_format == "pdf", (
+                f"{case.case_id} の {document.document_type}/{document.variant} が "
+                f"pdf 以外の output_format ({document.output_format}) を指定している"
+            )
 
 
 def test_multilingual_cases_generate_end_to_end(cases_by_id, tmp_path):
