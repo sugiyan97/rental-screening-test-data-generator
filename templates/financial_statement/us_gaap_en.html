@@ -90,6 +90,15 @@ td.label { text-align: left; }
   font-weight: bold;
 }
 
+/*
+ * Issue #80: 赤字（色）マイナスの表現。負の値（先頭が "-" または "("）を持つ
+ * 金額セルに色を付ける。実務上、色情報はPDFのテキスト抽出では失われるため、
+ * 符号記号（-/括弧）に依存しない検知ロジックの穴を突く検証用。
+ */
+.negative {
+  color: #c0392b;
+}
+
 .section-row th {
   background-color: #dce0e8;
   font-weight: bold;
@@ -118,19 +127,19 @@ td.label { text-align: left; }
   </tr>
   <tr>
     <td class="label">Revenue</td>
-    <td>{{ case.financials.sales if case.financials else '' }}</td>
+    <td{{ ' class="negative"' if (case.financials.sales or '').startswith(('-', '(')) else '' }}>{{ case.financials.sales if case.financials else '' }}</td>
   </tr>
   <tr>
     <td class="label">Operating income</td>
-    <td>{{ case.financials.operating_income if case.financials else '' }}</td>
+    <td{{ ' class="negative"' if (case.financials.operating_income or '').startswith(('-', '(')) else '' }}>{{ case.financials.operating_income if case.financials else '' }}</td>
   </tr>
   <tr>
     <td class="label">Profit before tax</td>
-    <td>{{ case.financials.ordinary_income if case.financials else '' }}</td>
+    <td{{ ' class="negative"' if (case.financials.ordinary_income or '').startswith(('-', '(')) else '' }}>{{ case.financials.ordinary_income if case.financials else '' }}</td>
   </tr>
   <tr class="total-row">
     <td class="label">Net income</td>
-    <td>{{ case.financials.net_income if case.financials else '' }}</td>
+    <td{{ ' class="negative"' if (case.financials.net_income or '').startswith(('-', '(')) else '' }}>{{ case.financials.net_income if case.financials else '' }}</td>
   </tr>
 </table>
 

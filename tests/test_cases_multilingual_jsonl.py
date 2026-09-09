@@ -1,5 +1,6 @@
-"""input/cases_multilingual.jsonl（Issue #76: 英語 / Issue #78: 中国語 / Issue #79: 韓国語
-多言語決算書・資金エビデンス対応）の整合性テスト。
+"""input/cases_multilingual.jsonl（Issue #76: 英語 / Issue #78: 中国語 / Issue #79: 韓国語 /
+Issue #80: 横断的な通貨・数値表記観点の一覧化 を含む多言語決算書・資金エビデンス対応）の
+整合性テスト。
 
 日本語65ケース（input/cases.jsonl）とは分離した多言語専用の入力ファイル。
 真陽性（外貨表記のケースは expected_foreign_currency_flag=true）・
@@ -33,6 +34,63 @@ _KOREAN_CASE_IDS = {
 # 同一 variant・同一「元」表記で発行銀行名だけが異なる3ケース。
 _CURRENCY_AMBIGUITY_TRIO_CASE_IDS = ("CASE-ML-000013", "CASE-ML-000014", "CASE-ML-000015")
 
+# Issue #80: 通貨・数値表記の横断テスト観点カバレッジ。観点ID: (case_id, document_type, variant)。
+# docs/CASES.md「J. 通貨・数値表記の横断テスト観点カバレッジ」の表と1:1で対応させること。
+# 新しい多言語variant/ケースを追加したら、このdictとdocs/CASES.mdのJ節を両方更新すること
+# （更新を怠ると test_every_foreign_currency_document_is_assigned_to_an_aspect が落ちる）。
+_CURRENCY_ASPECT_COVERAGE: dict[str, tuple[str, str, str]] = {
+    # CUR: 通貨記号の曖昧性・表記パターン
+    "CUR-01": ("CASE-ML-000001", "financial_statement", "us_gaap_en"),  # $ = USD
+    # S$ = SGD（$のみでは誤認しうる）
+    "CUR-02": ("CASE-ML-000004", "bank_balance_certificate", "standard_en"),
+    # HK$'000が数字に非隣接
+    "CUR-03": ("CASE-ML-000002", "financial_statement", "singapore_hk_en"),
+    # CUR-02と同一データのスキャン劣化版
+    "CUR-04": ("CASE-ML-000005", "bank_balance_certificate", "standard_en_scan_degraded"),
+    # 通貨記号が紙面に一切無い
+    "CUR-05": ("CASE-ML-000006", "time_deposit_statement", "standard_en"),
+    "CUR-06": ("CASE-ML-000008", "financial_statement", "cn_mainland_account_style"),  # 「元」=CNY
+    "CUR-07": ("CASE-ML-000009", "financial_statement", "cn_taiwan_report_form"),  # 「元」=TWD
+    "CUR-08": ("CASE-ML-000010", "financial_statement", "cn_hk_bilingual"),  # 「元」=HKD中英併記
+    # NT$ = TWD（英訳版）
+    "CUR-09": ("CASE-ML-000012", "financial_statement", "cn_taiwan_en_translated"),
+    "CUR-10": ("CASE-ML-000013", "bank_balance_certificate", "cn_mainland_deposit_certificate"),
+    "CUR-11": ("CASE-ML-000014", "bank_balance_certificate", "cn_trad_deposit_certificate"),
+    "CUR-12": ("CASE-ML-000015", "bank_balance_certificate", "cn_trad_deposit_certificate"),
+    "CUR-13": ("CASE-ML-000017", "financial_statement", "kr_nts_standard"),  # 원/₩ = KRW
+    "CUR-14": ("CASE-ML-000021", "bank_balance_certificate", "kr_standard"),
+    "CUR-15": ("CASE-ML-000022", "time_deposit_statement", "kr_standard"),
+    # CUR-16: Issue #80で追加。¥記号はJPY/CNYの両方を指しうる（真陰性判定を突く曖昧性）
+    "CUR-16": ("CASE-ML-000024", "bank_balance_certificate", "cn_mainland_deposit_certificate"),
+    # NUM: 桁区切り・マイナス表記のバリエーション
+    # 大陸式区切り+括弧マイナス
+    "NUM-01": ("CASE-ML-000003", "financial_statement", "ifrs_consolidated_en"),
+    # 括弧マイナス+控除科目括弧
+    "NUM-02": ("CASE-ML-000020", "financial_statement", "kr_kgaap_bracket_minus"),
+    # NUM-03: Issue #80で追加。先頭ハイフンマイナス+赤字（色）マイナス
+    "NUM-03": ("CASE-ML-000025", "financial_statement", "us_gaap_en"),
+    # UNIT: 単位倍率のバリエーション
+    "UNIT-01": ("CASE-ML-000002", "financial_statement", "singapore_hk_en"),  # x1,000（'000）
+    # x1,000（RMB'000）
+    "UNIT-02": ("CASE-ML-000011", "financial_statement", "cn_mainland_en_translated"),
+    # x10,000（万元）
+    "UNIT-03": ("CASE-ML-000016", "financial_statement", "cn_mainland_account_style"),
+    "UNIT-04": ("CASE-ML-000018", "financial_statement", "kr_kifrs_audited"),  # x1,000（천원）
+    "UNIT-05": ("CASE-ML-000019", "financial_statement", "kr_sme_simple"),  # x1,000,000（백만원）
+}
+
+_EXPECTED_SOURCE_CURRENCIES = {"USD", "EUR", "HKD", "SGD", "TWD", "CNY", "KRW"}
+_EXPECTED_UNIT_MULTIPLIERS = {1, 1000, 10000, 1000000}
+
+
+def _iter_foreign_currency_documents(cases_by_id):
+    """全ケース×全書類のうち expected_foreign_currency_flag=true のものを列挙する。"""
+    for case in cases_by_id.values():
+        for doc in case.documents:
+            answer = build_answer(case, doc.document_type, doc.variant)
+            if answer["fields"].get("expected_foreign_currency_flag"):
+                yield case.case_id, doc.document_type, doc.variant, answer
+
 
 @pytest.fixture(scope="module")
 def cases_by_id() -> dict:
@@ -45,8 +103,8 @@ def test_all_multilingual_cases_are_valid_models(cases_by_id):
     # _load_cases は検証に失敗した行をスキップするため、行数と一致すれば全行が有効
     assert len(cases_by_id) == len(lines)
     # Issue #76: 7件 + Issue #78: 9件（CASE-ML-000008〜000016）
-    # + Issue #79: 7件（CASE-ML-000017〜000023）= 23件
-    assert len(cases_by_id) == 23
+    # + Issue #79: 7件（CASE-ML-000017〜000023）+ Issue #80: 2件（CASE-ML-000024〜000025）= 25件
+    assert len(cases_by_id) == 25
 
 
 def test_multilingual_case_ids_are_unique():
@@ -84,6 +142,9 @@ def test_multilingual_case_ids_are_unique():
         ("CASE-ML-000020", "financial_statement", "kr_kgaap_bracket_minus"),
         ("CASE-ML-000021", "bank_balance_certificate", "kr_standard"),
         ("CASE-ML-000022", "time_deposit_statement", "kr_standard"),
+        # Issue #80: 通貨・数値表記の横断テスト観点の穴埋め
+        ("CASE-ML-000024", "bank_balance_certificate", "cn_mainland_deposit_certificate"),
+        ("CASE-ML-000025", "financial_statement", "us_gaap_en"),
     ],
 )
 def test_source_currency_cases_have_expected_foreign_currency_flag_true(
@@ -184,6 +245,59 @@ def test_all_multilingual_cases_use_pdf_output_format_only(cases_by_id):
                 f"{case.case_id} の {document.document_type}/{document.variant} が "
                 f"pdf 以外の output_format ({document.output_format}) を指定している"
             )
+
+
+def test_currency_aspect_coverage_entries_resolve(cases_by_id):
+    """Issue #80: 観点カバレッジ表に載せたエントリが実在し、外貨判定されていること。"""
+    for aspect_id, (case_id, document_type, variant) in _CURRENCY_ASPECT_COVERAGE.items():
+        case = cases_by_id.get(case_id)
+        assert case is not None, f"{aspect_id}: {case_id} が見つからない"
+        answer = build_answer(case, document_type, variant)
+        assert answer["fields"]["expected_foreign_currency_flag"] is True, (
+            f"{aspect_id}: {case_id}/{document_type}/{variant} が外貨判定されていない"
+        )
+
+
+def test_all_expected_source_currencies_are_covered(cases_by_id):
+    """Issue #80: 収録ケースのsource_currencyが想定する外貨集合を包含していること
+    （包含関係で検証するため、将来の通貨追加でテストが壊れない）。"""
+    observed = {
+        answer["fields"].get("source_currency")
+        for _, _, _, answer in _iter_foreign_currency_documents(cases_by_id)
+    }
+    observed.discard(None)
+    assert observed >= _EXPECTED_SOURCE_CURRENCIES
+
+
+def test_all_expected_unit_multipliers_are_covered(cases_by_id):
+    """Issue #80: 収録ケースのunit_multiplierが想定する倍率集合を包含していること。"""
+    observed = {
+        answer["fields"].get("unit_multiplier")
+        for _, _, _, answer in _iter_foreign_currency_documents(cases_by_id)
+    }
+    observed.discard(None)
+    assert observed >= _EXPECTED_UNIT_MULTIPLIERS
+
+
+def test_every_foreign_currency_document_is_assigned_to_an_aspect(cases_by_id):
+    """Issue #80: expected_foreign_currency_flag=trueになる全書類が、観点カバレッジ表の
+    いずれかに紐づいていること。新しい多言語variant/ケースを追加したのに一覧の更新を忘れると
+    このテストが落ちる（一覧の腐敗防止のための仕掛け）。"""
+    covered = set(_CURRENCY_ASPECT_COVERAGE.values())
+    for case_id, document_type, variant, _ in _iter_foreign_currency_documents(cases_by_id):
+        assert (case_id, document_type, variant) in covered, (
+            f"{case_id}/{document_type}/{variant} が _CURRENCY_ASPECT_COVERAGE に未登録。"
+            "docs/CASES.md の J節と合わせて追記すること。"
+        )
+
+
+def test_multilingual_foreign_cases_set_unit_multiplier_explicitly(cases_by_id):
+    """Issue #80: 外貨表記の書類は、単位倍率の観点を機械検証できるよう unit_multiplier を
+    必ず明示する（明示し忘れると answers 上で「倍率1」と「未指定」の区別が付かなくなるため）。"""
+    for case_id, document_type, variant, answer in _iter_foreign_currency_documents(cases_by_id):
+        assert "unit_multiplier" in answer["fields"], (
+            f"{case_id}/{document_type}/{variant} に unit_multiplier が設定されていない"
+        )
 
 
 def test_multilingual_cases_generate_end_to_end(cases_by_id, tmp_path):

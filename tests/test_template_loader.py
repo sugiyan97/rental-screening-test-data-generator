@@ -296,6 +296,102 @@ def test_ifrs_consolidated_en_renders_two_periods_with_continental_format():
     assert "Profit before tax" in html
 
 
+def test_ifrs_consolidated_en_unit_note_matches_unit_multiplier():
+    """Issue #80 是正: 単位注記が実際のunit_multiplier（=1、千単位ではない）と整合する。"""
+    loader = TemplateLoader()
+    template = loader.load(
+        case_id="CASE-TEST", document_type="financial_statement", variant="ifrs_consolidated_en"
+    )
+    source = template.render(
+        case=_Case.model_validate(
+            {
+                "case_id": "CASE-TEST",
+                "applicant_type": "corporate",
+                "financials_multi": [{"fiscal_year": "FY2024"}, {"fiscal_year": "FY2025"}],
+                "documents": [
+                    {"document_type": "financial_statement", "variant": "ifrs_consolidated_en"}
+                ],
+            }
+        )
+    )
+    assert "Amounts in EUR" in source
+    assert "thousands" not in source
+
+
+# --- Issue #80: 通貨・数値表記の横断テスト観点（既存不整合の是正・観点の穴埋め） ---
+
+
+def test_us_gaap_en_renders_negative_amounts_in_red():
+    """赤字（色）マイナス: 先頭が-または(の金額セルに.negativeクラス（赤色）が付く。"""
+    case = _Case.model_validate(
+        {
+            "case_id": "CASE-TEST-ML-LOSS",
+            "applicant_type": "corporate",
+            "company": {"company_name": "Sample Loss-Making Inc."},
+            "financials": {
+                "fiscal_year": "FY2025",
+                "sales": "$8,200,000",
+                "operating_income": "-$1,200,000",
+                "ordinary_income": "-$1,350,000",
+                "net_income": "-$1,600,000",
+                "total_assets": "$25,000,000",
+                "total_liabilities": "$18,000,000",
+                "net_assets": "$7,000,000",
+                "source_currency": "USD",
+                "unit_multiplier": 1,
+                "accounting_standard": "US_GAAP",
+            },
+            "documents": [{"document_type": "financial_statement", "variant": "us_gaap_en"}],
+        }
+    )
+    loader = TemplateLoader()
+    template = loader.load(
+        case_id=case.case_id, document_type="financial_statement", variant="us_gaap_en"
+    )
+    html = template.render(case=case)
+    # 4項目中3項目（Operating income/Profit before tax/Net income）が負値。
+    # 正の値（Revenue）には赤字クラスが付かないため、出現回数は3のはず。
+    assert html.count('class="negative"') == 3
+    assert "-$1,200,000" in html
+    assert "-$1,600,000" in html
+
+
+def test_cn_mainland_deposit_certificate_yen_sign_ambiguity():
+    """通貨曖昧性: 「¥」表記は人民元・日本円のいずれとも読めるが、正解JSONはCNYを明示する。"""
+    case = _Case.model_validate(
+        {
+            "case_id": "CASE-TEST-ML-YEN",
+            "applicant_type": "corporate",
+            "company": {"company_name": "样品广州进出口有限公司"},
+            "bank_balance_certificate": {
+                "account_holder": "样品广州进出口有限公司",
+                "bank_name": "中国样本银行",
+                "branch_name": "广州分行",
+                "balance_amount": "¥1,860,000",
+                "source_currency": "CNY",
+                "unit_multiplier": 1,
+            },
+            "documents": [
+                {
+                    "document_type": "bank_balance_certificate",
+                    "variant": "cn_mainland_deposit_certificate",
+                }
+            ],
+        }
+    )
+    loader = TemplateLoader()
+    template = loader.load(
+        case_id=case.case_id,
+        document_type="bank_balance_certificate",
+        variant="cn_mainland_deposit_certificate",
+    )
+    html = template.render(case=case)
+    # 紙面には「¥」記号のみが印字され、CNY/RMB/人民币等の通貨コードは一切出現しない
+    assert "¥1,860,000" in html
+    for hint in ("CNY", "RMB", "人民币", "JPY", "円"):
+        assert hint not in html
+
+
 # --- Issue #78: 多言語（中国語：本土・台湾・香港）決算書・資金エビデンス対応 ---
 
 _TEMPLATES_DIR = Path(__file__).resolve().parents[1] / "templates"

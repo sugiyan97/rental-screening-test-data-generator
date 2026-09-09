@@ -193,6 +193,8 @@ E2E `e2e_028_corporate_number`（**TC-4-019** 閉鎖法人の検出 ／ **TC-2-0
 | CASE-ML-000021 | 韓国の銀行発行잔액증명서（한글大字金額 `amount_in_words` 併記） | `bank_balance_certificate/kr_standard` |
 | CASE-ML-000022 | 韓国の정기예금（定期預金）明細 | `time_deposit_statement/kr_standard` |
 | CASE-ML-000023 | 韓国法人の在日拠点向け内部決算（JPY明示の**真陰性**検証用） | `financial_statement/kr_sme_simple` |
+| CASE-ML-000024 | Issue #80: ¥記号のJPY/CNY曖昧性検証（中国本土の存款证明书で「¥」表記のCNY） | `bank_balance_certificate/cn_mainland_deposit_certificate` |
+| CASE-ML-000025 | Issue #80: 赤字（色）マイナス検証（US GAAP決算書、赤字期の負値を赤色表示） | `financial_statement/us_gaap_en` |
 
 CASE-ML-000008〜000016（Issue #78）は、中国語圏3地域（本土・台湾・香港）の様式差（账户式 / 報告式 /
 中英併記）・フォント（簡体字/繁体字の字形の作り分け）・英訳決算書・「元」表記の通貨曖昧性を検証する
@@ -200,4 +202,58 @@ CASE-ML-000008〜000016（Issue #78）は、中国語圏3地域（本土・台�
 テンプレート系統でも、発行銀行名以外に通貨を判別する手がかりが紙面上に一切無いことを意図的に作った
 検証用ケースである（正解 JSON 側の `source_currency` は常に ISO コードで明示するため採点は曖昧にならない）。
 
-横断的な通貨・数値表記の検証観点の一覧化は別Issue（#80）でフォローアップ予定。
+## J. 通貨・数値表記の横断テスト観点カバレッジ（Issue #80）
+
+各多言語variant・ケースに通貨・数値表記の代表的な検知ロジックの穴を分散配置し、「どのvariantが
+どの観点を担うか」を一覧化したもの。観点IDは言語非依存の連番（`CUR-*`/`NUM-*`/`UNIT-*`）にしてあり、
+将来の新規言語追加時は既存IDへの担当variant追記、または末尾への新規ID追加のいずれかで拡張できる。
+
+この一覧は `tests/test_cases_multilingual_jsonl.py` の `_CURRENCY_ASPECT_COVERAGE` 定数と1:1で
+対応させている。新しい多言語variant・ケースを追加して `expected_foreign_currency_flag: true` に
+なる書類を増やしたら、**この表と `_CURRENCY_ASPECT_COVERAGE` の両方を更新すること**。更新を怠ると
+`test_every_foreign_currency_document_is_assigned_to_an_aspect` が失敗して気付ける（一覧の腐敗防止）。
+
+### J-1. 通貨記号の曖昧性・表記パターン（CUR）
+
+| ID | 観点 | 表記例 | ケース / 書類 |
+|---|---|---|---|
+| CUR-01 | `$` 前置がそのまま USD | `$45,200,000` | CASE-ML-000001 / `financial_statement/us_gaap_en` |
+| CUR-02 | `S$` 前置＝SGD（`$` だけ見ると USD と誤認しうる） | `S$2,450,000` | CASE-ML-000004 / `bank_balance_certificate/standard_en` |
+| CUR-03 | 通貨表記が見出しに1回のみ・金額数字に非隣接 | `HK$'000` | CASE-ML-000002 / `financial_statement/singapore_hk_en` |
+| CUR-04 | CUR-02 と同一データのスキャン劣化版 | `S$2,450,000` | CASE-ML-000005 / `bank_balance_certificate/standard_en_scan_degraded` |
+| CUR-05 | 通貨記号が紙面に一切無い（銀行名・文脈からのみ判別） | `500,000` | CASE-ML-000006 / `time_deposit_statement/standard_en` |
+| CUR-06 | 「元」＝人民元（CNY） | `单位：元` | CASE-ML-000008 / `financial_statement/cn_mainland_account_style` |
+| CUR-07 | 「元」＝新台幣（TWD） | `新臺幣仟元` | CASE-ML-000009 / `financial_statement/cn_taiwan_report_form` |
+| CUR-08 | 「元」＝港元（HKD、中英併記） | `港幣千元 / HK$'000` | CASE-ML-000010 / `financial_statement/cn_hk_bilingual` |
+| CUR-09 | `NT$` ＝ TWD（英訳版） | `NT$'000` | CASE-ML-000012 / `financial_statement/cn_taiwan_en_translated` |
+| CUR-10〜12 | **通貨曖昧性トリオ**: 同一variant・同一「1,280,000元」表記で発行銀行名のみ異なる | `1,280,000元` | CASE-ML-000013(CNY)/000014(TWD)/000015(HKD) / `bank_balance_certificate/cn_*_deposit_certificate` |
+| CUR-13 | 원/₩ ＝ KRW | `원` | CASE-ML-000017 / `financial_statement/kr_nts_standard` |
+| CUR-14 | 韓国の残高証明（한글大字金額併記） | `1,245,600,000원` | CASE-ML-000021 / `bank_balance_certificate/kr_standard` |
+| CUR-15 | 韓国の定期預金明細 | `500,000,000원` | CASE-ML-000022 / `time_deposit_statement/kr_standard` |
+| CUR-16 | **`¥` の JPY/CNY 曖昧性**（Issue #80新規）— 人民元の `¥` 表記は日本円の `¥` とも読める。`expected_foreign_currency_flag` の真陰性判定に直撃する曖昧性 | `¥1,860,000` | CASE-ML-000024 / `bank_balance_certificate/cn_mainland_deposit_certificate` |
+
+### J-2. 桁区切り・マイナス表記のバリエーション（NUM）
+
+| ID | 観点 | 表記例 | ケース / 書類 |
+|---|---|---|---|
+| NUM-01 | 大陸欧州式（ピリオド区切り・カンマ小数）＋括弧マイナス | `(120.000,00)` | CASE-ML-000003 / `financial_statement/ifrs_consolidated_en` |
+| NUM-02 | 括弧マイナスと控除科目名自体の括弧が同居 | `(대손충당금)` / `(15,000,000)` | CASE-ML-000020 / `financial_statement/kr_kgaap_bracket_minus` |
+| NUM-03 | **先頭ハイフンマイナス＋赤字（色）マイナス**（Issue #80新規）— 色情報はPDFテキスト抽出では失われるため、符号記号だけに依存しない検知ロジックの穴を突く | `-$1,200,000`（赤色表示） | CASE-ML-000025 / `financial_statement/us_gaap_en` |
+
+### J-3. 単位倍率のバリエーション（UNIT）
+
+| ID | 観点 | 表記例 | `unit_multiplier` | ケース / 書類 |
+|---|---|---|---|---|
+| UNIT-01 | ×1,000（`'000`） | `HK$'000` | 1000 | CASE-ML-000002 / `financial_statement/singapore_hk_en` |
+| UNIT-02 | ×1,000（`RMB'000`、英訳版） | `RMB'000` | 1000 | CASE-ML-000011 / `financial_statement/cn_mainland_en_translated` |
+| UNIT-03 | ×10,000（「万元」） | `万元` | 10000 | CASE-ML-000016 / `financial_statement/cn_mainland_account_style` |
+| UNIT-04 | ×1,000（「천원」） | `단위: 천원` | 1000 | CASE-ML-000018 / `financial_statement/kr_kifrs_audited` |
+| UNIT-05 | ×1,000,000（「백만원」） | `단위: 백만원` | 1000000 | CASE-ML-000019 / `financial_statement/kr_sme_simple` |
+
+### 未カバー・優先度低（今回は記録のみ）
+
+- **スペース区切り**（`1 234 567`、仏語圏・北欧の慣習）— 今回の対象言語（英中韓）には出現しないため対象外
+- **全角数字**（`１２３，４５６`）— 中国語圏書類でも稀。将来ベトナム語等の言語対応の際に観点として再検討する
+- **`in millions` 等の英語での倍率注記** — UNIT-05（백만원）で「×1,000,000」自体はカバー済みのため見送り
+
+新規言語（ベトナム語等）へ展開する際は、この一覧を観点の出発点として再利用する。
