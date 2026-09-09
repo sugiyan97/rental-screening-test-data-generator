@@ -867,6 +867,125 @@ def test_build_answer_time_deposit_statement():
     assert answer["fields"]["source_currency"] == "HKD"
 
 
+# --- Issue #78: 多言語（中国語：本土・台湾・香港）決算書・資金エビデンス対応 ---
+
+
+@pytest.mark.parametrize(
+    "variant,source_currency,unit_multiplier,accounting_standard",
+    [
+        ("cn_mainland_account_style", "CNY", 1, "CAS"),
+        ("cn_taiwan_report_form", "TWD", 1000, "TIFRS"),
+        ("cn_hk_bilingual", "HKD", 1000, "HKFRS"),
+        ("cn_mainland_en_translated", "CNY", 1000, "CAS"),
+        ("cn_taiwan_en_translated", "TWD", 1000, "TIFRS"),
+    ],
+)
+def test_build_answer_cn_financial_statement_currency_meta(
+    variant, source_currency, unit_multiplier, accounting_standard
+):
+    """中国語（本土・台湾・香港）決算書 variant は通貨・単位・会計基準の3メタ情報が
+    正しく正解JSONへ展開され、expected_foreign_currency_flag が true になる。"""
+    case = Case.model_validate(
+        {
+            "case_id": "CASE-TEST-ML-CN-001",
+            "applicant_type": "corporate",
+            "company": {"company_name": "样品测试有限公司"},
+            "financials": {
+                "fiscal_year": "2025年度",
+                "sales": "100,000",
+                "operating_income": "10,000",
+                "ordinary_income": "9,000",
+                "net_income": "7,000",
+                "total_assets": "300,000",
+                "total_liabilities": "120,000",
+                "net_assets": "180,000",
+                "source_currency": source_currency,
+                "unit_multiplier": unit_multiplier,
+                "accounting_standard": accounting_standard,
+            },
+            "documents": [{"document_type": "financial_statement", "variant": variant}],
+        }
+    )
+    answer = build_answer(case, "financial_statement", variant)
+    assert answer["fields"]["expected_foreign_currency_flag"] is True
+    assert answer["fields"]["source_currency"] == source_currency
+    assert answer["fields"]["unit_multiplier"] == unit_multiplier
+    assert answer["fields"]["accounting_standard"] == accounting_standard
+    assert answer["fields"]["total_assets"] == "300,000"
+
+
+@pytest.mark.parametrize(
+    "variant",
+    [
+        "cn_mainland_account_style",
+        "cn_taiwan_report_form",
+        "cn_hk_bilingual",
+        "cn_mainland_en_translated",
+        "cn_taiwan_en_translated",
+    ],
+)
+def test_build_answer_cn_financial_statement_not_routed_to_multi_period(variant):
+    """cn_* variant は 'multi' で始まらず '_prior' でも終わらないため、
+    financials_multi 分岐（periods キー）に誤ルーティングされず単一期の financials 分岐を使う
+    （既存の _MULTI_PERIOD_VARIANTS_PREFIX / _EXTRA ルーティングとの衝突回帰テスト）。"""
+    case = Case.model_validate(
+        {
+            "case_id": "CASE-TEST-ML-CN-ROUTE",
+            "applicant_type": "corporate",
+            "company": {"company_name": "样品测试有限公司"},
+            "financials": {
+                "fiscal_year": "2025年度",
+                "total_assets": "300,000",
+                "source_currency": "CNY",
+                "unit_multiplier": 1,
+                "accounting_standard": "CAS",
+            },
+            "documents": [{"document_type": "financial_statement", "variant": variant}],
+        }
+    )
+    answer = build_answer(case, "financial_statement", variant)
+    assert "periods" not in answer["fields"]
+    assert answer["fields"]["total_assets"] == "300,000"
+
+
+@pytest.mark.parametrize(
+    "variant,source_currency",
+    [
+        ("cn_mainland_deposit_certificate", "CNY"),
+        ("cn_trad_deposit_certificate", "TWD"),
+        ("cn_trad_deposit_certificate", "HKD"),
+    ],
+)
+def test_build_answer_cn_deposit_certificate_currency_meta(variant, source_currency):
+    """存款证明书（簡体字／繁体字）も既存の bank_balance_certificate builder で
+    source_currency/expected_foreign_currency_flag が正しく展開される。"""
+    case = Case.model_validate(
+        {
+            "case_id": "CASE-TEST-ML-CN-DEP",
+            "applicant_type": "corporate",
+            "company": {"company_name": "样品测试有限公司"},
+            "bank_balance_certificate": {
+                "account_holder": "样品测试有限公司",
+                "bank_name": "样本银行",
+                "branch_name": "测试分行",
+                "account_type": "帐户",
+                "account_number": "0000000000",
+                "balance_as_of_date": "2026年06月30日",
+                "balance_amount": "1,280,000元",
+                "issue_date": "2026年07月02日",
+                "issuer_staff": "测试",
+                "source_currency": source_currency,
+                "unit_multiplier": 1,
+            },
+            "documents": [{"document_type": "bank_balance_certificate", "variant": variant}],
+        }
+    )
+    answer = build_answer(case, "bank_balance_certificate", variant)
+    assert answer["fields"]["expected_foreign_currency_flag"] is True
+    assert answer["fields"]["source_currency"] == source_currency
+    assert answer["fields"]["balance_amount"] == "1,280,000元"
+
+
 # --- Issue #37: 申込者特定 異常系（共同申込 / 共同代表 / 外国籍親会社代表 / 保証人=本人） ---
 
 

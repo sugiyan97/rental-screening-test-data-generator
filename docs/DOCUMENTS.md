@@ -2,7 +2,7 @@
 
 [← README に戻る](../README.md)
 
-本ツールが生成できる書類は 32 種類の `document_type`、合計 67 種類の variant。
+本ツールが生成できる書類は 32 種類の `document_type`、合計 74 種類の variant。
 テンプレートは `templates/{document_type}/{variant}.html` に 1:1 で対応しており、
 JSONL の `documents[].document_type` / `variant` で指定する（→ README「入力 JSONL フォーマット」）。
 
@@ -14,10 +14,10 @@ JSONL の `documents[].document_type` / `variant` で指定する（→ README�
 | `rental_application_corporate` | 法人用入居申込書 | `standard`, `handwritten_like`, `office`, `housing`, `store`, `joint_representative`, `sole_proprietor` |
 | `income_certificate` | 収入証明書風 | `salary_certificate`, `salary_certificate_prior`, `tax_return`, `tax_return_prior`, `tax_return_multi_year`, `withholding_slip`, `withholding_slip_current` |
 | `registry_certificate` | 履歴事項全部証明書風 | `registry_table`, `registry_table_with_shareholders`, `registry_table_public_company_name`, `registry_table_co_representative` |
-| `financial_statement` | 決算書風（財務サマリー） | `financial_summary`, `financial_summary_prior`, `multi_period`, `multi_period_report_form`, `us_gaap_en`, `singapore_hk_en`, `ifrs_consolidated_en` |
+| `financial_statement` | 決算書風（財務サマリー） | `financial_summary`, `financial_summary_prior`, `multi_period`, `multi_period_report_form`, `us_gaap_en`, `singapore_hk_en`, `ifrs_consolidated_en`, `cn_mainland_account_style`, `cn_taiwan_report_form`, `cn_hk_bilingual`, `cn_mainland_en_translated`, `cn_taiwan_en_translated` |
 | `trial_balance` | 合計残高試算表風 | `monthly_summary`, `annual_summary` |
 | `business_opening_notice` | 個人事業の開業・廃業等届出書（開業届）写し風 | `individual` |
-| `bank_balance_certificate` | 預貯金残高証明書風（金融機関発行） | `standard`, `standard_en`, `standard_en_scan_degraded` |
+| `bank_balance_certificate` | 預貯金残高証明書風（金融機関発行） | `standard`, `standard_en`, `standard_en_scan_degraded`, `cn_mainland_deposit_certificate`, `cn_trad_deposit_certificate` |
 | `time_deposit_statement` | 定期預金明細風（金融機関発行、英語版） | `standard_en` |
 | `funding_evidence` | 資金エビデンス（資金調達証明書） | `standard` |
 | `payment_track_record_pledge` | 支払実績確約書（既存事業者の賃料支払実績） | `standard` |
@@ -74,11 +74,19 @@ JSONL の `documents[].document_type` / `variant` で指定する（→ README�
 - **複数期を1ファイルにまとめた書類** — `financial_statement/multi_period`（複数期決算書を1ファイルで横並び比較）、`income_certificate/tax_return_multi_year`（複数年の確定申告を1ファイルで横並び比較）。`case.financials_multi` / `case.income_multi`（リスト）を参照し、正解 JSON は `periods` 配列で各期を保持
 - **合計残高試算表** — 月次・年次の科目別残高表（資産・負債・純資産・損益）
 - **多言語（英語）決算書**（Issue #76）— `financial_statement` に言語プレフィックス付き variant を追加（`us_gaap_en`: US GAAP・USD、`singapore_hk_en`: HKFRS・HK$'000（通貨表記が数字非隣接のレイアウト）、`ifrs_consolidated_en`: IFRS連結・EUR・大陸式桁区切り・2期比較）。外国の親会社等が関与する審査案件向けのダミーデータ。科目マッピング方針として、IFRS/US GAAPには「経常利益」に対応する科目が無いため `financials.ordinary_income` の値を "Profit before tax"（税引前利益）の行として表示する。`Financials`/`TrialBalance` 系モデルに `source_currency`（原貨通貨コード）・`unit_multiplier`（記載金額の倍率）・`accounting_standard` を持たせられ、正解 JSON には常に `expected_foreign_currency_flag`（外貨検知が発火すべきかの正解値。`source_currency` が JPY 相当なら `false`）が付与される（既存の日本語×JPYケースも `false` になり真陰性を検証できる）
+- **多言語（中国語）決算書**（Issue #78）— 中国本土（簡体字）・台湾（繁体字）・香港（繁体字）の3地域向けに `financial_statement` へ `cn_` プレフィックスの variant を5本追加。モデル拡張は不要で、#76 で追加済みの `source_currency`/`unit_multiplier`/`accounting_standard` をそのまま再利用する
+  - `cn_mainland_account_style` — 简体字・企业会计准则（CAS）・CNY。中国式の**账户式**（左右2列でBSを表示）レイアウトを、2テーブルではなく**4列の単一 `<table>`**（資産｜金額｜負債・純資産｜金額）で実装している。理由は `renderers.py` の `_EXTRACT_BLOCKS_JS` が `<table>` 単位で抽出するため、2テーブルに分けると xlsx/csv 変換で左右の対応が失われるため。最終行では `total_assets` を左右両方の列に印字し、会計恒等式（資産合計＝負債・純資産合計）を表現している。単位表記（「元」／「万元」）は `unit_multiplier == 10000` かどうかでテンプレート内から動的に切り替わる（`{{ '万元' if case.financials.unit_multiplier == 10000 else '元' }}`。科目ラベル自体は他 variant と同じく静的なまま）
+  - `cn_taiwan_report_form` — 繁体字・IFRSs（TIFRS）・TWD・「新臺幣仟元」表記。台湾式の**報告式**（資産の部→負債の部→権益の部を縦1列で表示）は `us_gaap_en` と同じ構造のため、`us_gaap_en.html` を最小差分で複製している。負数は括弧表記（例: `(1,842)`）をケースデータ側でそのまま文字列として入力し、テンプレートは加工せず素通しする（`ifrs_consolidated_en` と同じ設計）
+  - `cn_hk_bilingual` — 繁体字・HKFRS・HKD・「港幣千元 / HK$'000」表記。香港の実務慣行にならい、科目ラベルを `<span class="zh">資產總額</span><span class="en">Total Assets</span>` のように中国語・英語で併記する（モデル変更は不要。ラベルはテンプレート側にハードコード）
+  - `cn_mainland_en_translated` / `cn_taiwan_en_translated` — 中国本土・台湾企業の決算書を英訳した体裁の variant（`RMB'000` / `NT$'000` 表記）。香港版の中英併記技法を主従反転させ、英語ラベルを主、中国語ラベルを括弧で従属表示する（例: `Total assets （资产总计）`）
+  - フォント方針: 地域ごとに正しい Google Fonts ファミリ（`Noto Sans SC` / `Noto Sans TC` / `Noto Sans HK`）を CDN 読み込みし、OS フォールバック（簡体字: `PingFang SC`/`Microsoft YaHei`、繁体字台湾: `PingFang TC`/`Microsoft JhengHei`、繁体字香港: `PingFang HK`/`Microsoft JhengHei`）を必ず併記する。ブラウザコンテキストの `locale` が `ja-JP` 固定のため、`lang` 未指定だと CJK 統合漢字が日本語字形で選ばれるおそれがあり、全 variant に `<html lang="zh-CN">` / `lang="zh-TW">` / `lang="zh-HK">` を地域別に明示している
+  - 通貨記号の曖昧性（「元」問題）についての設計判断: `source_currency` は正解 JSON 側では常に ISO コード（`CNY`/`TWD`/`HKD`）で明示し、紙面には曖昧な「元」とだけ記載して通貨コードそのものは印字しない（正解が曖昧では採点できないため）。曖昧性はあくまで紙面側だけに残す設計としている（具体的なテストケースは資金エビデンス節を参照）
 
 ### D. 資金・支払実績・事業計画
 
 - **開業届** — 個人事業の開業・廃業等届出書写し風。新規個人事業（業歴1期未満）で確定申告書の代替として提出
-- **預貯金残高証明書** — 金融機関発行の残高証明書風。新規法人・新規個人事業で自己資金の証明に使用（英語版 `bank_balance_certificate/standard_en` あり）
+- **預貯金残高証明書** — 金融機関発行の残高証明書風。新規法人・新規個人事業で自己資金の証明に使用（英語版 `bank_balance_certificate/standard_en` のほか、中国語版 `cn_mainland_deposit_certificate`（簡体字・存款证明书）/ `cn_trad_deposit_certificate`（繁体字・存款證明書、台湾・香港共用）あり、Issue #78）
+  - **通貨曖昧性ケース（Issue #78）** — 中国語圏の「元」は人民元（CNY）・新台幣（TWD）・港元（HKD）のいずれも指しうる表記上のリスクがある。これを検証するため、`cn_trad_deposit_certificate` を使う2ケースは**同一variant・同一の「1,280,000元」表記**とし、通貨判別の唯一の手がかりを発行銀行名（架空の Sample 系銀行名）だけに絞った「通貨曖昧性トリオ」（[CASES.md](CASES.md) I 節 CASE-ML-000013〜000015）を用意している。正解 JSON 側の `source_currency` は常に ISO コード（CNY/TWD/HKD）で明示するため採点自体は曖昧にならない
 - **定期預金明細**（Issue #76、新規 document_type）— `time_deposit_statement/standard_en`。預貯金残高証明書と対をなす資金エビデンス書類で、預入元本・適用利率・預入日・満期日・預入期間を証明する。現状は英語版のみ
 - **資金エビデンス（資金調達証明書）** — 自己資金（資本金）・金融機関融資・VC等の出資・補助金の調達内訳を 1 枚にまとめ、月額賃料に対する支払能力を裏付ける書類。資金調達済スタートアップ向け
 - **支払実績確約書** — 既存事業者が現在賃借中の物件における過去の賃料支払実績（契約物件・支払実績期間・月額賃料・延滞履歴／延滞回数・賃料支払総額・完済状況・支払方法・照会先）を示し、今後も遅滞なく支払うことを確約する書類。業歴のある法人向け（新規向けの資金エビデンスと対をなす）。延滞回数・賃料支払総額・完済状況は値が設定されたケースのみ行が表示される
